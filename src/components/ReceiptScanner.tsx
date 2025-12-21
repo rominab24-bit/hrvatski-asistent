@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useReceiptScanner, ReceiptData } from '@/hooks/useReceiptScanner';
 import { Camera, Upload, Loader2, Check, X, Receipt } from 'lucide-react';
+import { Camera as CapacitorCamera, CameraResultType, CameraSource } from '@capacitor/camera';
 
 interface ReceiptScannerProps {
   onScanComplete: (data: ReceiptData) => void;
@@ -39,8 +40,44 @@ export function ReceiptScanner({ onScanComplete, onCancel }: ReceiptScannerProps
     }
   };
 
-  const handleCameraCapture = () => {
-    fileInputRef.current?.click();
+  const handleCameraCapture = async () => {
+    try {
+      const image = await CapacitorCamera.getPhoto({
+        quality: 90,
+        allowEditing: false,
+        resultType: CameraResultType.Base64,
+        source: CameraSource.Camera,
+      });
+      
+      if (image.base64String) {
+        const base64WithPrefix = `data:image/${image.format};base64,${image.base64String}`;
+        setImagePreview(base64WithPrefix);
+      }
+    } catch (error) {
+      console.log('Kamera nije dostupna, koristim fallback:', error);
+      // Fallback na file input za web
+      fileInputRef.current?.click();
+    }
+  };
+
+  const handleGallerySelect = async () => {
+    try {
+      const image = await CapacitorCamera.getPhoto({
+        quality: 90,
+        allowEditing: false,
+        resultType: CameraResultType.Base64,
+        source: CameraSource.Photos,
+      });
+      
+      if (image.base64String) {
+        const base64WithPrefix = `data:image/${image.format};base64,${image.base64String}`;
+        setImagePreview(base64WithPrefix);
+      }
+    } catch (error) {
+      console.log('Galerija nije dostupna, koristim fallback:', error);
+      // Fallback na file input za web
+      fileInputRef.current?.click();
+    }
   };
 
   if (receiptData) {
@@ -120,7 +157,7 @@ export function ReceiptScanner({ onScanComplete, onCancel }: ReceiptScannerProps
           </Button>
           
           <Button
-            onClick={() => fileInputRef.current?.click()}
+            onClick={handleGallerySelect}
             variant="secondary"
             className="w-full"
           >
