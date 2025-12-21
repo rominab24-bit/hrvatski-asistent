@@ -9,6 +9,7 @@ import { ReceiptScanner } from '@/components/ReceiptScanner';
 import { AddExpenseForm } from '@/components/AddExpenseForm';
 import { CategoryBreakdown } from '@/components/CategoryBreakdown';
 import { OfflineIndicator } from '@/components/OfflineIndicator';
+import { ExportDialog } from '@/components/ExportDialog';
 import { ReceiptData } from '@/hooks/useReceiptScanner';
 import { Button } from '@/components/ui/button';
 import { Receipt, Plus, LogOut, Wallet, TrendingDown, PieChart, Loader2, BarChart3 } from 'lucide-react';
@@ -81,6 +82,7 @@ export default function Dashboard() {
           </div>
         </div>
         <div className="flex items-center gap-1">
+          <ExportDialog expenses={expenses} categories={categories} monthlyTotal={monthlyTotal} />
           <Button variant="ghost" size="icon" onClick={() => navigate('/statistics')}>
             <BarChart3 className="w-5 h-5" />
           </Button>
