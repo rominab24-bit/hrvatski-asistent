@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useExpenses } from '@/hooks/useExpenses';
 import { AuthForm } from '@/components/AuthForm';
@@ -10,9 +11,10 @@ import { CategoryBreakdown } from '@/components/CategoryBreakdown';
 import { OfflineIndicator } from '@/components/OfflineIndicator';
 import { ReceiptData } from '@/hooks/useReceiptScanner';
 import { Button } from '@/components/ui/button';
-import { Receipt, Plus, LogOut, Wallet, TrendingDown, PieChart, Loader2 } from 'lucide-react';
+import { Receipt, Plus, LogOut, Wallet, TrendingDown, PieChart, Loader2, BarChart3 } from 'lucide-react';
 
 export default function Dashboard() {
+  const navigate = useNavigate();
   const { user, isLoading: authLoading, signOut } = useAuth();
   const { 
     expenses, 
@@ -78,9 +80,14 @@ export default function Dashboard() {
             <p className="text-xs text-muted-foreground">Dobrodošli natrag!</p>
           </div>
         </div>
-        <Button variant="ghost" size="icon" onClick={signOut}>
-          <LogOut className="w-5 h-5" />
-        </Button>
+        <div className="flex items-center gap-1">
+          <Button variant="ghost" size="icon" onClick={() => navigate('/statistics')}>
+            <BarChart3 className="w-5 h-5" />
+          </Button>
+          <Button variant="ghost" size="icon" onClick={signOut}>
+            <LogOut className="w-5 h-5" />
+          </Button>
+        </div>
       </header>
 
       <main className="p-4 space-y-6">
