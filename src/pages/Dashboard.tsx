@@ -7,13 +7,25 @@ import { ExpenseList } from '@/components/ExpenseList';
 import { ReceiptScanner } from '@/components/ReceiptScanner';
 import { AddExpenseForm } from '@/components/AddExpenseForm';
 import { CategoryBreakdown } from '@/components/CategoryBreakdown';
+import { OfflineIndicator } from '@/components/OfflineIndicator';
 import { ReceiptData } from '@/hooks/useReceiptScanner';
 import { Button } from '@/components/ui/button';
 import { Receipt, Plus, LogOut, Wallet, TrendingDown, PieChart, Loader2 } from 'lucide-react';
 
 export default function Dashboard() {
   const { user, isLoading: authLoading, signOut } = useAuth();
-  const { expenses, categories, isLoading, addExpense, deleteExpense, getTotalByCategory, getMonthlyTotal } = useExpenses();
+  const { 
+    expenses, 
+    categories, 
+    isLoading, 
+    isOnline,
+    isSyncing,
+    addExpense, 
+    deleteExpense, 
+    getTotalByCategory, 
+    getMonthlyTotal,
+    getPendingCount 
+  } = useExpenses();
   const [showScanner, setShowScanner] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
 
@@ -52,9 +64,11 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-24">
-      {/* Header */}
-      <header className="p-4 flex items-center justify-between border-b border-border/50">
+    <>
+      <OfflineIndicator pendingCount={getPendingCount()} isSyncing={isSyncing} />
+      <div className="min-h-screen bg-background pb-24">
+        {/* Header */}
+        <header className="p-4 flex items-center justify-between border-b border-border/50">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
             <Receipt className="w-5 h-5 text-primary" />
@@ -129,6 +143,7 @@ export default function Dashboard() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 }
