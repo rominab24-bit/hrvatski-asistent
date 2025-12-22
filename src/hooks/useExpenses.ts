@@ -94,7 +94,8 @@ export function useExpenses() {
     if (isOnline) {
       const { data, error } = await supabase
         .from('expense_categories')
-        .select('*');
+        .select('*')
+        .order('name');
 
       if (!error && data) {
         setCategories(data);
@@ -117,6 +118,58 @@ export function useExpenses() {
     } catch (e) {
       console.error('Error reading cached categories:', e);
     }
+  };
+
+  const addCategory = async (category: { name: string; icon: string; color: string }) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      toast({
+        title: 'Greška',
+        description: 'Morate biti prijavljeni',
+        variant: 'destructive',
+      });
+      return null;
+    }
+
+    if (!isOnline) {
+      toast({
+        title: 'Offline',
+        description: 'Dodavanje kategorija nije moguće bez internet veze',
+        variant: 'destructive',
+      });
+      return null;
+    }
+
+    const { data, error } = await supabase
+      .from('expense_categories')
+      .insert({
+        name: category.name,
+        icon: category.icon,
+        color: category.color,
+        user_id: user.id,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Greška pri dodavanju kategorije:', error);
+      toast({
+        title: 'Greška',
+        description: 'Nije moguće dodati kategoriju',
+        variant: 'destructive',
+      });
+      return null;
+    }
+
+    setCategories(prev => [...prev, data].sort((a, b) => a.name.localeCompare(b.name)));
+    
+    toast({
+      title: 'Uspjeh',
+      description: 'Kategorija je uspješno dodana',
+    });
+
+    return data;
   };
 
   const fetchExpenses = async () => {
@@ -392,6 +445,7 @@ export function useExpenses() {
     addExpense,
     updateExpense,
     deleteExpense,
+    addCategory,
     fetchExpenses,
     getTotalByCategory,
     getMonthlyTotal,
