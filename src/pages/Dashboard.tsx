@@ -145,6 +145,11 @@ export default function Dashboard() {
     playDelete();
   };
 
+  const handleCategoryClick = (categoryId: string, categoryName: string) => {
+    playClick();
+    navigate(`/transactions?category=${categoryId}&categoryName=${encodeURIComponent(categoryName)}`);
+  };
+
   return (
     <>
       <OfflineIndicator pendingCount={getPendingCount()} isSyncing={isSyncing} />
@@ -230,7 +235,7 @@ export default function Dashboard() {
             </Button>
             <ManageCategoriesDialog categories={categories} onDelete={deleteCategory} onUpdate={updateCategory} />
           </div>
-          <CategoryBreakdown totals={categoryTotals} categories={categories} />
+          <CategoryBreakdown totals={categoryTotals} categories={categories} onCategoryClick={handleCategoryClick} />
         </section>
 
         {/* Recent Transactions */}
