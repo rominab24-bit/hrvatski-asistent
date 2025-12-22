@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useExpenses, Expense } from '@/hooks/useExpenses';
+import { useSoundEffects } from '@/hooks/useSoundEffects';
 import { AuthForm } from '@/components/AuthForm';
 import { StatCard } from '@/components/StatCard';
 import { ExpenseList } from '@/components/ExpenseList';
@@ -37,6 +38,7 @@ export default function Dashboard() {
     getMonthlyTotal,
     getPendingCount 
   } = useExpenses();
+  const { playSuccess, playDelete, playClick, playNotification } = useSoundEffects();
   const [showScanner, setShowScanner] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
   const [showAddCategoryForm, setShowAddCategoryForm] = useState(false);
@@ -108,16 +110,19 @@ export default function Dashboard() {
       });
     }
     setShowScanner(false);
+    playSuccess();
   };
 
   const handleAddExpense = async (data: { description: string; amount: number; category_id: string | null; expense_date: string }) => {
     await addExpense(data);
     setShowAddForm(false);
+    playSuccess();
   };
 
   const handleEditExpense = async (id: string, data: { description: string; amount: number; category_id: string | null; expense_date: string }) => {
     await updateExpense(id, data);
     setEditingExpense(null);
+    playNotification();
   };
 
   const handleStartEdit = (expense: Expense) => {
@@ -125,11 +130,18 @@ export default function Dashboard() {
     setShowAddForm(false);
     setShowScanner(false);
     setShowAddCategoryForm(false);
+    playClick();
   };
 
   const handleAddCategory = async (data: { name: string; icon: string; color: string }) => {
     await addCategory(data);
     setShowAddCategoryForm(false);
+    playSuccess();
+  };
+
+  const handleDeleteExpense = async (id: string) => {
+    await deleteExpense(id);
+    playDelete();
   };
 
   return (
@@ -283,7 +295,7 @@ export default function Dashboard() {
           ) : (
             <ExpenseList 
               expenses={hasDateFilter ? filteredExpenses : filteredExpenses.slice(0, 10)} 
-              onDelete={deleteExpense} 
+              onDelete={handleDeleteExpense} 
               onEdit={handleStartEdit} 
             />
           )}
