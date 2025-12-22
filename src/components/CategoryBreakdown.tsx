@@ -3,9 +3,10 @@ import { Category, getCategoryIcon } from '@/lib/categories';
 interface CategoryBreakdownProps {
   totals: Record<string, number>;
   categories: Category[];
+  onCategoryClick?: (categoryId: string, categoryName: string) => void;
 }
 
-export function CategoryBreakdown({ totals, categories }: CategoryBreakdownProps) {
+export function CategoryBreakdown({ totals, categories, onCategoryClick }: CategoryBreakdownProps) {
   const entries = Object.entries(totals).sort((a, b) => b[1] - a[1]);
   const total = entries.reduce((sum, [_, value]) => sum + value, 0);
 
@@ -27,8 +28,9 @@ export function CategoryBreakdown({ totals, categories }: CategoryBreakdownProps
         return (
           <div 
             key={categoryName}
-            className="animate-slide-up"
+            className={`animate-slide-up ${onCategoryClick ? 'cursor-pointer hover:bg-secondary/50 -mx-2 px-2 py-1 rounded-lg transition-colors' : ''}`}
             style={{ animationDelay: `${index * 50}ms` }}
+            onClick={() => category && onCategoryClick?.(category.id, category.name)}
           >
             <div className="flex items-center justify-between mb-1">
               <div className="flex items-center gap-2">

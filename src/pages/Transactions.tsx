@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useMemo, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useExpenses, Expense } from '@/hooks/useExpenses';
 import { useSoundEffects } from '@/hooks/useSoundEffects';
@@ -15,6 +15,7 @@ const ITEMS_PER_PAGE = 20;
 
 export default function Transactions() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { user, isLoading: authLoading } = useAuth();
   const { 
     expenses, 
@@ -24,6 +25,9 @@ export default function Transactions() {
     updateExpense 
   } = useExpenses();
   const { playSuccess, playDelete, playClick, playNotification } = useSoundEffects();
+  
+  const categoryFilter = searchParams.get('category');
+  const categoryName = searchParams.get('categoryName');
   
   const [searchQuery, setSearchQuery] = useState('');
   const [showDateFilter, setShowDateFilter] = useState(false);
@@ -35,6 +39,11 @@ export default function Transactions() {
   // Filter expenses
   const filteredExpenses = useMemo(() => {
     let filtered = expenses;
+    
+    // Filter by category from URL
+    if (categoryFilter) {
+      filtered = filtered.filter(expense => expense.category_id === categoryFilter);
+    }
     
     // Filter by date range
     if (filterStartDate || filterEndDate) {
@@ -56,7 +65,7 @@ export default function Transactions() {
     }
     
     return filtered;
-  }, [expenses, filterStartDate, filterEndDate, searchQuery]);
+  }, [expenses, categoryFilter, filterStartDate, filterEndDate, searchQuery]);
 
   // Pagination
   const totalPages = Math.ceil(filteredExpenses.length / ITEMS_PER_PAGE);
@@ -66,9 +75,15 @@ export default function Transactions() {
   }, [filteredExpenses, currentPage]);
 
   // Reset to page 1 when filters change
-  useMemo(() => {
+  useEffect(() => {
     setCurrentPage(1);
-  }, [filterStartDate, filterEndDate, searchQuery]);
+  }, [categoryFilter, filterStartDate, filterEndDate, searchQuery]);
+
+  const clearCategoryFilter = () => {
+    searchParams.delete('category');
+    searchParams.delete('categoryName');
+    setSearchParams(searchParams);
+  };
 
   const handleDateRangeChange = (start: Date | null, end: Date | null) => {
     setFilterStartDate(start);
@@ -93,7 +108,8 @@ export default function Transactions() {
 
   const hasDateFilter = filterStartDate || filterEndDate;
   const hasSearchFilter = searchQuery.trim().length > 0;
-  const hasAnyFilter = hasDateFilter || hasSearchFilter;
+  const hasCategoryFilter = !!categoryFilter;
+  const hasAnyFilter = hasDateFilter || hasSearchFilter || hasCategoryFilter;
 
   if (authLoading) {
     return (
@@ -119,7 +135,9 @@ export default function Transactions() {
             <Receipt className="w-5 h-5 text-primary" />
           </div>
           <div>
-            <h1 className="font-bold text-lg">Sve transakcije</h1>
+            <h1 className="font-bold text-lg">
+              {categoryName ? `Kategorija: ${categoryName}` : 'Sve transakcije'}
+            </h1>
             <p className="text-xs text-muted-foreground">{filteredExpenses.length} ukupno</p>
           </div>
         </div>
@@ -176,6 +194,22 @@ export default function Transactions() {
           </div>
         )}
 
+        {/* Category Filter Badge */}
+        {hasCategoryFilter && (
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Filtrirano po kategoriji:</span>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={clearCategoryFilter}
+              className="gap-1"
+            >
+              {categoryName}
+              <X className="w-3 h-3" />
+            </Button>
+          </div>
+        )}
+
         {/* Clear Filters */}
         {hasAnyFilter && (
           <Button
@@ -185,11 +219,12 @@ export default function Transactions() {
               setSearchQuery('');
               setFilterStartDate(null);
               setFilterEndDate(null);
+              clearCategoryFilter();
             }}
             className="text-muted-foreground"
           >
             <X className="w-4 h-4 mr-1" />
-            Očisti filtere
+            Očisti sve filtere
           </Button>
         )}
 
