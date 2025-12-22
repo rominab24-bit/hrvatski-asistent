@@ -172,6 +172,47 @@ export function useExpenses() {
     return data;
   };
 
+  const updateCategory = async (id: string, updates: { name: string; icon: string; color: string }) => {
+    if (!isOnline) {
+      toast({
+        title: 'Offline',
+        description: 'Uređivanje kategorija nije moguće bez internet veze',
+        variant: 'destructive',
+      });
+      return null;
+    }
+
+    const { data, error } = await supabase
+      .from('expense_categories')
+      .update({
+        name: updates.name,
+        icon: updates.icon,
+        color: updates.color,
+      })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Greška pri uređivanju kategorije:', error);
+      toast({
+        title: 'Greška',
+        description: 'Nije moguće urediti kategoriju',
+        variant: 'destructive',
+      });
+      return null;
+    }
+
+    setCategories(prev => prev.map(c => c.id === id ? data : c).sort((a, b) => a.name.localeCompare(b.name)));
+    
+    toast({
+      title: 'Uspjeh',
+      description: 'Kategorija je uspješno ažurirana',
+    });
+
+    return data;
+  };
+
   const deleteCategory = async (id: string) => {
     if (!isOnline) {
       toast({
@@ -481,6 +522,7 @@ export function useExpenses() {
     updateExpense,
     deleteExpense,
     addCategory,
+    updateCategory,
     deleteCategory,
     fetchExpenses,
     getTotalByCategory,

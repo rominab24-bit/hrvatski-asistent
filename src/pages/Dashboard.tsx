@@ -33,6 +33,7 @@ export default function Dashboard() {
     updateExpense,
     deleteExpense, 
     addCategory,
+    updateCategory,
     deleteCategory,
     getTotalByCategory, 
     getMonthlyTotal,
@@ -227,7 +228,7 @@ export default function Dashboard() {
               <Tags className="w-4 h-4 mr-1" />
               <span className="text-xs">Nova</span>
             </Button>
-            <ManageCategoriesDialog categories={categories} onDelete={deleteCategory} />
+            <ManageCategoriesDialog categories={categories} onDelete={deleteCategory} onUpdate={updateCategory} />
           </div>
           <CategoryBreakdown totals={categoryTotals} categories={categories} />
         </section>
