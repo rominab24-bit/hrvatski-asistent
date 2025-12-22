@@ -56,8 +56,8 @@ export function AddCategoryForm({ onSubmit, onCancel }: AddCategoryFormProps) {
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-medium text-muted-foreground">Ikona</label>
-          <div className="grid grid-cols-5 gap-2">
+          <label className="text-sm font-medium text-muted-foreground">Ikona ({iconEntries.length} dostupnih)</label>
+          <div className="grid grid-cols-6 gap-2 max-h-48 overflow-y-auto p-1">
             {iconEntries.map(([iconName, IconComponent]) => {
               const isSelected = selectedIcon === iconName;
               
@@ -67,15 +67,16 @@ export function AddCategoryForm({ onSubmit, onCancel }: AddCategoryFormProps) {
                   type="button"
                   onClick={() => setSelectedIcon(iconName)}
                   className={`
-                    p-3 rounded-lg flex items-center justify-center transition-all
+                    p-2.5 rounded-lg flex items-center justify-center transition-all
                     ${isSelected 
                       ? 'ring-2 ring-primary bg-primary/10' 
                       : 'bg-secondary hover:bg-secondary/80'
                     }
                   `}
+                  title={iconName}
                 >
                   <IconComponent 
-                    className="w-5 h-5" 
+                    className="w-4 h-4" 
                     style={{ color: selectedColor }} 
                   />
                 </button>
