@@ -247,6 +247,67 @@ export function useExpenses() {
     }
   };
 
+  const updateExpense = async (
+    id: string,
+    updates: {
+      description?: string;
+      amount?: number;
+      category_id?: string | null;
+      expense_date?: string;
+    }
+  ) => {
+    // Cannot update offline expenses
+    if (id.startsWith('offline_')) {
+      toast({
+        title: 'Offline',
+        description: 'Uređivanje offline troškova nije moguće',
+        variant: 'destructive',
+      });
+      return null;
+    }
+
+    if (!isOnline) {
+      toast({
+        title: 'Offline',
+        description: 'Uređivanje nije moguće bez internet veze',
+        variant: 'destructive',
+      });
+      return null;
+    }
+
+    const { data, error } = await supabase
+      .from('expenses')
+      .update(updates)
+      .eq('id', id)
+      .select(`
+        *,
+        category:expense_categories(*)
+      `)
+      .single();
+
+    if (error) {
+      console.error('Greška pri uređivanju troška:', error);
+      toast({
+        title: 'Greška',
+        description: 'Nije moguće urediti trošak',
+        variant: 'destructive',
+      });
+      return null;
+    }
+
+    setExpenses(prev => prev.map(e => (e.id === id ? data : e)));
+    // Update local cache
+    const localExpenses = getLocalExpenses().map(e => (e.id === id ? data as OfflineExpense : e));
+    saveExpensesLocally(localExpenses);
+
+    toast({
+      title: 'Uspjeh',
+      description: 'Trošak je uspješno ažuriran',
+    });
+
+    return data;
+  };
+
   const deleteExpense = async (id: string) => {
     // Check if it's an offline expense
     if (id.startsWith('offline_')) {
@@ -329,6 +390,7 @@ export function useExpenses() {
     isOnline,
     isSyncing,
     addExpense,
+    updateExpense,
     deleteExpense,
     fetchExpenses,
     getTotalByCategory,

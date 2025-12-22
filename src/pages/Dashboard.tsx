@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { useExpenses } from '@/hooks/useExpenses';
+import { useExpenses, Expense } from '@/hooks/useExpenses';
 import { AuthForm } from '@/components/AuthForm';
 import { StatCard } from '@/components/StatCard';
 import { ExpenseList } from '@/components/ExpenseList';
 import { ReceiptScanner } from '@/components/ReceiptScanner';
 import { AddExpenseForm } from '@/components/AddExpenseForm';
+import { EditExpenseForm } from '@/components/EditExpenseForm';
 import { CategoryBreakdown } from '@/components/CategoryBreakdown';
 import { OfflineIndicator } from '@/components/OfflineIndicator';
 import { ExportDialog } from '@/components/ExportDialog';
@@ -24,6 +25,7 @@ export default function Dashboard() {
     isOnline,
     isSyncing,
     addExpense, 
+    updateExpense,
     deleteExpense, 
     getTotalByCategory, 
     getMonthlyTotal,
@@ -31,6 +33,7 @@ export default function Dashboard() {
   } = useExpenses();
   const [showScanner, setShowScanner] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
 
   if (authLoading) {
     return (
@@ -61,9 +64,20 @@ export default function Dashboard() {
     setShowScanner(false);
   };
 
-  const handleAddExpense = async (data: { description: string; amount: number; category_id: string | null }) => {
+  const handleAddExpense = async (data: { description: string; amount: number; category_id: string | null; expense_date: string }) => {
     await addExpense(data);
     setShowAddForm(false);
+  };
+
+  const handleEditExpense = async (id: string, data: { description: string; amount: number; category_id: string | null; expense_date: string }) => {
+    await updateExpense(id, data);
+    setEditingExpense(null);
+  };
+
+  const handleStartEdit = (expense: Expense) => {
+    setEditingExpense(expense);
+    setShowAddForm(false);
+    setShowScanner(false);
   };
 
   return (
@@ -107,12 +121,20 @@ export default function Dashboard() {
           />
         </div>
 
-        {/* Scanner / Add Form */}
+        {/* Scanner / Add Form / Edit Form */}
         {showScanner && (
           <ReceiptScanner onScanComplete={handleScanComplete} onCancel={() => setShowScanner(false)} />
         )}
         {showAddForm && (
           <AddExpenseForm categories={categories} onSubmit={handleAddExpense} onCancel={() => setShowAddForm(false)} />
+        )}
+        {editingExpense && (
+          <EditExpenseForm 
+            expense={editingExpense} 
+            categories={categories} 
+            onSubmit={handleEditExpense} 
+            onCancel={() => setEditingExpense(null)} 
+          />
         )}
 
         {/* Category Breakdown */}
@@ -132,13 +154,13 @@ export default function Dashboard() {
               <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
             </div>
           ) : (
-            <ExpenseList expenses={expenses.slice(0, 10)} onDelete={deleteExpense} />
+            <ExpenseList expenses={expenses.slice(0, 10)} onDelete={deleteExpense} onEdit={handleStartEdit} />
           )}
         </section>
       </main>
 
       {/* Bottom Action Buttons */}
-      {!showScanner && !showAddForm && (
+      {!showScanner && !showAddForm && !editingExpense && (
         <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-background via-background to-transparent">
           <div className="flex gap-3 max-w-md mx-auto">
             <Button onClick={() => setShowAddForm(true)} variant="secondary" className="flex-1">
