@@ -8,13 +8,14 @@ import { ExpenseList } from '@/components/ExpenseList';
 import { ReceiptScanner } from '@/components/ReceiptScanner';
 import { AddExpenseForm } from '@/components/AddExpenseForm';
 import { EditExpenseForm } from '@/components/EditExpenseForm';
+import { AddCategoryForm } from '@/components/AddCategoryForm';
 import { CategoryBreakdown } from '@/components/CategoryBreakdown';
 import { OfflineIndicator } from '@/components/OfflineIndicator';
 import { ExportDialog } from '@/components/ExportDialog';
 import { DateRangeFilter } from '@/components/DateRangeFilter';
 import { ReceiptData } from '@/hooks/useReceiptScanner';
 import { Button } from '@/components/ui/button';
-import { Receipt, Plus, LogOut, Wallet, TrendingDown, PieChart, Loader2, BarChart3, Filter } from 'lucide-react';
+import { Receipt, Plus, LogOut, Wallet, TrendingDown, PieChart, Loader2, BarChart3, Filter, Tags } from 'lucide-react';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -28,12 +29,14 @@ export default function Dashboard() {
     addExpense, 
     updateExpense,
     deleteExpense, 
+    addCategory,
     getTotalByCategory, 
     getMonthlyTotal,
     getPendingCount 
   } = useExpenses();
   const [showScanner, setShowScanner] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [showAddCategoryForm, setShowAddCategoryForm] = useState(false);
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
   const [showDateFilter, setShowDateFilter] = useState(false);
   const [filterStartDate, setFilterStartDate] = useState<Date | null>(null);
@@ -101,6 +104,12 @@ export default function Dashboard() {
     setEditingExpense(expense);
     setShowAddForm(false);
     setShowScanner(false);
+    setShowAddCategoryForm(false);
+  };
+
+  const handleAddCategory = async (data: { name: string; icon: string; color: string }) => {
+    await addCategory(data);
+    setShowAddCategoryForm(false);
   };
 
   return (
@@ -159,13 +168,34 @@ export default function Dashboard() {
             onCancel={() => setEditingExpense(null)} 
           />
         )}
+        {showAddCategoryForm && (
+          <AddCategoryForm 
+            onSubmit={handleAddCategory} 
+            onCancel={() => setShowAddCategoryForm(false)} 
+          />
+        )}
 
         {/* Category Breakdown */}
         <section className="glass-card p-4">
-          <h2 className="font-semibold flex items-center gap-2 mb-4">
-            <PieChart className="w-4 h-4 text-primary" />
-            Troškovi po kategorijama
-          </h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-semibold flex items-center gap-2">
+              <PieChart className="w-4 h-4 text-primary" />
+              Troškovi po kategorijama
+            </h2>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setShowAddCategoryForm(true);
+                setShowAddForm(false);
+                setShowScanner(false);
+                setEditingExpense(null);
+              }}
+            >
+              <Tags className="w-4 h-4 mr-1" />
+              <span className="text-xs">Nova</span>
+            </Button>
+          </div>
           <CategoryBreakdown totals={categoryTotals} categories={categories} />
         </section>
 
