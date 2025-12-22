@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useReceiptScanner, ReceiptData, ReceiptItem } from '@/hooks/useReceiptScanner';
-import { Camera, Upload, Loader2, Check, X, Receipt, CalendarIcon, ChevronDown } from 'lucide-react';
+import { Camera, Upload, Loader2, Check, X, Receipt, CalendarIcon, Trash2 } from 'lucide-react';
 import { Camera as CapacitorCamera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { Category, getCategoryIcon } from '@/lib/categories';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -78,6 +78,17 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
     const updatedItems = [...editedReceiptData.items];
     updatedItems[index] = { ...updatedItems[index], category: categoryName };
     setEditedReceiptData({ ...editedReceiptData, items: updatedItems });
+  };
+
+  const deleteItem = (index: number) => {
+    if (!editedReceiptData) return;
+    const updatedItems = editedReceiptData.items.filter((_, i) => i !== index);
+    const newTotal = updatedItems.reduce((sum, item) => sum + item.price, 0);
+    setEditedReceiptData({ 
+      ...editedReceiptData, 
+      items: updatedItems,
+      total_amount: newTotal 
+    });
   };
 
   const handleSaveAll = () => {
@@ -197,7 +208,17 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
               >
                 <div className="flex justify-between items-center">
                   <p className="text-sm font-medium flex-1 mr-2">{item.name}</p>
-                  <p className="font-mono font-medium">{item.price.toFixed(2)} €</p>
+                  <div className="flex items-center gap-2">
+                    <p className="font-mono font-medium">{item.price.toFixed(2)} €</p>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 text-destructive hover:text-destructive hover:bg-destructive/10"
+                      onClick={() => deleteItem(index)}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </div>
                 <Select
                   value={item.category}
