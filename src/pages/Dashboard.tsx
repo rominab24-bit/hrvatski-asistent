@@ -107,6 +107,7 @@ export default function Dashboard() {
         description: item.name,
         amount: item.price,
         category_id: category?.id || null,
+        expense_date: data.date || new Date().toISOString().split('T')[0],
         receipt_data: data,
       });
     }
@@ -193,7 +194,11 @@ export default function Dashboard() {
 
         {/* Scanner / Add Form / Edit Form */}
         {showScanner && (
-          <ReceiptScanner onScanComplete={handleScanComplete} onCancel={() => setShowScanner(false)} />
+          <ReceiptScanner 
+            onScanComplete={handleScanComplete} 
+            onCancel={() => setShowScanner(false)} 
+            categories={categories}
+          />
         )}
         {showAddForm && (
           <AddExpenseForm categories={categories} onSubmit={handleAddExpense} onCancel={() => setShowAddForm(false)} />

@@ -1,19 +1,52 @@
 import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { useReceiptScanner, ReceiptData } from '@/hooks/useReceiptScanner';
-import { Camera, Upload, Loader2, Check, X, Receipt } from 'lucide-react';
+import { useReceiptScanner, ReceiptData, ReceiptItem } from '@/hooks/useReceiptScanner';
+import { Camera, Upload, Loader2, Check, X, Receipt, CalendarIcon, ChevronDown } from 'lucide-react';
 import { Camera as CapacitorCamera, CameraResultType, CameraSource } from '@capacitor/camera';
+import { Category, getCategoryIcon } from '@/lib/categories';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { format, parse } from 'date-fns';
+import { hr } from 'date-fns/locale';
+import { cn } from '@/lib/utils';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 interface ReceiptScannerProps {
   onScanComplete: (data: ReceiptData) => void;
   onCancel: () => void;
+  categories: Category[];
 }
 
-export function ReceiptScanner({ onScanComplete, onCancel }: ReceiptScannerProps) {
+export function ReceiptScanner({ onScanComplete, onCancel, categories }: ReceiptScannerProps) {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [editedReceiptData, setEditedReceiptData] = useState<ReceiptData | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { isScanning, receiptData, scanReceipt } = useReceiptScanner();
+  const { isScanning, receiptData, scanReceipt, clearData } = useReceiptScanner();
+
+  // When receipt data is received, set up editable state
+  const handleScanComplete = (data: ReceiptData) => {
+    // Parse date from receipt if available
+    if (data.date) {
+      try {
+        // Try to parse date in DD.MM.YYYY format
+        const parsed = parse(data.date, 'dd.MM.yyyy', new Date());
+        if (!isNaN(parsed.getTime())) {
+          setSelectedDate(parsed);
+        }
+      } catch {
+        // Keep default date
+      }
+    }
+    setEditedReceiptData(data);
+  };
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -36,8 +69,35 @@ export function ReceiptScanner({ onScanComplete, onCancel }: ReceiptScannerProps
     const result = await scanReceipt(base64Data);
     
     if (result) {
-      onScanComplete(result);
+      handleScanComplete(result);
     }
+  };
+
+  const updateItemCategory = (index: number, categoryName: string) => {
+    if (!editedReceiptData) return;
+    const updatedItems = [...editedReceiptData.items];
+    updatedItems[index] = { ...updatedItems[index], category: categoryName };
+    setEditedReceiptData({ ...editedReceiptData, items: updatedItems });
+  };
+
+  const handleSaveAll = () => {
+    if (!editedReceiptData) return;
+    
+    // Update the date in the format expected by Dashboard
+    const formattedDate = format(selectedDate, 'yyyy-MM-dd');
+    const dataToSave: ReceiptData = {
+      ...editedReceiptData,
+      date: formattedDate,
+    };
+    
+    onScanComplete(dataToSave);
+    clearData();
+  };
+
+  const handleCancelEdit = () => {
+    setEditedReceiptData(null);
+    clearData();
+    onCancel();
   };
 
   const handleCameraCapture = async () => {
@@ -80,7 +140,8 @@ export function ReceiptScanner({ onScanComplete, onCancel }: ReceiptScannerProps
     }
   };
 
-  if (receiptData) {
+  // Show editable view after scanning
+  if (editedReceiptData) {
     return (
       <Card className="p-6 glass-card animate-scale-in">
         <div className="flex items-center gap-3 mb-4">
@@ -90,38 +151,108 @@ export function ReceiptScanner({ onScanComplete, onCancel }: ReceiptScannerProps
           <div>
             <h3 className="font-semibold">Račun skeniran!</h3>
             <p className="text-sm text-muted-foreground">
-              {receiptData.store_name || 'Trgovina'} • {receiptData.items.length} stavki
+              {editedReceiptData.store_name || 'Trgovina'} • {editedReceiptData.items.length} stavki
             </p>
           </div>
         </div>
 
-        <div className="space-y-2 max-h-60 overflow-auto">
-          {receiptData.items.map((item, index) => (
-            <div 
-              key={index} 
-              className="flex justify-between items-center p-2 rounded-lg bg-secondary/50"
-            >
-              <div>
-                <p className="text-sm font-medium">{item.name}</p>
-                <p className="text-xs text-muted-foreground">{item.category}</p>
+        {/* Date picker */}
+        <div className="mb-4 p-3 rounded-lg bg-secondary/50">
+          <label className="text-sm font-medium mb-2 block">Datum računa</label>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "w-full justify-start text-left font-normal",
+                  !selectedDate && "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {selectedDate ? format(selectedDate, "PPP", { locale: hr }) : <span>Odaberi datum</span>}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={selectedDate}
+                onSelect={(date) => date && setSelectedDate(date)}
+                initialFocus
+                className={cn("p-3 pointer-events-auto")}
+              />
+            </PopoverContent>
+          </Popover>
+        </div>
+
+        {/* Items with category selection */}
+        <div className="space-y-3 max-h-60 overflow-auto">
+          {editedReceiptData.items.map((item, index) => {
+            const currentCategory = categories.find(c => c.name === item.category);
+            const IconComponent = currentCategory ? getCategoryIcon(currentCategory.icon) : null;
+            
+            return (
+              <div 
+                key={index} 
+                className="p-3 rounded-lg bg-secondary/50 space-y-2"
+              >
+                <div className="flex justify-between items-center">
+                  <p className="text-sm font-medium flex-1 mr-2">{item.name}</p>
+                  <p className="font-mono font-medium">{item.price.toFixed(2)} €</p>
+                </div>
+                <Select
+                  value={item.category}
+                  onValueChange={(value) => updateItemCategory(index, value)}
+                >
+                  <SelectTrigger className="w-full h-9">
+                    <SelectValue>
+                      <div className="flex items-center gap-2">
+                        {IconComponent && (
+                          <IconComponent 
+                            className="w-4 h-4" 
+                            style={{ color: currentCategory?.color }} 
+                          />
+                        )}
+                        <span>{item.category}</span>
+                      </div>
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map((cat) => {
+                      const CatIcon = getCategoryIcon(cat.icon);
+                      return (
+                        <SelectItem key={cat.id} value={cat.name}>
+                          <div className="flex items-center gap-2">
+                            <CatIcon className="w-4 h-4" style={{ color: cat.color }} />
+                            <span>{cat.name}</span>
+                          </div>
+                        </SelectItem>
+                      );
+                    })}
+                  </SelectContent>
+                </Select>
               </div>
-              <p className="font-mono font-medium">{item.price.toFixed(2)} €</p>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         <div className="flex gap-2 mt-4">
-          <Button onClick={onCancel} variant="outline" className="flex-1">
+          <Button onClick={handleCancelEdit} variant="outline" className="flex-1">
             <X className="w-4 h-4 mr-2" />
             Odustani
           </Button>
-          <Button onClick={() => onScanComplete(receiptData)} className="flex-1">
+          <Button onClick={handleSaveAll} className="flex-1">
             <Check className="w-4 h-4 mr-2" />
             Spremi sve
           </Button>
         </div>
       </Card>
     );
+  }
+
+  // Show loading or waiting for scan state
+  if (receiptData && !editedReceiptData) {
+    handleScanComplete(receiptData);
+    return null;
   }
 
   return (
