@@ -227,14 +227,24 @@ export default function Dashboard() {
               {hasAnyFilter ? 'Filtrirane transakcije' : 'Nedavne transakcije'}
               {hasAnyFilter && <span className="text-xs text-muted-foreground ml-2">({filteredExpenses.length})</span>}
             </h2>
-            <Button
-              variant={showDateFilter ? "default" : "ghost"}
-              size="sm"
-              onClick={() => setShowDateFilter(!showDateFilter)}
-              className={hasDateFilter ? "text-primary" : ""}
-            >
-              <Filter className="w-4 h-4" />
-            </Button>
+            <div className="flex items-center gap-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate('/transactions')}
+                className="text-xs text-muted-foreground"
+              >
+                Prikaži sve
+              </Button>
+              <Button
+                variant={showDateFilter ? "default" : "ghost"}
+                size="sm"
+                onClick={() => setShowDateFilter(!showDateFilter)}
+                className={hasDateFilter ? "text-primary" : ""}
+              >
+                <Filter className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
 
           {/* Search input */}
