@@ -172,6 +172,41 @@ export function useExpenses() {
     return data;
   };
 
+  const deleteCategory = async (id: string) => {
+    if (!isOnline) {
+      toast({
+        title: 'Offline',
+        description: 'Brisanje kategorija nije moguće bez internet veze',
+        variant: 'destructive',
+      });
+      return false;
+    }
+
+    const { error } = await supabase
+      .from('expense_categories')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      console.error('Greška pri brisanju kategorije:', error);
+      toast({
+        title: 'Greška',
+        description: 'Nije moguće obrisati kategoriju',
+        variant: 'destructive',
+      });
+      return false;
+    }
+
+    setCategories(prev => prev.filter(c => c.id !== id));
+    
+    toast({
+      title: 'Uspjeh',
+      description: 'Kategorija je obrisana',
+    });
+
+    return true;
+  };
+
   const fetchExpenses = async () => {
     setIsLoading(true);
 
@@ -446,6 +481,7 @@ export function useExpenses() {
     updateExpense,
     deleteExpense,
     addCategory,
+    deleteCategory,
     fetchExpenses,
     getTotalByCategory,
     getMonthlyTotal,
