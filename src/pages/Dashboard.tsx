@@ -9,6 +9,7 @@ import { ReceiptScanner } from '@/components/ReceiptScanner';
 import { AddExpenseForm } from '@/components/AddExpenseForm';
 import { EditExpenseForm } from '@/components/EditExpenseForm';
 import { AddCategoryForm } from '@/components/AddCategoryForm';
+import { ManageCategoriesDialog } from '@/components/ManageCategoriesDialog';
 import { CategoryBreakdown } from '@/components/CategoryBreakdown';
 import { OfflineIndicator } from '@/components/OfflineIndicator';
 import { ExportDialog } from '@/components/ExportDialog';
@@ -31,6 +32,7 @@ export default function Dashboard() {
     updateExpense,
     deleteExpense, 
     addCategory,
+    deleteCategory,
     getTotalByCategory, 
     getMonthlyTotal,
     getPendingCount 
@@ -213,6 +215,7 @@ export default function Dashboard() {
               <Tags className="w-4 h-4 mr-1" />
               <span className="text-xs">Nova</span>
             </Button>
+            <ManageCategoriesDialog categories={categories} onDelete={deleteCategory} />
           </div>
           <CategoryBreakdown totals={categoryTotals} categories={categories} />
         </section>
