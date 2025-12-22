@@ -1,13 +1,15 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { 
   LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
 } from 'recharts';
 import { Expense } from '@/hooks/useExpenses';
 import { Category } from '@/lib/categories';
-import { format, subDays, startOfMonth, endOfMonth, eachDayOfInterval, eachMonthOfInterval, subMonths, startOfDay } from 'date-fns';
+import { format, subDays, startOfMonth, endOfMonth, eachDayOfInterval, eachMonthOfInterval, subMonths, startOfDay, isSameMonth } from 'date-fns';
 import { hr } from 'date-fns/locale';
+import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
 
 interface ExpenseChartsProps {
   expenses: Expense[];
@@ -15,6 +17,8 @@ interface ExpenseChartsProps {
 }
 
 export function ExpenseCharts({ expenses, categories }: ExpenseChartsProps) {
+  const [selectedMonth, setSelectedMonth] = useState<Date>(new Date());
+
   // Daily expenses for last 7 days
   const dailyData = useMemo(() => {
     const today = startOfDay(new Date());
@@ -60,11 +64,65 @@ export function ExpenseCharts({ expenses, categories }: ExpenseChartsProps) {
         name: format(month, 'MMM', { locale: hr }),
         mjesec: format(month, 'MMMM yyyy', { locale: hr }),
         iznos: total,
+        month: month,
       };
     });
   }, [expenses]);
 
-  // Category distribution
+  // Selected month data
+  const selectedMonthData = useMemo(() => {
+    const monthStart = startOfMonth(selectedMonth);
+    const monthEnd = endOfMonth(selectedMonth);
+    const days = eachDayOfInterval({ start: monthStart, end: monthEnd });
+
+    const monthExpenses = expenses.filter(e => {
+      const date = new Date(e.expense_date);
+      return date >= monthStart && date <= monthEnd;
+    });
+
+    const dailyBreakdown = days.map(day => {
+      const dayStr = format(day, 'yyyy-MM-dd');
+      const total = monthExpenses
+        .filter(e => e.expense_date === dayStr)
+        .reduce((sum, e) => sum + Number(e.amount), 0);
+
+      return {
+        day: format(day, 'd', { locale: hr }),
+        date: format(day, 'dd.MM.', { locale: hr }),
+        iznos: total,
+      };
+    });
+
+    const totalAmount = monthExpenses.reduce((sum, e) => sum + Number(e.amount), 0);
+    const transactionCount = monthExpenses.length;
+    const avgPerDay = totalAmount / days.length;
+    const avgPerTransaction = transactionCount > 0 ? totalAmount / transactionCount : 0;
+
+    // Category breakdown for selected month
+    const categoryTotals: Record<string, { name: string; value: number; color: string }> = {};
+    monthExpenses.forEach(expense => {
+      const category = expense.category || { name: 'Ostalo', color: '#6B7280' };
+      if (!categoryTotals[category.name]) {
+        categoryTotals[category.name] = {
+          name: category.name,
+          value: 0,
+          color: category.color,
+        };
+      }
+      categoryTotals[category.name].value += Number(expense.amount);
+    });
+
+    return {
+      dailyBreakdown,
+      totalAmount,
+      transactionCount,
+      avgPerDay,
+      avgPerTransaction,
+      categoryBreakdown: Object.values(categoryTotals).sort((a, b) => b.value - a.value),
+    };
+  }, [expenses, selectedMonth]);
+
+  // Category distribution (overall)
   const categoryData = useMemo(() => {
     const totals: Record<string, { name: string; value: number; color: string }> = {};
 
@@ -123,6 +181,20 @@ export function ExpenseCharts({ expenses, categories }: ExpenseChartsProps) {
     return null;
   };
 
+  const handlePreviousMonth = () => {
+    setSelectedMonth(prev => subMonths(prev, 1));
+  };
+
+  const handleNextMonth = () => {
+    const nextMonth = new Date(selectedMonth);
+    nextMonth.setMonth(nextMonth.getMonth() + 1);
+    if (nextMonth <= new Date()) {
+      setSelectedMonth(nextMonth);
+    }
+  };
+
+  const isCurrentMonth = isSameMonth(selectedMonth, new Date());
+
   return (
     <div className="space-y-6">
       {/* Weekly Summary Cards */}
@@ -141,6 +213,124 @@ export function ExpenseCharts({ expenses, categories }: ExpenseChartsProps) {
           )}
         </Card>
       </div>
+
+      {/* Monthly Breakdown Section */}
+      <Card className="p-4 glass-card">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <Calendar className="w-5 h-5 text-primary" />
+            <h3 className="font-semibold">Pregled po mjesecu</h3>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={handlePreviousMonth}
+              className="h-8 w-8"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </Button>
+            <span className="text-sm font-medium min-w-[100px] text-center capitalize">
+              {format(selectedMonth, 'MMMM yyyy', { locale: hr })}
+            </span>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={handleNextMonth}
+              disabled={isCurrentMonth}
+              className="h-8 w-8"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+
+        {/* Monthly Stats */}
+        <div className="grid grid-cols-2 gap-3 mb-4">
+          <div className="bg-secondary/50 rounded-lg p-3">
+            <p className="text-xs text-muted-foreground">Ukupno</p>
+            <p className="text-lg font-bold">{selectedMonthData.totalAmount.toFixed(2)} €</p>
+          </div>
+          <div className="bg-secondary/50 rounded-lg p-3">
+            <p className="text-xs text-muted-foreground">Transakcija</p>
+            <p className="text-lg font-bold">{selectedMonthData.transactionCount}</p>
+          </div>
+          <div className="bg-secondary/50 rounded-lg p-3">
+            <p className="text-xs text-muted-foreground">Prosjek/dan</p>
+            <p className="text-lg font-bold">{selectedMonthData.avgPerDay.toFixed(2)} €</p>
+          </div>
+          <div className="bg-secondary/50 rounded-lg p-3">
+            <p className="text-xs text-muted-foreground">Prosjek/transakcija</p>
+            <p className="text-lg font-bold">{selectedMonthData.avgPerTransaction.toFixed(2)} €</p>
+          </div>
+        </div>
+
+        {/* Daily Breakdown Chart */}
+        <div className="h-40">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={selectedMonthData.dailyBreakdown}>
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+              <XAxis 
+                dataKey="day" 
+                tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }}
+                axisLine={{ stroke: 'hsl(var(--border))' }}
+                interval="preserveStartEnd"
+              />
+              <YAxis 
+                tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }}
+                axisLine={{ stroke: 'hsl(var(--border))' }}
+                width={40}
+              />
+              <Tooltip content={<CustomTooltip />} />
+              <Bar 
+                dataKey="iznos" 
+                fill="hsl(var(--primary))" 
+                radius={[2, 2, 0, 0]}
+              />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Category Breakdown for Selected Month */}
+        {selectedMonthData.categoryBreakdown.length > 0 && (
+          <div className="mt-4 pt-4 border-t border-border">
+            <h4 className="text-sm font-medium mb-3">Kategorije u ovom mjesecu</h4>
+            <div className="space-y-2">
+              {selectedMonthData.categoryBreakdown.slice(0, 5).map((cat, i) => {
+                const percentage = selectedMonthData.totalAmount > 0 
+                  ? (cat.value / selectedMonthData.totalAmount) * 100 
+                  : 0;
+                
+                return (
+                  <div key={i}>
+                    <div className="flex justify-between text-sm mb-1">
+                      <div className="flex items-center gap-2">
+                        <div 
+                          className="w-2 h-2 rounded-full" 
+                          style={{ backgroundColor: cat.color }}
+                        />
+                        <span className="text-muted-foreground">{cat.name}</span>
+                      </div>
+                      <span className="font-mono text-xs">
+                        {cat.value.toFixed(2)} € ({percentage.toFixed(0)}%)
+                      </span>
+                    </div>
+                    <div className="h-1.5 bg-secondary rounded-full overflow-hidden">
+                      <div 
+                        className="h-full rounded-full transition-all duration-500"
+                        style={{ 
+                          width: `${percentage}%`,
+                          backgroundColor: cat.color,
+                        }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </Card>
 
       {/* Daily Expenses Chart */}
       <Card className="p-4 glass-card">
