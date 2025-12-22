@@ -2,8 +2,8 @@ import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { useReceiptScanner, ReceiptData, ReceiptItem } from '@/hooks/useReceiptScanner';
-import { Camera, Upload, Loader2, Check, X, Receipt, CalendarIcon, Trash2, Plus } from 'lucide-react';
+import { useReceiptScanner, ReceiptData, ReceiptItem, DateConfidence } from '@/hooks/useReceiptScanner';
+import { Camera, Upload, Loader2, Check, X, Receipt, CalendarIcon, Trash2, Plus, AlertCircle, CheckCircle, HelpCircle } from 'lucide-react';
 import { Camera as CapacitorCamera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { Category, getCategoryIcon } from '@/lib/categories';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -29,6 +29,7 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [editedReceiptData, setEditedReceiptData] = useState<ReceiptData | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [dateConfidence, setDateConfidence] = useState<DateConfidence | null>(null);
   const [showAddItem, setShowAddItem] = useState(false);
   const [newItemName, setNewItemName] = useState('');
   const [newItemPrice, setNewItemPrice] = useState('');
@@ -38,6 +39,9 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
 
   // When receipt data is received, set up editable state
   const handleScanComplete = (data: ReceiptData) => {
+    // Set date confidence
+    setDateConfidence(data.date_confidence || null);
+    
     // Parse date from receipt if available
     if (data.date) {
       const raw = String(data.date).trim();
@@ -67,6 +71,39 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
     }
 
     setEditedReceiptData(data);
+  };
+
+  const getConfidenceInfo = (confidence: DateConfidence | null) => {
+    switch (confidence) {
+      case 'high':
+        return { 
+          label: 'Visoka sigurnost', 
+          color: 'text-green-600 dark:text-green-400', 
+          bgColor: 'bg-green-100 dark:bg-green-900/30',
+          Icon: CheckCircle 
+        };
+      case 'medium':
+        return { 
+          label: 'Srednja sigurnost', 
+          color: 'text-yellow-600 dark:text-yellow-400', 
+          bgColor: 'bg-yellow-100 dark:bg-yellow-900/30',
+          Icon: HelpCircle 
+        };
+      case 'low':
+        return { 
+          label: 'Niska sigurnost', 
+          color: 'text-red-600 dark:text-red-400', 
+          bgColor: 'bg-red-100 dark:bg-red-900/30',
+          Icon: AlertCircle 
+        };
+      default:
+        return { 
+          label: 'Nepoznato', 
+          color: 'text-muted-foreground', 
+          bgColor: 'bg-muted',
+          Icon: HelpCircle 
+        };
+    }
   };
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -218,9 +255,20 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
           </div>
         </div>
 
-        {/* Date picker */}
+        {/* Date picker with confidence indicator */}
         <div className="mb-4 p-3 rounded-lg bg-secondary/50">
-          <label className="text-sm font-medium mb-2 block">Datum računa</label>
+          <div className="flex items-center justify-between mb-2">
+            <label className="text-sm font-medium">Datum računa</label>
+            {dateConfidence && (() => {
+              const { label, color, bgColor, Icon } = getConfidenceInfo(dateConfidence);
+              return (
+                <div className={cn("flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs", bgColor, color)}>
+                  <Icon className="w-3.5 h-3.5" />
+                  <span>{label}</span>
+                </div>
+              );
+            })()}
+          </div>
           <Popover>
             <PopoverTrigger asChild>
               <Button
@@ -244,6 +292,11 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
               />
             </PopoverContent>
           </Popover>
+          {dateConfidence === 'low' && (
+            <p className="text-xs text-muted-foreground mt-2">
+              Datum nije jasno prepoznat. Provjerite i ispravite ako je potrebno.
+            </p>
+          )}
         </div>
 
         {/* Items with category selection */}

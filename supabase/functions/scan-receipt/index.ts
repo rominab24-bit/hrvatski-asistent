@@ -85,6 +85,11 @@ Odgovori ISKLJUČIVO u JSON formatu bez dodatnog teksta.`
                 properties: {
                   store_name: { type: 'string', description: 'Naziv trgovine' },
                   date: { type: 'string', description: 'Datum računa (DD.MM.YYYY format)' },
+                  date_confidence: { 
+                    type: 'string', 
+                    enum: ['high', 'medium', 'low'],
+                    description: 'Sigurnost prepoznavanja datuma: high ako je datum jasno vidljiv, medium ako je djelomično vidljiv ili nečitak, low ako nije pronađen ili je nejasan'
+                  },
                   total_amount: { type: 'number', description: 'Ukupan iznos računa' },
                   currency: { type: 'string', description: 'Valuta (EUR, HRK, itd.)' },
                   items: {
@@ -105,7 +110,7 @@ Odgovori ISKLJUČIVO u JSON formatu bez dodatnog teksta.`
                     }
                   }
                 },
-                required: ['items', 'total_amount']
+                required: ['items', 'total_amount', 'date_confidence']
               }
             }
           }

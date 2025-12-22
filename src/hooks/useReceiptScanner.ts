@@ -9,9 +9,12 @@ export interface ReceiptItem {
   category: string;
 }
 
+export type DateConfidence = 'high' | 'medium' | 'low';
+
 export interface ReceiptData {
   store_name?: string;
   date?: string;
+  date_confidence?: DateConfidence;
   total_amount: number;
   currency?: string;
   items: ReceiptItem[];
