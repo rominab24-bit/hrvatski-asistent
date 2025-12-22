@@ -2,12 +2,17 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Category, getCategoryIcon } from '@/lib/categories';
-import { Plus, X } from 'lucide-react';
+import { Plus, X, CalendarIcon } from 'lucide-react';
+import { format } from 'date-fns';
+import { hr } from 'date-fns/locale';
+import { cn } from '@/lib/utils';
 
 interface AddExpenseFormProps {
   categories: Category[];
-  onSubmit: (data: { description: string; amount: number; category_id: string | null }) => void;
+  onSubmit: (data: { description: string; amount: number; category_id: string | null; expense_date: string }) => void;
   onCancel: () => void;
 }
 
@@ -15,6 +20,7 @@ export function AddExpenseForm({ categories, onSubmit, onCancel }: AddExpenseFor
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,6 +30,7 @@ export function AddExpenseForm({ categories, onSubmit, onCancel }: AddExpenseFor
       description,
       amount: parseFloat(amount),
       category_id: selectedCategory,
+      expense_date: format(selectedDate, 'yyyy-MM-dd'),
     });
   };
 
@@ -60,6 +67,35 @@ export function AddExpenseForm({ categories, onSubmit, onCancel }: AddExpenseFor
             className="bg-secondary border-border font-mono"
             required
           />
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-muted-foreground">Datum</label>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "w-full justify-start text-left font-normal bg-secondary border-border",
+                  !selectedDate && "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {selectedDate ? format(selectedDate, "d. MMMM yyyy", { locale: hr }) : <span>Odaberi datum</span>}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={selectedDate}
+                onSelect={(date) => date && setSelectedDate(date)}
+                disabled={(date) => date > new Date()}
+                initialFocus
+                locale={hr}
+                className={cn("p-3 pointer-events-auto")}
+              />
+            </PopoverContent>
+          </Popover>
         </div>
 
         <div className="space-y-2">
