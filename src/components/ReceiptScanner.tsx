@@ -8,7 +8,7 @@ import { Camera as CapacitorCamera, CameraResultType, CameraSource } from '@capa
 import { Category, getCategoryIcon } from '@/lib/categories';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
-import { format, parse } from 'date-fns';
+import { format, parse, parseISO, isValid } from 'date-fns';
 import { hr } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import {
@@ -40,16 +40,32 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
   const handleScanComplete = (data: ReceiptData) => {
     // Parse date from receipt if available
     if (data.date) {
+      const raw = String(data.date).trim();
+
+      const trySetDate = (d: Date) => {
+        if (isValid(d)) setSelectedDate(d);
+      };
+
       try {
-        // Try to parse date in DD.MM.YYYY format
-        const parsed = parse(data.date, 'dd.MM.yyyy', new Date());
-        if (!isNaN(parsed.getTime())) {
-          setSelectedDate(parsed);
+        // Common formats coming from AI / receipts:
+        // - 2025-12-22 (ISO date)
+        // - 22.12.2025
+        // - 22/12/2025
+        if (/^\d{4}-\d{2}-\d{2}/.test(raw)) {
+          trySetDate(parseISO(raw));
+        } else if (/^\d{1,2}\.\d{1,2}\.\d{4}/.test(raw)) {
+          trySetDate(parse(raw, 'dd.MM.yyyy', new Date()));
+        } else if (/^\d{1,2}\/\d{1,2}\/\d{4}/.test(raw)) {
+          trySetDate(parse(raw, 'dd/MM/yyyy', new Date()));
+        } else {
+          // Fallback: try ISO parse
+          trySetDate(parseISO(raw));
         }
       } catch {
         // Keep default date
       }
     }
+
     setEditedReceiptData(data);
   };
 
