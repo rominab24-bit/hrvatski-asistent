@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useExpenses, Expense } from '@/hooks/useExpenses';
@@ -11,9 +11,10 @@ import { EditExpenseForm } from '@/components/EditExpenseForm';
 import { CategoryBreakdown } from '@/components/CategoryBreakdown';
 import { OfflineIndicator } from '@/components/OfflineIndicator';
 import { ExportDialog } from '@/components/ExportDialog';
+import { DateRangeFilter } from '@/components/DateRangeFilter';
 import { ReceiptData } from '@/hooks/useReceiptScanner';
 import { Button } from '@/components/ui/button';
-import { Receipt, Plus, LogOut, Wallet, TrendingDown, PieChart, Loader2, BarChart3 } from 'lucide-react';
+import { Receipt, Plus, LogOut, Wallet, TrendingDown, PieChart, Loader2, BarChart3, Filter } from 'lucide-react';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -34,6 +35,28 @@ export default function Dashboard() {
   const [showScanner, setShowScanner] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
+  const [showDateFilter, setShowDateFilter] = useState(false);
+  const [filterStartDate, setFilterStartDate] = useState<Date | null>(null);
+  const [filterEndDate, setFilterEndDate] = useState<Date | null>(null);
+
+  // Filter expenses by date range
+  const filteredExpenses = useMemo(() => {
+    if (!filterStartDate && !filterEndDate) return expenses;
+    
+    return expenses.filter(expense => {
+      const expenseDate = new Date(expense.expense_date);
+      if (filterStartDate && expenseDate < filterStartDate) return false;
+      if (filterEndDate && expenseDate > filterEndDate) return false;
+      return true;
+    });
+  }, [expenses, filterStartDate, filterEndDate]);
+
+  const handleDateRangeChange = (start: Date | null, end: Date | null) => {
+    setFilterStartDate(start);
+    setFilterEndDate(end);
+  };
+
+  const hasDateFilter = filterStartDate || filterEndDate;
 
   if (authLoading) {
     return (
@@ -148,13 +171,41 @@ export default function Dashboard() {
 
         {/* Recent Transactions */}
         <section>
-          <h2 className="font-semibold mb-3">Nedavne transakcije</h2>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="font-semibold">
+              {hasDateFilter ? 'Filtrirane transakcije' : 'Nedavne transakcije'}
+              {hasDateFilter && <span className="text-xs text-muted-foreground ml-2">({filteredExpenses.length})</span>}
+            </h2>
+            <Button
+              variant={showDateFilter ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setShowDateFilter(!showDateFilter)}
+              className={hasDateFilter ? "text-primary" : ""}
+            >
+              <Filter className="w-4 h-4" />
+            </Button>
+          </div>
+          
+          {showDateFilter && (
+            <div className="mb-4 p-3 rounded-lg bg-secondary/50">
+              <DateRangeFilter
+                startDate={filterStartDate}
+                endDate={filterEndDate}
+                onRangeChange={handleDateRangeChange}
+              />
+            </div>
+          )}
+          
           {isLoading ? (
             <div className="flex justify-center py-8">
               <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
             </div>
           ) : (
-            <ExpenseList expenses={expenses.slice(0, 10)} onDelete={deleteExpense} onEdit={handleStartEdit} />
+            <ExpenseList 
+              expenses={hasDateFilter ? filteredExpenses : filteredExpenses.slice(0, 10)} 
+              onDelete={deleteExpense} 
+              onEdit={handleStartEdit} 
+            />
           )}
         </section>
       </main>
