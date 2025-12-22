@@ -367,6 +367,19 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
           </Button>
         )}
 
+        {/* Total amount display */}
+        <div className="mt-4 p-3 rounded-lg bg-primary/10 border border-primary/20">
+          <div className="flex justify-between items-center">
+            <span className="font-medium">Ukupno:</span>
+            <span className="text-xl font-bold text-primary">
+              {editedReceiptData.items.reduce((sum, item) => sum + item.price, 0).toFixed(2)} €
+            </span>
+          </div>
+          <p className="text-xs text-muted-foreground mt-1">
+            {editedReceiptData.items.length} {editedReceiptData.items.length === 1 ? 'stavka' : editedReceiptData.items.length < 5 ? 'stavke' : 'stavki'}
+          </p>
+        </div>
+
         <div className="flex gap-2 mt-4">
           <Button onClick={handleCancelEdit} variant="outline" className="flex-1">
             <X className="w-4 h-4 mr-2" />
