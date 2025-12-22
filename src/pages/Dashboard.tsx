@@ -35,7 +35,8 @@ export default function Dashboard() {
     addCategory,
     updateCategory,
     deleteCategory,
-    getTotalByCategory, 
+    getTotalByCategory,
+    getTotalByCategoryForMonth,
     getMonthlyTotal,
     getPendingCount 
   } = useExpenses();
@@ -97,7 +98,7 @@ export default function Dashboard() {
   }
 
   const monthlyTotal = getMonthlyTotal();
-  const categoryTotals = getTotalByCategory();
+  const categoryTotals = getTotalByCategoryForMonth();
   const transactionCount = expenses.length;
 
   const handleScanComplete = async (data: ReceiptData) => {

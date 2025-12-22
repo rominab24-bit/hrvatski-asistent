@@ -495,6 +495,23 @@ export function useExpenses() {
     return totals;
   };
 
+  const getTotalByCategoryForMonth = () => {
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    const totals: Record<string, number> = {};
+    
+    expenses.forEach(expense => {
+      const expenseDate = new Date(expense.expense_date);
+      if (expenseDate.getMonth() === currentMonth && expenseDate.getFullYear() === currentYear) {
+        const categoryName = expense.category?.name || 'Ostalo';
+        totals[categoryName] = (totals[categoryName] || 0) + Number(expense.amount);
+      }
+    });
+
+    return totals;
+  };
+
   const getMonthlyTotal = () => {
     const now = new Date();
     const currentMonth = now.getMonth();
@@ -526,6 +543,7 @@ export function useExpenses() {
     deleteCategory,
     fetchExpenses,
     getTotalByCategory,
+    getTotalByCategoryForMonth,
     getMonthlyTotal,
     getPendingCount,
     syncPendingExpenses,
