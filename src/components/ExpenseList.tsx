@@ -1,15 +1,16 @@
 import { Expense } from '@/hooks/useExpenses';
 import { getCategoryIcon } from '@/lib/categories';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Pencil } from 'lucide-react';
 import { format } from 'date-fns';
 import { hr } from 'date-fns/locale';
 
 interface ExpenseListProps {
   expenses: Expense[];
   onDelete: (id: string) => void;
+  onEdit: (expense: Expense) => void;
 }
 
-export function ExpenseList({ expenses, onDelete }: ExpenseListProps) {
+export function ExpenseList({ expenses, onDelete, onEdit }: ExpenseListProps) {
   if (expenses.length === 0) {
     return (
       <div className="text-center py-12 text-muted-foreground">
@@ -61,6 +62,14 @@ export function ExpenseList({ expenses, onDelete }: ExpenseListProps) {
                 -{Number(expense.amount).toFixed(2)} €
               </p>
             </div>
+
+            {/* Edit button */}
+            <button
+              onClick={() => onEdit(expense)}
+              className="opacity-0 group-hover:opacity-100 p-2 rounded-lg hover:bg-primary/20 text-muted-foreground hover:text-primary transition-all"
+            >
+              <Pencil className="w-4 h-4" />
+            </button>
 
             {/* Delete button */}
             <button
