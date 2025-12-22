@@ -15,7 +15,8 @@ import { ExportDialog } from '@/components/ExportDialog';
 import { DateRangeFilter } from '@/components/DateRangeFilter';
 import { ReceiptData } from '@/hooks/useReceiptScanner';
 import { Button } from '@/components/ui/button';
-import { Receipt, Plus, LogOut, Wallet, TrendingDown, PieChart, Loader2, BarChart3, Filter, Tags } from 'lucide-react';
+import { Receipt, Plus, LogOut, Wallet, TrendingDown, PieChart, Loader2, BarChart3, Filter, Tags, Search, X } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -41,18 +42,33 @@ export default function Dashboard() {
   const [showDateFilter, setShowDateFilter] = useState(false);
   const [filterStartDate, setFilterStartDate] = useState<Date | null>(null);
   const [filterEndDate, setFilterEndDate] = useState<Date | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
-  // Filter expenses by date range
+  // Filter expenses by date range and search query
   const filteredExpenses = useMemo(() => {
-    if (!filterStartDate && !filterEndDate) return expenses;
+    let filtered = expenses;
     
-    return expenses.filter(expense => {
-      const expenseDate = new Date(expense.expense_date);
-      if (filterStartDate && expenseDate < filterStartDate) return false;
-      if (filterEndDate && expenseDate > filterEndDate) return false;
-      return true;
-    });
-  }, [expenses, filterStartDate, filterEndDate]);
+    // Filter by date range
+    if (filterStartDate || filterEndDate) {
+      filtered = filtered.filter(expense => {
+        const expenseDate = new Date(expense.expense_date);
+        if (filterStartDate && expenseDate < filterStartDate) return false;
+        if (filterEndDate && expenseDate > filterEndDate) return false;
+        return true;
+      });
+    }
+    
+    // Filter by search query
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim();
+      filtered = filtered.filter(expense => 
+        expense.description.toLowerCase().includes(query) ||
+        expense.category?.name.toLowerCase().includes(query)
+      );
+    }
+    
+    return filtered;
+  }, [expenses, filterStartDate, filterEndDate, searchQuery]);
 
   const handleDateRangeChange = (start: Date | null, end: Date | null) => {
     setFilterStartDate(start);
@@ -60,6 +76,8 @@ export default function Dashboard() {
   };
 
   const hasDateFilter = filterStartDate || filterEndDate;
+  const hasSearchFilter = searchQuery.trim().length > 0;
+  const hasAnyFilter = hasDateFilter || hasSearchFilter;
 
   if (authLoading) {
     return (
@@ -203,8 +221,8 @@ export default function Dashboard() {
         <section>
           <div className="flex items-center justify-between mb-3">
             <h2 className="font-semibold">
-              {hasDateFilter ? 'Filtrirane transakcije' : 'Nedavne transakcije'}
-              {hasDateFilter && <span className="text-xs text-muted-foreground ml-2">({filteredExpenses.length})</span>}
+              {hasAnyFilter ? 'Filtrirane transakcije' : 'Nedavne transakcije'}
+              {hasAnyFilter && <span className="text-xs text-muted-foreground ml-2">({filteredExpenses.length})</span>}
             </h2>
             <Button
               variant={showDateFilter ? "default" : "ghost"}
@@ -214,6 +232,25 @@ export default function Dashboard() {
             >
               <Filter className="w-4 h-4" />
             </Button>
+          </div>
+
+          {/* Search input */}
+          <div className="relative mb-3">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Pretraži po opisu ili kategoriji..."
+              className="pl-9 pr-9 bg-secondary border-border"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
           </div>
           
           {showDateFilter && (
