@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useExpenses, Expense } from '@/hooks/useExpenses';
+import { useSoundEffects } from '@/hooks/useSoundEffects';
 import { AuthForm } from '@/components/AuthForm';
 import { ExpenseList } from '@/components/ExpenseList';
 import { EditExpenseForm } from '@/components/EditExpenseForm';
@@ -22,6 +23,7 @@ export default function Transactions() {
     deleteExpense, 
     updateExpense 
   } = useExpenses();
+  const { playSuccess, playDelete, playClick, playNotification } = useSoundEffects();
   
   const [searchQuery, setSearchQuery] = useState('');
   const [showDateFilter, setShowDateFilter] = useState(false);
@@ -76,6 +78,17 @@ export default function Transactions() {
   const handleEditExpense = async (id: string, data: { description: string; amount: number; category_id: string | null; expense_date: string }) => {
     await updateExpense(id, data);
     setEditingExpense(null);
+    playNotification();
+  };
+
+  const handleDeleteExpense = async (id: string) => {
+    await deleteExpense(id);
+    playDelete();
+  };
+
+  const handleStartEdit = (expense: Expense) => {
+    setEditingExpense(expense);
+    playClick();
   };
 
   const hasDateFilter = filterStartDate || filterEndDate;
@@ -188,8 +201,8 @@ export default function Transactions() {
         ) : (
           <ExpenseList 
             expenses={paginatedExpenses} 
-            onDelete={deleteExpense} 
-            onEdit={setEditingExpense} 
+            onDelete={handleDeleteExpense} 
+            onEdit={handleStartEdit} 
           />
         )}
 
