@@ -1,8 +1,9 @@
 import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { useReceiptScanner, ReceiptData, ReceiptItem } from '@/hooks/useReceiptScanner';
-import { Camera, Upload, Loader2, Check, X, Receipt, CalendarIcon, Trash2 } from 'lucide-react';
+import { Camera, Upload, Loader2, Check, X, Receipt, CalendarIcon, Trash2, Plus } from 'lucide-react';
 import { Camera as CapacitorCamera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { Category, getCategoryIcon } from '@/lib/categories';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -28,6 +29,10 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [editedReceiptData, setEditedReceiptData] = useState<ReceiptData | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [showAddItem, setShowAddItem] = useState(false);
+  const [newItemName, setNewItemName] = useState('');
+  const [newItemPrice, setNewItemPrice] = useState('');
+  const [newItemCategory, setNewItemCategory] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { isScanning, receiptData, scanReceipt, clearData } = useReceiptScanner();
 
@@ -89,6 +94,36 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
       items: updatedItems,
       total_amount: newTotal 
     });
+  };
+
+  const addNewItem = () => {
+    if (!editedReceiptData || !newItemName.trim() || !newItemPrice) return;
+    
+    const price = parseFloat(newItemPrice);
+    if (isNaN(price) || price <= 0) return;
+    
+    const categoryToUse = newItemCategory || categories[0]?.name || 'Ostalo';
+    
+    const newItem: ReceiptItem = {
+      name: newItemName.trim(),
+      price: price,
+      category: categoryToUse,
+    };
+    
+    const updatedItems = [...editedReceiptData.items, newItem];
+    const newTotal = updatedItems.reduce((sum, item) => sum + item.price, 0);
+    
+    setEditedReceiptData({
+      ...editedReceiptData,
+      items: updatedItems,
+      total_amount: newTotal,
+    });
+    
+    // Reset form
+    setNewItemName('');
+    setNewItemPrice('');
+    setNewItemCategory('');
+    setShowAddItem(false);
   };
 
   const handleSaveAll = () => {
@@ -255,6 +290,82 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
             );
           })}
         </div>
+
+        {/* Add new item form */}
+        {showAddItem ? (
+          <div className="mt-3 p-3 rounded-lg bg-primary/10 border border-primary/20 space-y-3">
+            <Input
+              placeholder="Naziv stavke"
+              value={newItemName}
+              onChange={(e) => setNewItemName(e.target.value)}
+            />
+            <div className="flex gap-2">
+              <Input
+                type="number"
+                step="0.01"
+                min="0"
+                placeholder="Cijena (€)"
+                value={newItemPrice}
+                onChange={(e) => setNewItemPrice(e.target.value)}
+                className="flex-1"
+              />
+              <Select
+                value={newItemCategory}
+                onValueChange={setNewItemCategory}
+              >
+                <SelectTrigger className="flex-1">
+                  <SelectValue placeholder="Kategorija" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((cat) => {
+                    const CatIcon = getCategoryIcon(cat.icon);
+                    return (
+                      <SelectItem key={cat.id} value={cat.name}>
+                        <div className="flex items-center gap-2">
+                          <CatIcon className="w-4 h-4" style={{ color: cat.color }} />
+                          <span>{cat.name}</span>
+                        </div>
+                      </SelectItem>
+                    );
+                  })}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex gap-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => {
+                  setShowAddItem(false);
+                  setNewItemName('');
+                  setNewItemPrice('');
+                  setNewItemCategory('');
+                }}
+                className="flex-1"
+              >
+                Odustani
+              </Button>
+              <Button 
+                size="sm" 
+                onClick={addNewItem}
+                disabled={!newItemName.trim() || !newItemPrice}
+                className="flex-1"
+              >
+                <Plus className="w-4 h-4 mr-1" />
+                Dodaj
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <Button 
+            variant="outline" 
+            className="w-full mt-3 border-dashed"
+            onClick={() => setShowAddItem(true)}
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Dodaj novu stavku
+          </Button>
+        )}
 
         <div className="flex gap-2 mt-4">
           <Button onClick={handleCancelEdit} variant="outline" className="flex-1">
