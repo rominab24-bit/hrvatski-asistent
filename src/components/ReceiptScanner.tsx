@@ -584,6 +584,10 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
 
       <p className="text-xs text-muted-foreground text-center mt-4">
         AI će automatski prepoznati stavke i razvrstati ih po kategorijama
+        <br />
+        <span className="opacity-70">
+          Podržani formati: JPG, PNG, WEBP, HEIC • Maks. {(MAX_RECEIPT_FILE_SIZE / (1024 * 1024)).toFixed(0)} MB
+        </span>
       </p>
     </Card>
   );
