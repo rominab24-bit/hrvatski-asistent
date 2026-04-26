@@ -18,6 +18,11 @@ export interface ReceiptData {
   total_amount: number;
   currency?: string;
   items: ReceiptItem[];
+  /**
+   * Storage path of the uploaded receipt image inside the `receipts` bucket.
+   * Format: `{auth.uid()}/<uuid>.<ext>`. Use `createSignedUrl` to display.
+   */
+  receipt_image_path?: string;
 }
 
 export function useReceiptScanner() {

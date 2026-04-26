@@ -110,6 +110,7 @@ export default function Dashboard() {
         category_id: category?.id || null,
         expense_date: data.date || new Date().toISOString().split('T')[0],
         receipt_data: data,
+        receipt_image_url: data.receipt_image_path,
       });
     }
     setShowScanner(false);

@@ -130,3 +130,57 @@ export async function uploadReceiptFile(file: File): Promise<ReceiptUploadResult
 
   return { path };
 }
+
+/**
+ * Convert a `data:image/...;base64,xxx` URL into a Blob.
+ */
+function dataUrlToBlob(dataUrl: string): Blob {
+  const [meta, b64] = dataUrl.split(',');
+  const mimeMatch = meta.match(/data:([^;]+);base64/);
+  const mime = mimeMatch?.[1] || 'image/jpeg';
+  const binary = atob(b64);
+  const len = binary.length;
+  const bytes = new Uint8Array(len);
+  for (let i = 0; i < len; i++) bytes[i] = binary.charCodeAt(i);
+  return new Blob([bytes], { type: mime });
+}
+
+/**
+ * Upload a receipt that we currently hold as a `data:` URL (e.g. from a
+ * Capacitor Camera capture or a FileReader preview).
+ *
+ * The bucket is private — the returned `path` should be stored in
+ * `expenses.receipt_image_url` and resolved with `createSignedUrl` when
+ * displaying the image.
+ */
+export async function uploadReceiptFromDataUrl(dataUrl: string): Promise<ReceiptUploadResult> {
+  if (!dataUrl?.startsWith('data:')) {
+    throw new Error('Neispravan format slike.');
+  }
+
+  const blob = dataUrlToBlob(dataUrl);
+
+  // Reuse the same validation we apply to file inputs
+  const validation = validateReceiptFile(
+    new File([blob], 'receipt', { type: blob.type })
+  );
+  if (!validation.ok) {
+    throw new Error(validation.error);
+  }
+
+  const ext = (blob.type.split('/')[1] || 'jpg').toLowerCase();
+  const path = await buildReceiptPath(ext);
+
+  const { error } = await supabase.storage
+    .from('receipts')
+    .upload(path, blob, {
+      contentType: blob.type,
+      upsert: false,
+    });
+
+  if (error) {
+    throw new Error(`Greška pri prijenosu računa: ${error.message}`);
+  }
+
+  return { path };
+}

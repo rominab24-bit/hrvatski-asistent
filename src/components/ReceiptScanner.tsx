@@ -12,6 +12,7 @@ import {
   validateReceiptBase64,
   ALLOWED_RECEIPT_MIME_TYPES,
   MAX_RECEIPT_FILE_SIZE,
+  uploadReceiptFromDataUrl,
 } from '@/lib/receiptUpload';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
@@ -41,6 +42,8 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
   const [newItemName, setNewItemName] = useState('');
   const [newItemPrice, setNewItemPrice] = useState('');
   const [newItemCategory, setNewItemCategory] = useState('');
+  const [uploadedPath, setUploadedPath] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { isScanning, receiptData, scanReceipt, clearData } = useReceiptScanner();
   const { toast } = useToast();
@@ -141,13 +144,39 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
 
   const handleScan = async () => {
     if (!imagePreview) return;
-    
-    // Remove the data:image/...;base64, prefix
+
+    // Upload the receipt image to private storage in parallel with AI scan.
+    // We keep the image even if the AI scan fails — user may retry parsing.
     const base64Data = imagePreview.split(',')[1];
-    const result = await scanReceipt(base64Data);
-    
-    if (result) {
-      handleScanComplete(result);
+
+    setIsUploading(true);
+    const uploadPromise = uploadedPath
+      ? Promise.resolve({ path: uploadedPath })
+      : uploadReceiptFromDataUrl(imagePreview).catch((err) => {
+          console.error('Upload slike nije uspio:', err);
+          toast({
+            title: 'Slika nije pohranjena',
+            description: err instanceof Error ? err.message : 'Nepoznata greška',
+            variant: 'destructive',
+          });
+          return null;
+        });
+
+    const [uploadResult, scanResult] = await Promise.all([
+      uploadPromise,
+      scanReceipt(base64Data),
+    ]);
+    setIsUploading(false);
+
+    if (uploadResult?.path) {
+      setUploadedPath(uploadResult.path);
+    }
+
+    if (scanResult) {
+      handleScanComplete({
+        ...scanResult,
+        receipt_image_path: uploadResult?.path ?? undefined,
+      });
     }
   };
 
@@ -201,21 +230,25 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
 
   const handleSaveAll = () => {
     if (!editedReceiptData) return;
-    
+
     // Update the date in the format expected by Dashboard
     const formattedDate = format(selectedDate, 'yyyy-MM-dd');
     const dataToSave: ReceiptData = {
       ...editedReceiptData,
       date: formattedDate,
+      // Make sure the uploaded image path travels with the saved data
+      receipt_image_path: editedReceiptData.receipt_image_path ?? uploadedPath ?? undefined,
     };
-    
+
     onScanComplete(dataToSave);
     clearData();
+    setUploadedPath(null);
   };
 
   const handleCancelEdit = () => {
     setEditedReceiptData(null);
     clearData();
+    setUploadedPath(null);
     onCancel();
   };
 
@@ -555,7 +588,10 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
           
           <div className="flex gap-2">
             <Button 
-              onClick={() => setImagePreview(null)} 
+              onClick={() => {
+                setImagePreview(null);
+                setUploadedPath(null);
+              }} 
               variant="outline" 
               className="flex-1"
             >
@@ -564,12 +600,12 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
             <Button 
               onClick={handleScan} 
               className="flex-1"
-              disabled={isScanning}
+              disabled={isScanning || isUploading}
             >
-              {isScanning ? (
+              {isScanning || isUploading ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Skeniram...
+                  {isUploading && !isScanning ? 'Spremam sliku...' : 'Skeniram...'}
                 </>
               ) : (
                 <>
