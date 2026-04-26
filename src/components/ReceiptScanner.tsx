@@ -118,6 +118,18 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
     const file = e.target.files?.[0];
     if (!file) return;
 
+    const validation = validateReceiptFile(file);
+    if (!validation.ok) {
+      toast({
+        title: 'Neispravna datoteka',
+        description: validation.error,
+        variant: 'destructive',
+      });
+      // Reset input so user can re-select the same file after fixing
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
+
     // Create preview
     const reader = new FileReader();
     reader.onloadend = () => {
