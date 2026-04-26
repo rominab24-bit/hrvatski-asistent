@@ -600,12 +600,12 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
             <Button 
               onClick={handleScan} 
               className="flex-1"
-              disabled={isScanning}
+              disabled={isScanning || isUploading}
             >
-              {isScanning ? (
+              {isScanning || isUploading ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Skeniram...
+                  {isUploading && !isScanning ? 'Spremam sliku...' : 'Skeniram...'}
                 </>
               ) : (
                 <>
