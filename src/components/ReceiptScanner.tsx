@@ -6,6 +6,13 @@ import { useReceiptScanner, ReceiptData, ReceiptItem, DateConfidence } from '@/h
 import { Camera, Upload, Loader2, Check, X, Receipt, CalendarIcon, Trash2, Plus, AlertCircle, CheckCircle, HelpCircle } from 'lucide-react';
 import { Camera as CapacitorCamera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { Category, getCategoryIcon } from '@/lib/categories';
+import { useToast } from '@/hooks/use-toast';
+import {
+  validateReceiptFile,
+  validateReceiptBase64,
+  ALLOWED_RECEIPT_MIME_TYPES,
+  MAX_RECEIPT_FILE_SIZE,
+} from '@/lib/receiptUpload';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { format, parse, parseISO, isValid } from 'date-fns';
@@ -36,6 +43,7 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
   const [newItemCategory, setNewItemCategory] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { isScanning, receiptData, scanReceipt, clearData } = useReceiptScanner();
+  const { toast } = useToast();
 
   // When receipt data is received, set up editable state
   const handleScanComplete = (data: ReceiptData) => {
@@ -109,6 +117,18 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    const validation = validateReceiptFile(file);
+    if (!validation.ok) {
+      toast({
+        title: 'Neispravna datoteka',
+        description: validation.error,
+        variant: 'destructive',
+      });
+      // Reset input so user can re-select the same file after fixing
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
 
     // Create preview
     const reader = new FileReader();
@@ -199,6 +219,21 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
     onCancel();
   };
 
+  const acceptCapturedImage = (base64: string, format: string): boolean => {
+    const validation = validateReceiptBase64(base64, format);
+    if (!validation.ok) {
+      toast({
+        title: 'Neispravna slika',
+        description: validation.error,
+        variant: 'destructive',
+      });
+      return false;
+    }
+    const safeFormat = (format || 'jpeg').toLowerCase();
+    setImagePreview(`data:image/${safeFormat};base64,${base64}`);
+    return true;
+  };
+
   const handleCameraCapture = async () => {
     try {
       const image = await CapacitorCamera.getPhoto({
@@ -207,10 +242,9 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
         resultType: CameraResultType.Base64,
         source: CameraSource.Camera,
       });
-      
+
       if (image.base64String) {
-        const base64WithPrefix = `data:image/${image.format};base64,${image.base64String}`;
-        setImagePreview(base64WithPrefix);
+        acceptCapturedImage(image.base64String, image.format);
       }
     } catch (error) {
       console.log('Kamera nije dostupna, koristim fallback:', error);
@@ -227,10 +261,9 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
         resultType: CameraResultType.Base64,
         source: CameraSource.Photos,
       });
-      
+
       if (image.base64String) {
-        const base64WithPrefix = `data:image/${image.format};base64,${image.base64String}`;
-        setImagePreview(base64WithPrefix);
+        acceptCapturedImage(image.base64String, image.format);
       }
     } catch (error) {
       console.log('Galerija nije dostupna, koristim fallback:', error);
@@ -484,7 +517,7 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/*"
+        accept={ALLOWED_RECEIPT_MIME_TYPES.join(',')}
         capture="environment"
         onChange={handleFileSelect}
         className="hidden"
@@ -551,6 +584,10 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
 
       <p className="text-xs text-muted-foreground text-center mt-4">
         AI će automatski prepoznati stavke i razvrstati ih po kategorijama
+        <br />
+        <span className="opacity-70">
+          Podržani formati: JPG, PNG, WEBP, HEIC • Maks. {(MAX_RECEIPT_FILE_SIZE / (1024 * 1024)).toFixed(0)} MB
+        </span>
       </p>
     </Card>
   );
