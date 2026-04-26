@@ -6,6 +6,13 @@ import { useReceiptScanner, ReceiptData, ReceiptItem, DateConfidence } from '@/h
 import { Camera, Upload, Loader2, Check, X, Receipt, CalendarIcon, Trash2, Plus, AlertCircle, CheckCircle, HelpCircle } from 'lucide-react';
 import { Camera as CapacitorCamera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { Category, getCategoryIcon } from '@/lib/categories';
+import { useToast } from '@/hooks/use-toast';
+import {
+  validateReceiptFile,
+  validateReceiptBase64,
+  ALLOWED_RECEIPT_MIME_TYPES,
+  MAX_RECEIPT_FILE_SIZE,
+} from '@/lib/receiptUpload';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { format, parse, parseISO, isValid } from 'date-fns';
