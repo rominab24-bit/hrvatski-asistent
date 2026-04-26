@@ -144,13 +144,39 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
 
   const handleScan = async () => {
     if (!imagePreview) return;
-    
-    // Remove the data:image/...;base64, prefix
+
+    // Upload the receipt image to private storage in parallel with AI scan.
+    // We keep the image even if the AI scan fails — user may retry parsing.
     const base64Data = imagePreview.split(',')[1];
-    const result = await scanReceipt(base64Data);
-    
-    if (result) {
-      handleScanComplete(result);
+
+    setIsUploading(true);
+    const uploadPromise = uploadedPath
+      ? Promise.resolve({ path: uploadedPath })
+      : uploadReceiptFromDataUrl(imagePreview).catch((err) => {
+          console.error('Upload slike nije uspio:', err);
+          toast({
+            title: 'Slika nije pohranjena',
+            description: err instanceof Error ? err.message : 'Nepoznata greška',
+            variant: 'destructive',
+          });
+          return null;
+        });
+
+    const [uploadResult, scanResult] = await Promise.all([
+      uploadPromise,
+      scanReceipt(base64Data),
+    ]);
+    setIsUploading(false);
+
+    if (uploadResult?.path) {
+      setUploadedPath(uploadResult.path);
+    }
+
+    if (scanResult) {
+      handleScanComplete({
+        ...scanResult,
+        receipt_image_path: uploadResult?.path ?? undefined,
+      });
     }
   };
 
