@@ -219,6 +219,21 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
     onCancel();
   };
 
+  const acceptCapturedImage = (base64: string, format: string): boolean => {
+    const validation = validateReceiptBase64(base64, format);
+    if (!validation.ok) {
+      toast({
+        title: 'Neispravna slika',
+        description: validation.error,
+        variant: 'destructive',
+      });
+      return false;
+    }
+    const safeFormat = (format || 'jpeg').toLowerCase();
+    setImagePreview(`data:image/${safeFormat};base64,${base64}`);
+    return true;
+  };
+
   const handleCameraCapture = async () => {
     try {
       const image = await CapacitorCamera.getPhoto({
@@ -227,10 +242,9 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
         resultType: CameraResultType.Base64,
         source: CameraSource.Camera,
       });
-      
+
       if (image.base64String) {
-        const base64WithPrefix = `data:image/${image.format};base64,${image.base64String}`;
-        setImagePreview(base64WithPrefix);
+        acceptCapturedImage(image.base64String, image.format);
       }
     } catch (error) {
       console.log('Kamera nije dostupna, koristim fallback:', error);
@@ -247,10 +261,9 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
         resultType: CameraResultType.Base64,
         source: CameraSource.Photos,
       });
-      
+
       if (image.base64String) {
-        const base64WithPrefix = `data:image/${image.format};base64,${image.base64String}`;
-        setImagePreview(base64WithPrefix);
+        acceptCapturedImage(image.base64String, image.format);
       }
     } catch (error) {
       console.log('Galerija nije dostupna, koristim fallback:', error);
