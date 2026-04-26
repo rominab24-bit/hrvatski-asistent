@@ -588,7 +588,10 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
           
           <div className="flex gap-2">
             <Button 
-              onClick={() => setImagePreview(null)} 
+              onClick={() => {
+                setImagePreview(null);
+                setUploadedPath(null);
+              }} 
               variant="outline" 
               className="flex-1"
             >
