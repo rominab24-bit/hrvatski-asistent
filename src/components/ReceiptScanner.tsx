@@ -230,21 +230,25 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
 
   const handleSaveAll = () => {
     if (!editedReceiptData) return;
-    
+
     // Update the date in the format expected by Dashboard
     const formattedDate = format(selectedDate, 'yyyy-MM-dd');
     const dataToSave: ReceiptData = {
       ...editedReceiptData,
       date: formattedDate,
+      // Make sure the uploaded image path travels with the saved data
+      receipt_image_path: editedReceiptData.receipt_image_path ?? uploadedPath ?? undefined,
     };
-    
+
     onScanComplete(dataToSave);
     clearData();
+    setUploadedPath(null);
   };
 
   const handleCancelEdit = () => {
     setEditedReceiptData(null);
     clearData();
+    setUploadedPath(null);
     onCancel();
   };
 
