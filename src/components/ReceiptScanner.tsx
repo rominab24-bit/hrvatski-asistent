@@ -43,6 +43,7 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
   const [newItemCategory, setNewItemCategory] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { isScanning, receiptData, scanReceipt, clearData } = useReceiptScanner();
+  const { toast } = useToast();
 
   // When receipt data is received, set up editable state
   const handleScanComplete = (data: ReceiptData) => {
