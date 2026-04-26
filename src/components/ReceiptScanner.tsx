@@ -517,7 +517,7 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/*"
+        accept={ALLOWED_RECEIPT_MIME_TYPES.join(',')}
         capture="environment"
         onChange={handleFileSelect}
         className="hidden"
