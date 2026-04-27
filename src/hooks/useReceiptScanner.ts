@@ -16,6 +16,10 @@ export interface ReceiptData {
   date?: string;
   date_confidence?: DateConfidence;
   total_amount: number;
+  calculated_total?: number;
+  total_difference?: number;
+  needs_review?: boolean;
+  review_message?: string;
   currency?: string;
   items: ReceiptItem[];
   /**
@@ -49,8 +53,11 @@ export function useReceiptScanner() {
 
       setReceiptData(data.data);
       toast({
-        title: 'Račun uspješno skeniran!',
-        description: `Pronađeno ${data.data.items?.length || 0} stavki`,
+        title: data.data.needs_review ? 'Račun skeniran, potrebna provjera' : 'Račun uspješno skeniran!',
+        description: data.data.needs_review
+          ? 'Zbroj stavki se ne slaže s ukupnim iznosom računa.'
+          : `Pronađeno ${data.data.items?.length || 0} stavki`,
+        variant: data.data.needs_review ? 'destructive' : 'default',
       });
 
       return data.data;
