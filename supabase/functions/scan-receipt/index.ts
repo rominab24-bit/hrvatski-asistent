@@ -126,21 +126,34 @@ Važna pravila za cijene i zbroj:
 - Ne miješaj količinu, jediničnu cijenu i ukupnu cijenu retka.
 - Ako nisi siguran u cijenu stavke, ipak vrati najbolju procjenu, ali nemoj prilagođavati stavke samo zato da zbroj izgleda savršeno.
 
-Kategoriziraj stavke u ove kategorije:
-- Hrana (prehrambeni proizvodi, piće, namirnice)
-- Kućanstvo (sredstva za čišćenje, deterdženti, spužve, vreće za smeće, papirnati ručnici, potrepštine za dom)
-- Higijena (šampon, regenerator, gel za tuširanje, sapun, dezodorans, pasta za zube, četkica za zube, vodica za usta, ulošci, tamponi, vlažne maramice, toaletni papir, britvice, krema za tijelo, proizvodi za osobnu njegu)
-- Prijevoz (gorivo, parking, javni prijevoz)
-- Zdravlje (lijekovi, vitamini, medicinski proizvodi, zavoji, toplomjer)
-- Zabava (igračke, hobi, izlasci)
-- Odjeća (odjeća, obuća, dodaci)
-- Obrazovanje (knjige, školski pribor)
-- Računi (režije, pretplate)
-- Ostalo (sve što ne spada u gornje kategorije)
+Kategoriziraj stavke STROGO u jednu od ovih kategorija (koristi TOČNO ovaj naziv):
+- "Hrana" - prehrambeni proizvodi, piće, namirnice, slatkiši, kava, čaj, voda, sok, alkohol
+- "Higijena" - SVI proizvodi za osobnu njegu i tijelo: šampon, regenerator, balzam za kosu, gel za tuširanje, sapun, tekući sapun, dezodorans, antiperspirant, pasta za zube, četkica za zube, zubni konac, vodica za usta, ulošci, tamponi, higijenski ulošci, vlažne maramice, toaletni papir, papirnati rupčići, britvice, brijač, pjena za brijanje, krema za tijelo, krema za lice, krema za ruke, losion, parfem, šminka, lak za nokte, maska za lice, gel za čišćenje lica, vata, štapići za uši, pelene, proizvodi za bebe (krema, šampon, kupka)
+- "Kućanstvo" - SAMO sredstva za čišćenje DOMA i predmeta (NE tijela): deterdžent za rublje, omekšivač, deterdžent za posuđe, sredstvo za čišćenje (Cif, Domestos, Bref), sredstva za WC, spužve, krpe, vreće za smeće, papirnati ručnici za kuhinju, folije, alu-folije, svijeće, žarulje, baterije
+- "Prijevoz" - gorivo, parking, javni prijevoz, cestarina
+- "Zdravlje" - lijekovi, vitamini, dodaci prehrani, medicinski proizvodi, zavoji, flasteri, toplomjer
+- "Zabava" - igračke, hobi, izlasci, kino, knjige za zabavu
+- "Odjeća" - odjeća, obuća, modni dodaci, čarape
+- "Obrazovanje" - školski pribor, udžbenici, tečajevi
+- "Računi" - režije, pretplate, internet, telefon
+- "Ostalo" - sve ostalo
 
-Razlikuj Higijenu od Kućanstva:
-- Proizvodi za tijelo, kosu, zube i osobnu njegu idu u Higijena.
-- Proizvodi za čišćenje prostora, posuđa, rublja i doma idu u Kućanstvo.
+KLJUČNO PRAVILO za razlikovanje Higijene i Kućanstva:
+- Ako proizvod ide NA TIJELO (kožu, kosu, zube, intimu) → "Higijena"
+- Ako proizvod čisti PREDMETE ili PROSTOR (pod, posuđe, rublje, WC) → "Kućanstvo"
+- Toaletni papir, vlažni toaletni papir, ulošci, pelene → uvijek "Higijena"
+- Papirnati ručnici za kuhinju → "Kućanstvo"
+
+Primjeri ispravne kategorizacije:
+- "NIVEA gel za tuširanje" → Higijena
+- "Persil deterdžent" → Kućanstvo
+- "Šampon Herbal Essences" → Higijena
+- "Pasta za zube Colgate" → Higijena
+- "Bref WC" → Kućanstvo
+- "Toaletni papir Violeta" → Higijena
+- "Papirnati ručnici S&S" → Kućanstvo
+- "Dezodorans Borotalco" → Higijena
+- "Omekšivač Violeta" → Kućanstvo
 
 Odgovori ISKLJUČIVO u JSON formatu bez dodatnog teksta.`
           },
