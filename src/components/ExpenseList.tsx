@@ -3,6 +3,7 @@ import { getCategoryIcon } from '@/lib/categories';
 import { Trash2, Pencil } from 'lucide-react';
 import { format } from 'date-fns';
 import { hr } from 'date-fns/locale';
+import { ReceiptThumbnail } from '@/components/ReceiptThumbnail';
 
 interface ExpenseListProps {
   expenses: Expense[];
@@ -55,6 +56,9 @@ export function ExpenseList({ expenses, onDelete, onEdit }: ExpenseListProps) {
                 {expense.category?.name || 'Bez kategorije'} • {format(new Date(expense.expense_date), 'd. MMM', { locale: hr })}
               </p>
             </div>
+
+            {/* Receipt thumbnail */}
+            <ReceiptThumbnail receiptImageUrl={expense.receipt_image_url} />
 
             {/* Amount */}
             <div className="text-right shrink-0">
