@@ -40,76 +40,100 @@ export function AuthForm() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-background">
-      <div className="w-full max-w-md animate-fade-in">
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 mb-4 glow-effect">
-            <Receipt className="w-8 h-8 text-primary" />
+    <div className="min-h-screen flex items-center justify-center p-6 bg-background">
+      <div className="w-full max-w-[400px] flex flex-col items-center animate-fade-in">
+        {/* Brand Identity */}
+        <div className="relative mb-10">
+          <div className="absolute inset-0 bg-primary blur-3xl opacity-25 scale-150" />
+          <div className="relative flex items-center justify-center w-20 h-20 bg-secondary rounded-2xl border border-primary/30 shadow-glow">
+            <Receipt className="w-10 h-10 text-primary" strokeWidth={1.5} />
           </div>
-          <h1 className="text-3xl font-bold">Kućni Budžet</h1>
-          <p className="text-muted-foreground mt-2">Pratite svoje troškove pametno</p>
         </div>
 
-        <Card className="p-6 glass-card">
-          <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-foreground mb-2 tracking-tight font-display">
+            Kućni Budžet
+          </h1>
+          <p className="text-primary-foreground/0 text-sm font-medium tracking-wide uppercase" style={{ color: 'hsl(var(--primary-glow) / 0.7)' }}>
+            Pratite troškove pametno
+          </p>
+        </div>
+
+        {/* Login Form Container */}
+        <div className="w-full bg-secondary/40 backdrop-blur-xl border border-primary/10 rounded-[2.5rem] p-8 shadow-lg">
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-muted-foreground">Email</label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <label className="block text-xs font-semibold text-primary uppercase tracking-widest ml-1">
+                Email adresa
+              </label>
+              <div className="relative group">
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground/60 group-focus-within:text-primary transition-colors">
+                  <Mail className="w-5 h-5" />
+                </div>
                 <Input
                   type="email"
                   placeholder="vas@email.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="pl-10 bg-secondary border-border"
                   required
+                  className="h-auto w-full bg-input/60 border border-white/5 rounded-2xl py-4 pl-12 pr-4 text-foreground placeholder:text-muted-foreground/40 focus-visible:border-primary/60 focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-0 transition-all"
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-muted-foreground">Lozinka</label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <div className="flex justify-between items-end ml-1">
+                <label className="text-xs font-semibold text-primary uppercase tracking-widest">
+                  Lozinka
+                </label>
+              </div>
+              <div className="relative group">
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground/60 group-focus-within:text-primary transition-colors">
+                  <Lock className="w-5 h-5" />
+                </div>
                 <Input
                   type="password"
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="pl-10 bg-secondary border-border"
                   required
                   minLength={6}
+                  className="h-auto w-full bg-input/60 border border-white/5 rounded-2xl py-4 pl-12 pr-4 text-foreground placeholder:text-muted-foreground/40 focus-visible:border-primary/60 focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-0 transition-all"
                 />
               </div>
             </div>
 
-            <Button 
-              type="submit" 
-              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+            <Button
+              type="submit"
               disabled={isLoading}
+              className="w-full h-auto bg-primary hover:bg-primary-glow text-primary-foreground font-bold py-4 rounded-2xl btn-glow hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 group active:scale-95"
             >
               {isLoading ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <Loader2 className="w-5 h-5 animate-spin" />
               ) : (
                 <>
-                  {isLogin ? 'Prijava' : 'Registracija'}
-                  <ArrowRight className="w-4 h-4 ml-2" />
+                  <span>{isLogin ? 'Prijavi se' : 'Registriraj se'}</span>
+                  <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
                 </>
               )}
             </Button>
           </form>
+        </div>
 
-          <div className="mt-6 text-center">
+        {/* Bottom Action */}
+        <div className="mt-8 flex flex-col items-center">
+          <p className="text-muted-foreground text-sm">
+            {isLogin ? 'Nemate račun? ' : 'Već imate račun? '}
             <button
               type="button"
               onClick={() => setIsLogin(!isLogin)}
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              className="font-semibold hover:underline decoration-2 underline-offset-4"
+              style={{ color: 'hsl(var(--primary-glow))' }}
             >
-              {isLogin ? 'Nemate račun? Registrirajte se' : 'Već imate račun? Prijavite se'}
+              {isLogin ? 'Registrirajte se' : 'Prijavite se'}
             </button>
-          </div>
-        </Card>
+          </p>
+        </div>
       </div>
     </div>
   );
