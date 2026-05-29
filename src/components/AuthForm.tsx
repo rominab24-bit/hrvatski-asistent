@@ -41,26 +41,30 @@ export function AuthForm() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6 bg-background">
+    <div className="min-h-screen flex items-center justify-center p-6 bg-background">
       <div className="w-full max-w-[400px] flex flex-col items-center animate-fade-in">
         {/* Brand Identity */}
-        <div className="relative mb-10">
-          <div className="absolute inset-0 bg-primary blur-3xl opacity-25 scale-150" />
-          <div className="relative flex items-center justify-center w-20 h-20 bg-secondary rounded-2xl border border-primary/30 shadow-glow">
+        <div className="relative mb-8">
+          <div className="absolute inset-0 bg-primary blur-3xl opacity-20 scale-150" />
+          <div className="relative flex items-center justify-center w-20 h-20 bg-secondary rounded-3xl border border-primary/20 shadow-glow">
             <Receipt className="w-10 h-10 text-primary" strokeWidth={1.5} />
           </div>
         </div>
 
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2 tracking-tight font-display">
-            Kućni Budžet
+          <h1 className="font-display text-5xl text-foreground mb-2 tracking-tight">
+            Kućni budžet
           </h1>
-          <p className="text-primary-foreground/0 text-sm font-medium tracking-wide uppercase" style={{ color: 'hsl(var(--primary-glow) / 0.7)' }}>
+          <p className="text-muted-foreground text-sm">
             Pratite troškove pametno
           </p>
         </div>
 
+        </div>
+
         {/* Login Form Container */}
-        <div className="w-full bg-secondary/40 backdrop-blur-xl border border-primary/10 rounded-[2.5rem] p-8 shadow-lg">
+        <div className="w-full bg-card border border-border rounded-[2rem] p-8 shadow-md">
+
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
               <label className="block text-xs font-semibold text-primary uppercase tracking-widest ml-1">
@@ -76,7 +80,7 @@ export function AuthForm() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="h-auto w-full bg-input/60 border border-white/5 rounded-2xl py-4 pl-12 pr-4 text-foreground placeholder:text-muted-foreground/40 focus-visible:border-primary/60 focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-0 transition-all"
+                  className="h-auto w-full bg-input border border-border rounded-2xl py-4 pl-12 pr-4 text-foreground placeholder:text-muted-foreground/60 focus-visible:border-primary/60 focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-0 transition-all"
                 />
               </div>
             </div>
@@ -98,7 +102,7 @@ export function AuthForm() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   minLength={6}
-                  className="h-auto w-full bg-input/60 border border-white/5 rounded-2xl py-4 pl-12 pr-4 text-foreground placeholder:text-muted-foreground/40 focus-visible:border-primary/60 focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-0 transition-all"
+                  className="h-auto w-full bg-input border border-border rounded-2xl py-4 pl-12 pr-4 text-foreground placeholder:text-muted-foreground/60 focus-visible:border-primary/60 focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-0 transition-all"
                 />
               </div>
             </div>
@@ -127,8 +131,7 @@ export function AuthForm() {
             <button
               type="button"
               onClick={() => setIsLogin(!isLogin)}
-              className="font-semibold hover:underline decoration-2 underline-offset-4"
-              style={{ color: 'hsl(var(--primary-glow))' }}
+              className="font-semibold text-primary hover:underline decoration-2 underline-offset-4"
             >
               {isLogin ? 'Registrirajte se' : 'Prijavite se'}
             </button>
