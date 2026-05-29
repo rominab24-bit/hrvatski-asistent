@@ -131,8 +131,7 @@ export function AuthForm() {
             <button
               type="button"
               onClick={() => setIsLogin(!isLogin)}
-              className="font-semibold hover:underline decoration-2 underline-offset-4"
-              style={{ color: 'hsl(var(--primary-glow))' }}
+              className="font-semibold text-primary hover:underline decoration-2 underline-offset-4"
             >
               {isLogin ? 'Registrirajte se' : 'Prijavite se'}
             </button>
