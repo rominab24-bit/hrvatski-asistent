@@ -63,7 +63,8 @@ export function AuthForm() {
         </div>
 
         {/* Login Form Container */}
-        <div className="w-full bg-secondary/40 backdrop-blur-xl border border-primary/10 rounded-[2.5rem] p-8 shadow-lg">
+        <div className="w-full bg-card border border-border rounded-[2rem] p-8 shadow-md">
+
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
               <label className="block text-xs font-semibold text-primary uppercase tracking-widest ml-1">
