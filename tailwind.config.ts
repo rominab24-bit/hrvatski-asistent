@@ -15,11 +15,11 @@ export default {
     extend: {
       fontFamily: {
         sans: ["DM Sans", "sans-serif"],
-        display: ["Space Grotesk", "sans-serif"],
+      fontFamily: {
+        sans: ["Karla", "sans-serif"],
+        display: ["Cormorant Garamond", "serif"],
         mono: ["JetBrains Mono", "monospace"],
       },
-      colors: {
-        border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
