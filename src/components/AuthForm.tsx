@@ -79,7 +79,8 @@ export function AuthForm() {
                   placeholder="vas@email.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  required
+                  className="h-auto w-full bg-input border border-border rounded-2xl py-4 pl-12 pr-4 text-foreground placeholder:text-muted-foreground/60 focus-visible:border-primary/60 focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-0 transition-all"
+
                   className="h-auto w-full bg-input/60 border border-white/5 rounded-2xl py-4 pl-12 pr-4 text-foreground placeholder:text-muted-foreground/40 focus-visible:border-primary/60 focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-0 transition-all"
                 />
               </div>
