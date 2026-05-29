@@ -41,22 +41,25 @@ export function AuthForm() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6 bg-background">
+    <div className="min-h-screen flex items-center justify-center p-6 bg-background">
       <div className="w-full max-w-[400px] flex flex-col items-center animate-fade-in">
         {/* Brand Identity */}
-        <div className="relative mb-10">
-          <div className="absolute inset-0 bg-primary blur-3xl opacity-25 scale-150" />
-          <div className="relative flex items-center justify-center w-20 h-20 bg-secondary rounded-2xl border border-primary/30 shadow-glow">
+        <div className="relative mb-8">
+          <div className="absolute inset-0 bg-primary blur-3xl opacity-20 scale-150" />
+          <div className="relative flex items-center justify-center w-20 h-20 bg-secondary rounded-3xl border border-primary/20 shadow-glow">
             <Receipt className="w-10 h-10 text-primary" strokeWidth={1.5} />
           </div>
         </div>
 
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2 tracking-tight font-display">
-            Kućni Budžet
+          <h1 className="font-display text-5xl text-foreground mb-2 tracking-tight">
+            Kućni budžet
           </h1>
-          <p className="text-primary-foreground/0 text-sm font-medium tracking-wide uppercase" style={{ color: 'hsl(var(--primary-glow) / 0.7)' }}>
+          <p className="text-muted-foreground text-sm">
             Pratite troškove pametno
           </p>
+        </div>
+
         </div>
 
         {/* Login Form Container */}
