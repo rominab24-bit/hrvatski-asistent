@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Karla:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,86 +6,86 @@
 
 @layer base {
   :root {
-    /* Neon Mint dark theme — Kućni Budžet */
-    --background: 210 52% 11%;        /* #0d1b2a */
-    --foreground: 150 30% 96%;
+    /* Organic Sage light theme — Kućni Budžet */
+    --background: 40 33% 95%;          /* #f5f2ea cream */
+    --foreground: 100 15% 18%;         /* deep olive ink */
 
-    --card: 210 50% 13%;
-    --card-foreground: 150 30% 96%;
+    --card: 42 40% 97%;                /* warm ivory */
+    --card-foreground: 100 15% 18%;
 
-    --popover: 210 50% 13%;
-    --popover-foreground: 150 30% 96%;
+    --popover: 42 40% 97%;
+    --popover-foreground: 100 15% 18%;
 
-    /* Mint accent */
-    --primary: 162 64% 50%;           /* #2dd4a8 */
-    --primary-foreground: 210 52% 11%;
-    --primary-glow: 144 100% 73%;     /* #73ffb8 */
+    /* Sage green primary */
+    --primary: 95 22% 38%;             /* #6b8e5a sage */
+    --primary-foreground: 42 40% 97%;
+    --primary-glow: 95 28% 55%;        /* light sage glow */
 
-    --secondary: 154 43% 19%;         /* #1b4332 */
-    --secondary-foreground: 144 60% 90%;
+    --secondary: 80 25% 88%;           /* pale sage */
+    --secondary-foreground: 100 20% 22%;
 
-    --muted: 210 35% 17%;
-    --muted-foreground: 162 20% 65%;
+    --muted: 40 25% 90%;
+    --muted-foreground: 95 10% 40%;
 
-    --accent: 144 100% 73%;
-    --accent-foreground: 210 52% 11%;
+    --accent: 80 30% 80%;
+    --accent-foreground: 100 20% 22%;
 
-    --destructive: 0 75% 60%;
-    --destructive-foreground: 150 30% 98%;
+    --destructive: 12 60% 50%;
+    --destructive-foreground: 42 40% 97%;
 
-    --border: 162 30% 22% / 0.4;
-    --input: 210 50% 9%;
-    --ring: 162 64% 50%;
+    --border: 80 20% 82%;
+    --input: 42 35% 92%;
+    --ring: 95 22% 38%;
 
-    --radius: 1rem;
+    --radius: 1.25rem;
 
     /* Status */
-    --success: 144 70% 55%;
-    --warning: 38 92% 60%;
-    --info: 199 89% 65%;
-    
-    /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(162 64% 50%) 0%, hsl(144 100% 73%) 100%);
-    --gradient-card: linear-gradient(180deg, hsl(154 43% 19% / 0.5) 0%, hsl(210 50% 13% / 0.6) 100%);
-    --gradient-hero: radial-gradient(circle at 50% 0%, hsl(162 64% 50% / 0.18) 0%, transparent 70%);
-    
-    /* Shadows */
-    --shadow-sm: 0 2px 8px hsl(210 60% 3% / 0.4);
-    --shadow-md: 0 8px 24px hsl(210 60% 3% / 0.5);
-    --shadow-lg: 0 20px 60px hsl(210 60% 3% / 0.6);
-    --shadow-glow: 0 0 40px hsl(162 64% 50% / 0.35);
-    --shadow-button: 0 10px 30px -5px hsl(162 64% 50% / 0.45);
+    --success: 95 35% 45%;
+    --warning: 35 70% 55%;
+    --info: 200 40% 55%;
 
-    --sidebar-background: 210 52% 9%;
-    --sidebar-foreground: 150 30% 92%;
-    --sidebar-primary: 162 64% 50%;
-    --sidebar-primary-foreground: 210 52% 11%;
-    --sidebar-accent: 154 43% 19%;
-    --sidebar-accent-foreground: 144 60% 90%;
-    --sidebar-border: 162 30% 22%;
-    --sidebar-ring: 162 64% 50%;
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(95 22% 38%) 0%, hsl(95 28% 55%) 100%);
+    --gradient-card: linear-gradient(180deg, hsl(42 40% 97%) 0%, hsl(40 33% 95%) 100%);
+    --gradient-hero: radial-gradient(circle at 50% 0%, hsl(95 30% 70% / 0.25) 0%, transparent 60%);
+
+    /* Shadows — soft, organic */
+    --shadow-sm: 0 2px 8px hsl(95 20% 30% / 0.06);
+    --shadow-md: 0 8px 24px hsl(95 20% 30% / 0.08);
+    --shadow-lg: 0 20px 60px hsl(95 20% 30% / 0.10);
+    --shadow-glow: 0 0 32px hsl(95 22% 38% / 0.18);
+    --shadow-button: 0 8px 20px -4px hsl(95 22% 38% / 0.35);
+
+    --sidebar-background: 42 40% 97%;
+    --sidebar-foreground: 100 15% 18%;
+    --sidebar-primary: 95 22% 38%;
+    --sidebar-primary-foreground: 42 40% 97%;
+    --sidebar-accent: 80 25% 88%;
+    --sidebar-accent-foreground: 100 20% 22%;
+    --sidebar-border: 80 20% 82%;
+    --sidebar-ring: 95 22% 38%;
   }
 
   .dark {
-    --background: 210 52% 11%;
-    --foreground: 150 30% 96%;
-    --card: 210 50% 13%;
-    --card-foreground: 150 30% 96%;
-    --popover: 210 50% 13%;
-    --popover-foreground: 150 30% 96%;
-    --primary: 162 64% 50%;
-    --primary-foreground: 210 52% 11%;
-    --secondary: 154 43% 19%;
-    --secondary-foreground: 144 60% 90%;
-    --muted: 210 35% 17%;
-    --muted-foreground: 162 20% 65%;
-    --accent: 144 100% 73%;
-    --accent-foreground: 210 52% 11%;
-    --destructive: 0 75% 60%;
-    --destructive-foreground: 150 30% 98%;
-    --border: 162 30% 22%;
-    --input: 210 50% 9%;
-    --ring: 162 64% 50%;
+    --background: 40 33% 95%;
+    --foreground: 100 15% 18%;
+    --card: 42 40% 97%;
+    --card-foreground: 100 15% 18%;
+    --popover: 42 40% 97%;
+    --popover-foreground: 100 15% 18%;
+    --primary: 95 22% 38%;
+    --primary-foreground: 42 40% 97%;
+    --secondary: 80 25% 88%;
+    --secondary-foreground: 100 20% 22%;
+    --muted: 40 25% 90%;
+    --muted-foreground: 95 10% 40%;
+    --accent: 80 30% 80%;
+    --accent-foreground: 100 20% 22%;
+    --destructive: 12 60% 50%;
+    --destructive-foreground: 42 40% 97%;
+    --border: 80 20% 82%;
+    --input: 42 35% 92%;
+    --ring: 95 22% 38%;
   }
 }
 
@@ -96,14 +96,14 @@
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Karla', sans-serif;
     background-image: var(--gradient-hero);
     background-attachment: fixed;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Space Grotesk', sans-serif;
-    @apply font-semibold tracking-tight;
+    font-family: 'Cormorant Garamond', serif;
+    @apply font-medium tracking-tight;
   }
 
   .font-mono {
@@ -114,13 +114,13 @@
 
 @layer components {
   .glass-card {
-    @apply bg-card/60 backdrop-blur-xl border border-primary/10 rounded-3xl;
+    @apply bg-card border border-border rounded-3xl;
     box-shadow: var(--shadow-md);
   }
 
   .stat-card {
     background: var(--gradient-card);
-    @apply border border-primary/10 rounded-2xl p-4 backdrop-blur-sm;
+    @apply border border-border rounded-2xl p-4;
     box-shadow: var(--shadow-sm);
   }
 
@@ -156,24 +156,12 @@
   }
 
   @keyframes slideUp {
-    from { 
-      opacity: 0; 
-      transform: translateY(20px); 
-    }
-    to { 
-      opacity: 1; 
-      transform: translateY(0); 
-    }
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 
   @keyframes scaleIn {
-    from { 
-      opacity: 0; 
-      transform: scale(0.95); 
-    }
-    to { 
-      opacity: 1; 
-      transform: scale(1); 
-    }
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
   }
 }
