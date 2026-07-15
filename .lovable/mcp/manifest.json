@@ -1,0 +1,132 @@
+{
+  "version": 1,
+  "sdk_version": "0.22.0",
+  "path": "/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://xrizhnaixeyykogwallr.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "kucni-budzet-mcp",
+      "version": "0.1.0",
+      "title": "Kućni budžet MCP"
+    },
+    "tools": [
+      {
+        "name": "list_expenses",
+        "title": "Popis troškova",
+        "description": "Vraća troškove prijavljenog korisnika. Podržava filtriranje po datumskom rasponu (from/to, ISO datum YYYY-MM-DD) i ograničenje broja rezultata.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "from": {
+              "description": "Početni datum (YYYY-MM-DD), uključivo.",
+              "type": "string"
+            },
+            "to": {
+              "description": "Krajnji datum (YYYY-MM-DD), uključivo.",
+              "type": "string"
+            },
+            "limit": {
+              "description": "Maksimalan broj troškova (default 100).",
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "maximum": 500
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "expense_summary",
+        "title": "Sažetak troškova",
+        "description": "Vraća ukupan iznos i razradu po kategorijama za zadani datumski raspon (default: tekući mjesec).",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "from": {
+              "description": "Početni datum (YYYY-MM-DD).",
+              "type": "string"
+            },
+            "to": {
+              "description": "Krajnji datum (YYYY-MM-DD).",
+              "type": "string"
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_categories",
+        "title": "Popis kategorija",
+        "description": "Vraća sve kategorije troškova dostupne prijavljenom korisniku (zadane i vlastite).",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "create_expense",
+        "title": "Dodaj trošak",
+        "description": "Dodaje novi trošak za prijaljenog korisnika. Kategorija se pronalazi po imenu (ako je navedena).",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "amount": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "description": "Iznos troška u eurima."
+            },
+            "description": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Kratak opis troška."
+            },
+            "expense_date": {
+              "description": "Datum troška (YYYY-MM-DD). Default: danas.",
+              "type": "string"
+            },
+            "category": {
+              "description": "Naziv kategorije (npr. 'Hrana'). Opcionalno.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "amount",
+            "description"
+          ]
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
