@@ -8,6 +8,7 @@ import Statistics from "./pages/Statistics";
 import Transactions from "./pages/Transactions";
 import Install from "./pages/Install";
 import NotFound from "./pages/NotFound";
+import OAuthConsent from "./pages/OAuthConsent";
 
 const queryClient = new QueryClient();
 
@@ -22,6 +23,7 @@ const App = () => (
           <Route path="/statistics" element={<Statistics />} />
           <Route path="/transactions" element={<Transactions />} />
           <Route path="/install" element={<Install />} />
+          <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
