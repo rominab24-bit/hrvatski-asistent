@@ -34,6 +34,14 @@ export function AuthForm() {
         description: 'Račun je kreiran. Možete se prijaviti.',
       });
       setIsLogin(true);
+    } else {
+      // Successful sign-in: honor ?next= for OAuth consent flow
+      const params = new URLSearchParams(window.location.search);
+      const next = params.get('next');
+      if (next && next.startsWith('/')) {
+        window.location.href = next;
+        return;
+      }
     }
 
     setIsLoading(false);
