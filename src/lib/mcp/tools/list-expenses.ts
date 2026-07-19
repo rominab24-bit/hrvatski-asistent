@@ -46,5 +46,5 @@ export default defineTool({
       content: [{ type: "text", text: JSON.stringify(rows, null, 2) }],
       structuredContent: { expenses: rows, count: rows.length },
     };
-  },
+  }),
 });

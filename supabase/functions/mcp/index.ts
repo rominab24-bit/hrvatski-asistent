@@ -6,11 +6,59 @@
 import { auth, defineMcp } from "npm:@lovable.dev/mcp-js@0.22.0";
 
 // src/lib/mcp/tools/list-expenses.ts
-import { createClient } from "npm:@supabase/supabase-js@^2.89.0";
+import { createClient as createClient2 } from "npm:@supabase/supabase-js@^2.89.0";
 import { defineTool } from "npm:@lovable.dev/mcp-js@0.22.0";
 import { z } from "npm:zod@^4.4.3";
+
+// src/lib/mcp/with-logging.ts
+import { createClient } from "npm:@supabase/supabase-js@^2.89.0";
+async function logMcpCall(ctx, toolName, status, errorMessage, durationMs) {
+  try {
+    if (!ctx.isAuthenticated()) return;
+    const sb = createClient(
+      process.env.SUPABASE_URL,
+      process.env.SUPABASE_PUBLISHABLE_KEY,
+      {
+        global: { headers: { Authorization: `Bearer ${ctx.getToken()}` } },
+        auth: { persistSession: false, autoRefreshToken: false }
+      }
+    );
+    await sb.from("mcp_tool_logs").insert({
+      user_id: ctx.getUserId(),
+      tool_name: toolName,
+      status,
+      error_message: errorMessage,
+      duration_ms: durationMs
+    });
+  } catch {
+  }
+}
+function withLogging(toolName, handler) {
+  return (async (input, ctx) => {
+    const start = Date.now();
+    try {
+      const result = await handler(input, ctx);
+      const isError = !!(result && result.isError);
+      const errMsg = isError ? result?.content?.[0]?.text ?? "unknown error" : null;
+      await logMcpCall(
+        ctx,
+        toolName,
+        isError ? "error" : "success",
+        errMsg,
+        Date.now() - start
+      );
+      return result;
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      await logMcpCall(ctx, toolName, "error", msg, Date.now() - start);
+      throw err;
+    }
+  });
+}
+
+// src/lib/mcp/tools/list-expenses.ts
 function supabaseForUser(ctx) {
-  return createClient(process.env.SUPABASE_URL, process.env.SUPABASE_PUBLISHABLE_KEY, {
+  return createClient2(process.env.SUPABASE_URL, process.env.SUPABASE_PUBLISHABLE_KEY, {
     global: { headers: { Authorization: `Bearer ${ctx.getToken()}` } },
     auth: { persistSession: false, autoRefreshToken: false }
   });
@@ -25,7 +73,7 @@ var list_expenses_default = defineTool({
     limit: z.number().int().positive().max(500).optional().describe("Maksimalan broj tro\u0161kova (default 100).")
   },
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
-  handler: async ({ from, to, limit }, ctx) => {
+  handler: withLogging("list_expenses", async ({ from, to, limit }, ctx) => {
     if (!ctx.isAuthenticated()) {
       return { content: [{ type: "text", text: "Niste prijavljeni." }], isError: true };
     }
@@ -46,15 +94,15 @@ var list_expenses_default = defineTool({
       content: [{ type: "text", text: JSON.stringify(rows, null, 2) }],
       structuredContent: { expenses: rows, count: rows.length }
     };
-  }
+  })
 });
 
 // src/lib/mcp/tools/create-expense.ts
-import { createClient as createClient2 } from "npm:@supabase/supabase-js@^2.89.0";
+import { createClient as createClient3 } from "npm:@supabase/supabase-js@^2.89.0";
 import { defineTool as defineTool2 } from "npm:@lovable.dev/mcp-js@0.22.0";
 import { z as z2 } from "npm:zod@^4.4.3";
 function supabaseForUser2(ctx) {
-  return createClient2(process.env.SUPABASE_URL, process.env.SUPABASE_PUBLISHABLE_KEY, {
+  return createClient3(process.env.SUPABASE_URL, process.env.SUPABASE_PUBLISHABLE_KEY, {
     global: { headers: { Authorization: `Bearer ${ctx.getToken()}` } },
     auth: { persistSession: false, autoRefreshToken: false }
   });
@@ -96,10 +144,10 @@ var create_expense_default = defineTool2({
 });
 
 // src/lib/mcp/tools/list-categories.ts
-import { createClient as createClient3 } from "npm:@supabase/supabase-js@^2.89.0";
+import { createClient as createClient4 } from "npm:@supabase/supabase-js@^2.89.0";
 import { defineTool as defineTool3 } from "npm:@lovable.dev/mcp-js@0.22.0";
 function supabaseForUser3(ctx) {
-  return createClient3(process.env.SUPABASE_URL, process.env.SUPABASE_PUBLISHABLE_KEY, {
+  return createClient4(process.env.SUPABASE_URL, process.env.SUPABASE_PUBLISHABLE_KEY, {
     global: { headers: { Authorization: `Bearer ${ctx.getToken()}` } },
     auth: { persistSession: false, autoRefreshToken: false }
   });
@@ -124,11 +172,11 @@ var list_categories_default = defineTool3({
 });
 
 // src/lib/mcp/tools/expense-summary.ts
-import { createClient as createClient4 } from "npm:@supabase/supabase-js@^2.89.0";
+import { createClient as createClient5 } from "npm:@supabase/supabase-js@^2.89.0";
 import { defineTool as defineTool4 } from "npm:@lovable.dev/mcp-js@0.22.0";
 import { z as z3 } from "npm:zod@^4.4.3";
 function supabaseForUser4(ctx) {
-  return createClient4(process.env.SUPABASE_URL, process.env.SUPABASE_PUBLISHABLE_KEY, {
+  return createClient5(process.env.SUPABASE_URL, process.env.SUPABASE_PUBLISHABLE_KEY, {
     global: { headers: { Authorization: `Bearer ${ctx.getToken()}` } },
     auth: { persistSession: false, autoRefreshToken: false }
   });
