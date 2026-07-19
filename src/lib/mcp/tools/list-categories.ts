@@ -15,7 +15,7 @@ export default defineTool({
   description: "Vraća sve kategorije troškova dostupne prijavljenom korisniku (zadane i vlastite).",
   inputSchema: {},
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
-  handler: async (_input, ctx) => {
+  handler: withLogging("list_categories", async (_input, ctx) => {
     if (!ctx.isAuthenticated()) {
       return { content: [{ type: "text" as const, text: "Niste prijavljeni." }], isError: true };
     }
