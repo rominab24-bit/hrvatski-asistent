@@ -190,7 +190,7 @@ var expense_summary_default = defineTool4({
     to: z3.string().optional().describe("Krajnji datum (YYYY-MM-DD).")
   },
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
-  handler: async ({ from, to }, ctx) => {
+  handler: withLogging("expense_summary", async ({ from, to }, ctx) => {
     if (!ctx.isAuthenticated()) {
       return { content: [{ type: "text", text: "Niste prijavljeni." }], isError: true };
     }
@@ -219,7 +219,7 @@ var expense_summary_default = defineTool4({
       content: [{ type: "text", text: JSON.stringify(summary, null, 2) }],
       structuredContent: summary
     };
-  }
+  })
 });
 
 // src/lib/mcp/index.ts
