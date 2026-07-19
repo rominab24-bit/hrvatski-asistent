@@ -20,7 +20,7 @@ export default defineTool({
     to: z.string().optional().describe("Krajnji datum (YYYY-MM-DD)."),
   },
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
-  handler: async ({ from, to }, ctx) => {
+  handler: withLogging("expense_summary", async ({ from, to }, ctx) => {
     if (!ctx.isAuthenticated()) {
       return { content: [{ type: "text" as const, text: "Niste prijavljeni." }], isError: true };
     }
