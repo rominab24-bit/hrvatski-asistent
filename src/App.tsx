@@ -9,6 +9,7 @@ import Transactions from "./pages/Transactions";
 import Install from "./pages/Install";
 import NotFound from "./pages/NotFound";
 import OAuthConsent from "./pages/OAuthConsent";
+import McpStatus from "./pages/McpStatus";
 
 const queryClient = new QueryClient();
 
