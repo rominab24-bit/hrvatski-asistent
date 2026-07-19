@@ -118,7 +118,7 @@ var create_expense_default = defineTool2({
     category: z2.string().optional().describe("Naziv kategorije (npr. 'Hrana'). Opcionalno.")
   },
   annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
-  handler: async ({ amount, description, expense_date, category }, ctx) => {
+  handler: withLogging("create_expense", async ({ amount, description, expense_date, category }, ctx) => {
     if (!ctx.isAuthenticated()) {
       return { content: [{ type: "text", text: "Niste prijavljeni." }], isError: true };
     }
@@ -140,7 +140,7 @@ var create_expense_default = defineTool2({
       content: [{ type: "text", text: `Tro\u0161ak spremljen: ${data.description} (${data.amount} \u20AC).` }],
       structuredContent: { expense: data }
     };
-  }
+  })
 });
 
 // src/lib/mcp/tools/list-categories.ts

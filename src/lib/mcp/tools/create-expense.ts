@@ -52,5 +52,5 @@ export default defineTool({
       content: [{ type: "text" as const, text: `Trošak spremljen: ${data.description} (${data.amount} €).` }],
       structuredContent: { expense: data },
     };
-  },
+  }),
 });
