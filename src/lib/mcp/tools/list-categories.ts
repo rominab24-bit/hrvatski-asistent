@@ -28,5 +28,5 @@ export default defineTool({
       content: [{ type: "text" as const, text: JSON.stringify(data, null, 2) }],
       structuredContent: { categories: data ?? [] },
     };
-  },
+  }),
 });

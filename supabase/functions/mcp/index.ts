@@ -158,7 +158,7 @@ var list_categories_default = defineTool3({
   description: "Vra\u0107a sve kategorije tro\u0161kova dostupne prijavljenom korisniku (zadane i vlastite).",
   inputSchema: {},
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
-  handler: async (_input, ctx) => {
+  handler: withLogging("list_categories", async (_input, ctx) => {
     if (!ctx.isAuthenticated()) {
       return { content: [{ type: "text", text: "Niste prijavljeni." }], isError: true };
     }
@@ -168,7 +168,7 @@ var list_categories_default = defineTool3({
       content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
       structuredContent: { categories: data ?? [] }
     };
-  }
+  })
 });
 
 // src/lib/mcp/tools/expense-summary.ts
