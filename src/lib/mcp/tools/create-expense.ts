@@ -22,7 +22,7 @@ export default defineTool({
     category: z.string().optional().describe("Naziv kategorije (npr. 'Hrana'). Opcionalno."),
   },
   annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
-  handler: async ({ amount, description, expense_date, category }, ctx) => {
+  handler: withLogging("create_expense", async ({ amount, description, expense_date, category }, ctx) => {
     if (!ctx.isAuthenticated()) {
       return { content: [{ type: "text" as const, text: "Niste prijavljeni." }], isError: true };
     }
