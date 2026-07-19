@@ -21,7 +21,7 @@ export default defineTool({
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   handler: async ({ from, to }, ctx) => {
     if (!ctx.isAuthenticated()) {
-      return { content: [{ type: "text", text: "Niste prijavljeni." }], isError: true };
+      return { content: [{ type: "text" as const, text: "Niste prijavljeni." }], isError: true };
     }
     const now = new Date();
     const defaultFrom = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
@@ -34,7 +34,7 @@ export default defineTool({
       .select("amount, expense_categories(name)")
       .gte("expense_date", rangeFrom)
       .lte("expense_date", rangeTo);
-    if (error) return { content: [{ type: "text", text: error.message }], isError: true };
+    if (error) return { content: [{ type: "text" as const, text: error.message }], isError: true };
 
     const byCategory: Record<string, number> = {};
     let total = 0;
@@ -53,7 +53,7 @@ export default defineTool({
         .sort((a, b) => b.amount - a.amount),
     };
     return {
-      content: [{ type: "text", text: JSON.stringify(summary, null, 2) }],
+      content: [{ type: "text" as const, text: JSON.stringify(summary, null, 2) }],
       structuredContent: summary,
     };
   },

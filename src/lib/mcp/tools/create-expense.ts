@@ -23,7 +23,7 @@ export default defineTool({
   annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
   handler: async ({ amount, description, expense_date, category }, ctx) => {
     if (!ctx.isAuthenticated()) {
-      return { content: [{ type: "text", text: "Niste prijavljeni." }], isError: true };
+      return { content: [{ type: "text" as const, text: "Niste prijavljeni." }], isError: true };
     }
     const sb = supabaseForUser(ctx);
     let categoryId: string | null = null;
@@ -46,9 +46,9 @@ export default defineTool({
       })
       .select()
       .single();
-    if (error) return { content: [{ type: "text", text: error.message }], isError: true };
+    if (error) return { content: [{ type: "text" as const, text: error.message }], isError: true };
     return {
-      content: [{ type: "text", text: `Trošak spremljen: ${data.description} (${data.amount} €).` }],
+      content: [{ type: "text" as const, text: `Trošak spremljen: ${data.description} (${data.amount} €).` }],
       structuredContent: { expense: data },
     };
   },
