@@ -21,7 +21,7 @@ export default defineTool({
     limit: z.number().int().positive().max(500).optional().describe("Maksimalan broj troškova (default 100)."),
   },
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
-  handler: async ({ from, to, limit }, ctx) => {
+  handler: withLogging("list_expenses", async ({ from, to, limit }, ctx) => {
     if (!ctx.isAuthenticated()) {
       return { content: [{ type: "text", text: "Niste prijavljeni." }], isError: true };
     }
