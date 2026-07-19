@@ -34,7 +34,7 @@ async function logMcpCall(ctx, toolName, status, errorMessage, durationMs) {
   }
 }
 function withLogging(toolName, handler) {
-  return (async (input, ctx) => {
+  return async (input, ctx) => {
     const start = Date.now();
     try {
       const result = await handler(input, ctx);
@@ -53,7 +53,7 @@ function withLogging(toolName, handler) {
       await logMcpCall(ctx, toolName, "error", msg, Date.now() - start);
       throw err;
     }
-  });
+  };
 }
 
 // src/lib/mcp/tools/list-expenses.ts

@@ -32,10 +32,11 @@ export async function logMcpCall(
   }
 }
 
-export function withLogging<
-  H extends (input: any, ctx: ToolContext) => Promise<any>,
->(toolName: string, handler: H): H {
-  return (async (input: any, ctx: ToolContext) => {
+export function withLogging<I, R>(
+  toolName: string,
+  handler: (input: I, ctx: ToolContext) => Promise<R> | R,
+): (input: I, ctx: ToolContext) => Promise<R> {
+  return async (input: I, ctx: ToolContext) => {
     const start = Date.now();
     try {
       const result = await handler(input, ctx);
@@ -56,5 +57,6 @@ export function withLogging<
       await logMcpCall(ctx, toolName, "error", msg, Date.now() - start);
       throw err;
     }
-  }) as H;
+  };
 }
+
