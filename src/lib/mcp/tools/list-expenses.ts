@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { defineTool, type ToolContext } from "@lovable.dev/mcp-js";
 import { z } from "zod";
+import { withLogging } from "../with-logging";
 
 function supabaseForUser(ctx: ToolContext) {
   return createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_PUBLISHABLE_KEY!, {
@@ -20,9 +21,9 @@ export default defineTool({
     limit: z.number().int().positive().max(500).optional().describe("Maksimalan broj troškova (default 100)."),
   },
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
-  handler: async ({ from, to, limit }, ctx) => {
+  handler: withLogging("list_expenses", async ({ from, to, limit }, ctx) => {
     if (!ctx.isAuthenticated()) {
-      return { content: [{ type: "text", text: "Niste prijavljeni." }], isError: true };
+      return { content: [{ type: "text" as const, text: "Niste prijavljeni." }], isError: true };
     }
     const sb = supabaseForUser(ctx);
     let query = sb
@@ -33,7 +34,7 @@ export default defineTool({
     if (from) query = query.gte("expense_date", from);
     if (to) query = query.lte("expense_date", to);
     const { data, error } = await query;
-    if (error) return { content: [{ type: "text", text: error.message }], isError: true };
+    if (error) return { content: [{ type: "text" as const, text: error.message }], isError: true };
     const rows = (data ?? []).map((r: any) => ({
       id: r.id,
       amount: r.amount,
@@ -42,8 +43,8 @@ export default defineTool({
       category: r.expense_categories?.name ?? null,
     }));
     return {
-      content: [{ type: "text", text: JSON.stringify(rows, null, 2) }],
+      content: [{ type: "text" as const, text: JSON.stringify(rows, null, 2) }],
       structuredContent: { expenses: rows, count: rows.length },
     };
-  },
+  }),
 });

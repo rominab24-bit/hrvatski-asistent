@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { defineTool, type ToolContext } from "@lovable.dev/mcp-js";
 import { z } from "zod";
+import { withLogging } from "../with-logging";
 
 function supabaseForUser(ctx: ToolContext) {
   return createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_PUBLISHABLE_KEY!, {
@@ -21,9 +22,9 @@ export default defineTool({
     category: z.string().optional().describe("Naziv kategorije (npr. 'Hrana'). Opcionalno."),
   },
   annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
-  handler: async ({ amount, description, expense_date, category }, ctx) => {
+  handler: withLogging("create_expense", async ({ amount, description, expense_date, category }, ctx) => {
     if (!ctx.isAuthenticated()) {
-      return { content: [{ type: "text", text: "Niste prijavljeni." }], isError: true };
+      return { content: [{ type: "text" as const, text: "Niste prijavljeni." }], isError: true };
     }
     const sb = supabaseForUser(ctx);
     let categoryId: string | null = null;
@@ -46,10 +47,10 @@ export default defineTool({
       })
       .select()
       .single();
-    if (error) return { content: [{ type: "text", text: error.message }], isError: true };
+    if (error) return { content: [{ type: "text" as const, text: error.message }], isError: true };
     return {
-      content: [{ type: "text", text: `Trošak spremljen: ${data.description} (${data.amount} €).` }],
+      content: [{ type: "text" as const, text: `Trošak spremljen: ${data.description} (${data.amount} €).` }],
       structuredContent: { expense: data },
     };
-  },
+  }),
 });
