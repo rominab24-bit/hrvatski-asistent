@@ -23,6 +23,7 @@ export type Database = {
           original_category: string | null
           store_name: string | null
           user_id: string
+          weight: number
         }
         Insert: {
           corrected_category: string
@@ -32,6 +33,7 @@ export type Database = {
           original_category?: string | null
           store_name?: string | null
           user_id: string
+          weight?: number
         }
         Update: {
           corrected_category?: string
@@ -41,6 +43,7 @@ export type Database = {
           original_category?: string | null
           store_name?: string | null
           user_id?: string
+          weight?: number
         }
         Relationships: []
       }
