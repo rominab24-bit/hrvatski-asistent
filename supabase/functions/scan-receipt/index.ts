@@ -38,6 +38,38 @@ type ReceiptItem = {
 
 const roundMoney = (value: number) => Math.round(value * 100) / 100;
 
+/**
+ * Uklanja osobne podatke iz teksta prije nego što se vrati klijentu ili spremi.
+ * Cilj: ime i prezime kupca, kućna adresa, brojevi kartica, IBAN, OIB kupca,
+ * email, telefon. Ostavlja naziv trgovine i stavke netaknutima ako ne sadrže
+ * te uzorke.
+ */
+const PII_PLACEHOLDER = '[uklonjeno]';
+const redactPII = (input: unknown): string => {
+  if (input === undefined || input === null) return '';
+  let text = String(input);
+
+  // IBAN (HR + 19 znamenki, s ili bez razmaka)
+  text = text.replace(/\b[A-Z]{2}\d{2}[\s-]?(?:\d[\s-]?){11,30}\b/g, PII_PLACEHOLDER);
+  // Brojevi kartica (13-19 znamenki, dozvoljeni razmaci/crtice)
+  text = text.replace(/\b(?:\d[\s-]?){13,19}\b/g, PII_PLACEHOLDER);
+  // OIB / duži nizovi znamenki (11+)
+  text = text.replace(/\b\d{11,}\b/g, PII_PLACEHOLDER);
+  // Email
+  text = text.replace(/[\w.+-]+@[\w-]+\.[\w.-]+/gi, PII_PLACEHOLDER);
+  // Telefonski brojevi (npr. +385 91 234 5678, 091-234-5678)
+  text = text.replace(/(?:\+?\d{1,3}[\s-]?)?(?:\(?\d{2,4}\)?[\s-]?)?\d{3}[\s-]?\d{3,4}/g, (m) => {
+    const digits = m.replace(/\D/g, '');
+    return digits.length >= 8 ? PII_PLACEHOLDER : m;
+  });
+  // Kućna adresa: "Ulica/Ul./Trg/Cesta/Put/Avenija ... broj"
+  text = text.replace(/\b(?:Ulica|Ul\.?|Trg|Cesta|Put|Avenija|Aleja|Šetalište|Obala|Prilaz|Naselje)\s+[^\n,;]{2,60}?\s+\d+[a-zA-Z]?\b/gi, PII_PLACEHOLDER);
+  // Poštanski broj + grad (npr. 10000 Zagreb)
+  text = text.replace(/\b\d{5}\s+[A-ZŠĐČĆŽ][a-zšđčćž]+(?:\s+[A-ZŠĐČĆŽ][a-zšđčćž]+)?\b/g, PII_PLACEHOLDER);
+
+  return text.trim();
+};
+
 const toNumber = (value: unknown): number => {
   if (typeof value === 'number') return value;
   if (typeof value === 'string') {
@@ -57,7 +89,7 @@ const normalizeCategory = (category: unknown): typeof ALLOWED_CATEGORIES[number]
 const normalizeReceiptData = (receiptData: any) => {
   const items: ReceiptItem[] = Array.isArray(receiptData?.items)
     ? receiptData.items.map((item: any) => ({
-        name: String(item?.name || 'Nepoznata stavka').trim(),
+        name: (redactPII(item?.name) || 'Nepoznata stavka'),
         quantity: item?.quantity === undefined ? undefined : toNumber(item.quantity),
         price: roundMoney(toNumber(item?.price)),
         category: normalizeCategory(item?.category),
@@ -71,6 +103,7 @@ const normalizeReceiptData = (receiptData: any) => {
 
   return {
     ...receiptData,
+    store_name: receiptData?.store_name ? redactPII(receiptData.store_name) : receiptData?.store_name,
     items,
     total_amount: aiTotal || calculatedTotal,
     calculated_total: calculatedTotal,
@@ -257,6 +290,14 @@ serve(async (req) => {
           {
             role: 'system',
             content: `Ti si asistent za čitanje i analizu hrvatskih računa. Analiziraj sliku računa i izvuci sve stvarne stavke s računa.
+
+ZAŠTITA PRIVATNOSTI — OBAVEZNO:
+- NIKAD ne vraćaj osobne podatke kupca: ime, prezime, kućnu adresu, OIB kupca, broj osobne, broj kartice (kreditne/debitne), IBAN, PIN, CVV, email adresu, broj telefona ili mobitela, potpis, matični broj.
+- Ako se takvi podaci pojavljuju na računu (npr. u zaglavlju "Kupac:", u dnu kod potpisa, ili u informacijama o plaćanju karticom), potpuno ih izostavi iz odgovora — ne stavljaj ih ni u naziv trgovine ni u nazive stavki ni bilo gdje drugdje.
+- Ako naziv stavke slučajno sadrži takav podatak, zamijeni taj dio s "[uklonjeno]".
+- Podaci o trgovini (naziv, adresa poslovnice, OIB tvrtke izdavatelja) NISU osobni podaci kupca i mogu se vratiti kao dio naziva trgovine.
+
+
 
 Za svaku stavku pronađi:
 - naziv proizvoda/usluge
