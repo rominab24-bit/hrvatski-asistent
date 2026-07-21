@@ -1,42 +1,44 @@
 
-# Globalni mjesečni limit AI skeniranja računa
+# Čarobnjak za preporuku pretplate
 
-Cilj: ograničiti ukupan broj AI skeniranja računa na **250 po kalendarskom mjesecu** za cijelu aplikaciju (svi korisnici zajedno). Kad se limit dosegne, skeniranje se blokira do 1. sljedećeg mjeseca uz jasnu poruku korisniku.
+Dodajemo mali interaktivni čarobnjak u **Postavke** koji na temelju očekivanog broja korisnika i prosječnog broja AI skeniranja mjesečno izračunava:
+- ukupno očekivano skeniranja/mjesec (uz poštivanje globalnog limita 250/mj),
+- procijenjeni trošak u Lovable kreditima,
+- preporučeni Lovable plan (Pro tier ili Business),
+- poveznicu na Lovable pricing i Settings → Plans & credits.
 
-## Što se mijenja
+## Korisničko iskustvo
 
-### 1. Baza — brojač u novoj tablici
-Nova tablica `ai_scan_usage` s jednim retkom po mjesecu:
-- `month` (npr. `2026-07`) kao primarni ključ
-- `count` — koliko je skeniranja obavljeno tog mjeseca
-- `updated_at`
+Novi gumb "Kalkulator pretplate" u `src/pages/Settings.tsx` otvara `Dialog` s 3 koraka (koristimo postojeći `Dialog` iz shadcn-a, bez novih zavisnosti):
 
-Uz nju SECURITY DEFINER funkcija `increment_scan_usage(monthly_limit int)` koja atomarno:
-1. Umetne/pročita redak za tekući mjesec.
-2. Ako je `count >= monthly_limit` → vrati `{ allowed: false, count, limit }`.
-3. Inače inkrementira i vrati `{ allowed: true, count, limit }`.
-
-RLS: tablica zaključana, pristup samo preko funkcije (poziva ju edge funkcija sa service role ključem). Autentificirani korisnici smiju pročitati samo tekući `count` i limit preko posebne read-only funkcije `get_scan_usage()` da UI može prikazati stanje.
-
-### 2. Edge funkcija `scan-receipt`
-Na samom početku (nakon auth provjere, prije poziva AI-ja):
-- Pozove `increment_scan_usage(250)`.
-- Ako `allowed = false`, vrati **HTTP 429** s porukom:
-  > „Dosegnut je mjesečni limit AI skeniranja (250/mjesec). Skeniranje će ponovno biti dostupno 1. u sljedećem mjesecu. Troškove možete i dalje unositi ručno."
-- Inače nastavi normalno. (Nema smanjivanja brojača kod AI greške — jednostavnije i sprječava zlouporabu; 250/mjesec ima dovoljno margine.)
-
-### 3. Frontend
-- `useReceiptScanner` prepoznaje status 429 s poljem `limit_reached` i prikazuje jasan toast s porukom iznad.
-- `ReceiptScanner` komponenta na ulaznom ekranu diskretno prikazuje „Iskorišteno X / 250 skeniranja ovog mjeseca" (dohvat preko `get_scan_usage` RPC-a pri otvaranju).
-- Kad je limit dosegnut, gumbi „Fotografiraj" i „Odaberi sliku" su onemogućeni s objašnjenjem; ručni unos troška ostaje potpuno funkcionalan.
-
-## Što se NE mijenja
-- Postojeći tijek skeniranja, PII redakcija, kategorizacija i feedback ostaju identični.
-- Nema per-user limita — samo globalni.
-- Nema promjena u naplati/kreditima; ovo je aplikacijski limit neovisan od Lovable kredita.
+1. **Broj korisnika** — slider/Input 1–1000.
+2. **Prosjek skeniranja po korisniku mjesečno** — slider 0–250 (uz napomenu da globalni limit 250 vrijedi za cijelu aplikaciju).
+3. **Rezultat** — kartica s:
+   - Ukupno skeniranja/mj = `min(korisnici × prosjek, 250)` (globalni cap)
+   - Procijenjeni trošak: `skeniranja × 0.01` kredita (+ mala rezerva ~20% za ostale Cloud/edge troškove)
+   - Preporuka plana:
+     - ≤ ~80 kredita/mj → **Pro 100**
+     - ≤ ~200 → **Pro 250**
+     - ≤ ~400 → **Pro 500**
+     - ≤ ~800 → **Business 1000**
+     - > 800 → **Business 2000+ ili Enterprise**
+   - Kratko objašnjenje ("Ova procjena uključuje samo AI skeniranje računa; stvarni trošak može varirati zbog ostalih operacija.")
+   - Dva linka: [Pogledaj sve planove](https://lovable.dev/pricing) i uputa "Otvori Settings → Plans & credits u Lovable workspace-u za odabir plana."
 
 ## Tehnički detalji
 
-- `month` se računa iz `now() AT TIME ZONE 'Europe/Zagreb'` formatiranog kao `YYYY-MM` da se reset događa u ponoć po lokalnom vremenu.
-- Broj 250 je konstanta u edge funkciji — lako promjenjiva jednom vrijednošću ako kasnije poželiš drugi limit.
-- Read RPC `get_scan_usage()` vraća `{ count, limit, month }` bez ikakvih osobnih podataka; siguran za sve prijavljene korisnike.
+- Nova komponenta `src/components/SubscriptionWizard.tsx` — čisti frontend, bez API poziva.
+- Konstante:
+  ```ts
+  const CREDITS_PER_SCAN = 0.01;
+  const GLOBAL_MONTHLY_SCAN_LIMIT = 250;
+  const OVERHEAD_MULTIPLIER = 1.2;
+  ```
+- Funkcija `recommendPlan(credits: number)` vraća `{ name, credits, url }`.
+- Integracija u `src/pages/Settings.tsx`: nova `Card` iznad "Opasna zona" s gumbom koji otvara `SubscriptionWizard`.
+- Sve na hrvatskom, u skladu s postojećim Organic Sage stilom (koristi postojeće shadcn komponente: `Dialog`, `Slider`, `Button`, `Card`).
+
+## Što se NE mijenja
+
+- Nema promjena u bazi, edge funkcijama ili logici skeniranja.
+- Nema stvarnog dohvata trenutnih kredita iz Lovable API-ja (nije dostupno iz aplikacijskog runtime-a) — samo procjena.

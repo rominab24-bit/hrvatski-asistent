@@ -12,8 +12,9 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { ArrowLeft, Trash2, Loader2, AlertTriangle, Download, FileText, FileSpreadsheet } from 'lucide-react';
+import { ArrowLeft, Trash2, Loader2, AlertTriangle, Download, FileText, FileSpreadsheet, Calculator } from 'lucide-react';
 import { exportToCSV, exportToPDF } from '@/lib/exportData';
+import SubscriptionWizard from '@/components/SubscriptionWizard';
 
 export default function Settings() {
   const navigate = useNavigate();
@@ -135,6 +136,19 @@ export default function Settings() {
                 : <><FileText className="w-4 h-4 mr-2" />Preuzmi PDF</>}
             </Button>
           </div>
+        </Card>
+
+        <Card className="p-6 space-y-4">
+          <div className="flex items-start gap-3">
+            <Calculator className="w-5 h-5 text-primary shrink-0 mt-1" />
+            <div>
+              <h2 className="text-lg font-serif">Kalkulator pretplate</h2>
+              <p className="text-sm text-muted-foreground mt-1">
+                Procijenite mjesečni trošak Lovable kredita prema broju korisnika i očekivanom broju AI skeniranja te dobijte preporuku plana.
+              </p>
+            </div>
+          </div>
+          <SubscriptionWizard />
         </Card>
 
         <Card className="p-6 space-y-4 border-destructive/40">
