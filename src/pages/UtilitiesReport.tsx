@@ -5,7 +5,10 @@ import { AuthForm } from '@/components/AuthForm';
 import { OfflineIndicator } from '@/components/OfflineIndicator';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { ChevronLeft, ChevronRight, Home, Loader2, Zap } from 'lucide-react';
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { ChevronLeft, ChevronRight, Download, FileSpreadsheet, FileText, Home, Loader2, Zap } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import {
   BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid,
@@ -16,6 +19,8 @@ import {
 } from 'date-fns';
 import { hr } from 'date-fns/locale';
 import { getCategoryIcon } from '@/lib/categories';
+import { exportUtilitiesCSV, exportUtilitiesXLSX } from '@/lib/exportUtilities';
+import { toast } from 'sonner';
 
 const UTILITY_NAMES = [
   'Voda',
