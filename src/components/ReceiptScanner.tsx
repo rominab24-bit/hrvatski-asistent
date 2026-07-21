@@ -628,6 +628,7 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
             onClick={handleCameraCapture}
             variant="outline"
             className="w-full h-32 border-dashed border-2 flex flex-col gap-2"
+            disabled={limitReached}
           >
             <Camera className="w-8 h-8 text-muted-foreground" />
             <span className="text-muted-foreground">Slikaj račun</span>
@@ -637,6 +638,7 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
             onClick={handleGallerySelect}
             variant="secondary"
             className="w-full"
+            disabled={limitReached}
           >
             <Upload className="w-4 h-4 mr-2" />
             Odaberi iz galerije
