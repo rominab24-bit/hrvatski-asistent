@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useExpenses, Expense } from '@/hooks/useExpenses';
 import { useSoundEffects } from '@/hooks/useSoundEffects';
@@ -318,6 +318,19 @@ export default function Dashboard() {
             />
           )}
         </section>
+
+        <footer className="pt-8 pb-4 text-center">
+          <p className="text-xs text-muted-foreground mb-1">
+            <Link to="/privacy" className="hover:text-foreground underline underline-offset-2">
+              Pravila privatnosti
+            </Link>
+            {' · '}
+            <Link to="/terms" className="hover:text-foreground underline underline-offset-2">
+              Uvjeti korištenja
+            </Link>
+          </p>
+          <p className="text-xs text-muted-foreground/60">© 2026 Kućni Budžet</p>
+        </footer>
       </main>
 
       {/* Bottom Action Buttons */}
