@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/hooks/useAuth';
@@ -150,6 +151,20 @@ export function AuthForm() {
                 </>
               )}
             </Button>
+
+            {mode === 'signup' && (
+              <p className="text-xs text-center text-muted-foreground mt-4">
+                Registrirajući se prihvaćate{' '}
+                <Link to="/terms" className="text-primary hover:underline underline-offset-2">
+                  Uvjete korištenja
+                </Link>{' '}
+                i{' '}
+                <Link to="/privacy" className="text-primary hover:underline underline-offset-2">
+                  Pravila privatnosti
+                </Link>
+                .
+              </p>
+            )}
           </form>
         </div>
 
