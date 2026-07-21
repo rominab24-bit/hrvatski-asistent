@@ -81,7 +81,7 @@ const redactPII = (input: unknown): string => {
   text = text.replace(/[\w.+-]+@[\w-]+\.[\w.-]+/gi, PII_PLACEHOLDER);
   // Telefonski brojevi — SAMO hrvatski formati:
   // +385, 00385, mobilni prefiksi 091/092/095/097/098/099, te fiksni 01/02x/03x/04x/05x
-  text = text.replace(/(?:\+385|00385|091|092|095|097|098|099|01|0[2-5]\d)\s*(?:\d[\s-]?){6,9}/g, PII_PLACEHOLDER);
+  text = text.replace(/(?:\+385|00385|091|092|095|097|098|099|01|0[2-5]\d)(?:[\s\/]*)(?:\d[\s\/-]?){6,9}/g, PII_PLACEHOLDER);
   // Kućna adresa: "Ulica/Ul./Trg/Cesta/Put/Avenija ... broj"
   text = text.replace(/\b(?:Ulica|Ul\.?|Trg|Cesta|Put|Avenija|Aleja|Šetalište|Obala|Prilaz|Naselje)\s+[^\n,;]{2,60}?\s+\d+[a-zA-Z]?\b/gi, PII_PLACEHOLDER);
   // Poštanski broj + grad (npr. 10000 Zagreb)
