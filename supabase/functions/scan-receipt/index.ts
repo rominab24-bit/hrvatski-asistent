@@ -251,7 +251,7 @@ KLJUČNO PRAVILO za razlikovanje Higijene i Kućanstva:
 - Toaletni papir, vlažni toaletni papir, ulošci, pelene → uvijek "Higijena"
 - Papirnati ručnici za kuhinju → "Kućanstvo"
 
-Odgovori ISKLJUČIVO u JSON formatu bez dodatnog teksta.`
+Odgovori ISKLJUČIVO u JSON formatu bez dodatnog teksta.${feedbackHint}`
           },
           {
             role: 'user',
