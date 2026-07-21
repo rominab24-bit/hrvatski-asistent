@@ -1,4 +1,4 @@
-package app.lovable.b77fe1bf26544886ab37a2682d7883be;
+package hr.romina.kucnibudzet;
 
 import com.getcapacitor.BridgeActivity;
 

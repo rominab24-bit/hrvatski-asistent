@@ -1,10 +1,10 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace = "app.lovable.b77fe1bf26544886ab37a2682d7883be"
+    namespace = "hr.romina.kucnibudzet"
     compileSdk = rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "app.lovable.b77fe1bf26544886ab37a2682d7883be"
+        applicationId "hr.romina.kucnibudzet"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
