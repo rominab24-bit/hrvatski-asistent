@@ -71,6 +71,15 @@ export const categoryIcons: Record<string, LucideIcon> = {
   'wallet': Wallet,
   'piggy-bank': PiggyBank,
   'trending-up': TrendingUp,
+
+  // Kućne režije
+  'droplet': Droplet,
+  'zap': Zap,
+  'flame': Flame,
+  'tv': Tv,
+  'trash-2': Trash2,
+  'building-2': Building2,
+  'wifi': Wifi,
   
   // Posao i alati
   'briefcase': Briefcase,
