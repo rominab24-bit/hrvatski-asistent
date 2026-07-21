@@ -13,7 +13,7 @@
   "dependencies": {
     "@capacitor/android": "^8.0.0",
     "@capacitor/camera": "^8.0.0",
-    "@capacitor/cli": "^8.0.0",
+    "@capacitor/cli": "^8.4.2",
     "@capacitor/core": "^8.0.0",
     "@capacitor/ios": "^8.0.0",
     "@capacitor/splash-screen": "^8.0.0",
@@ -54,7 +54,7 @@
     "date-fns": "^3.6.0",
     "embla-carousel-react": "^8.6.0",
     "input-otp": "^1.4.2",
-    "jspdf": "^3.0.4",
+    "jspdf": "^4.2.1",
     "jspdf-autotable": "^5.0.2",
     "lucide-react": "^0.462.0",
     "next-themes": "^0.3.0",
