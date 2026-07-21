@@ -44,6 +44,27 @@ const roundMoney = (value: number) => Math.round(value * 100) / 100;
  * Cilj: ime i prezime kupca, kućna adresa, brojevi kartica, IBAN, OIB kupca,
  * email, telefon. Ostavlja naziv trgovine i stavke netaknutima ako ne sadrže
  * te uzorke.
+ *
+ * Test primjeri:
+ *
+ * 1) R1 račun s podacima kupca:
+ * "R1-2025-0001234
+ * Obrt Marko Marić
+ * Kupac: Ana Horvat
+ * Adresa: Ulica Ante Starčevića 12
+ * 091/234-5678
+ * Ukupno: 128,34 €"
+ * Očekivano: naziv trgovine ("Obrt Marko Marić") ostaje; ime kupca, adresa i
+ * telefon se zamjenjuju s [uklonjeno].
+ *
+ * 2) Običan račun s administrativnim brojevima:
+ * "Broj računa: 12/2025/456
+ * Kasa: 12345678
+ * JIR: 1234567890
+ * ZKI: 1234567890
+ * Ukupno: 45,60 €"
+ * Očekivano: broj računa, kasa, JIR i ZKI ostaju netaknuti — nijedan nema
+ * hrvatski telefonski prefiks, pa ga telefonska pravila ne uklanjaju.
  */
 const PII_PLACEHOLDER = '[uklonjeno]';
 const redactPII = (input: unknown): string => {
@@ -58,11 +79,9 @@ const redactPII = (input: unknown): string => {
   text = text.replace(/\b\d{11,}\b/g, PII_PLACEHOLDER);
   // Email
   text = text.replace(/[\w.+-]+@[\w-]+\.[\w.-]+/gi, PII_PLACEHOLDER);
-  // Telefonski brojevi (npr. +385 91 234 5678, 091-234-5678)
-  text = text.replace(/(?:\+?\d{1,3}[\s-]?)?(?:\(?\d{2,4}\)?[\s-]?)?\d{3}[\s-]?\d{3,4}/g, (m) => {
-    const digits = m.replace(/\D/g, '');
-    return digits.length >= 8 ? PII_PLACEHOLDER : m;
-  });
+  // Telefonski brojevi — SAMO hrvatski formati:
+  // +385, 00385, mobilni prefiksi 091/092/095/097/098/099, te fiksni 01/02x/03x/04x/05x
+  text = text.replace(/(?<!\d)(?:\+385|00385|091|092|095|097|098|099|01|0[2-5]\d)(?:[\s\/-]*)(?:\d[\s\/-]?){5,8}\d/g, PII_PLACEHOLDER);
   // Kućna adresa: "Ulica/Ul./Trg/Cesta/Put/Avenija ... broj"
   text = text.replace(/\b(?:Ulica|Ul\.?|Trg|Cesta|Put|Avenija|Aleja|Šetalište|Obala|Prilaz|Naselje)\s+[^\n,;]{2,60}?\s+\d+[a-zA-Z]?\b/gi, PII_PLACEHOLDER);
   // Poštanski broj + grad (npr. 10000 Zagreb)
