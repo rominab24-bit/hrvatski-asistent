@@ -11,6 +11,7 @@ import NotFound from "./pages/NotFound";
 import OAuthConsent from "./pages/OAuthConsent";
 import McpStatus from "./pages/McpStatus";
 import ResetPassword from "./pages/ResetPassword";
+import UtilitiesReport from "./pages/UtilitiesReport";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +29,7 @@ const App = () => (
           <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
           <Route path="/mcp-status" element={<McpStatus />} />
           <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/utilities" element={<UtilitiesReport />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
