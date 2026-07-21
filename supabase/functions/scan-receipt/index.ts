@@ -7,6 +7,8 @@ const corsHeaders = {
 
 const ALLOWED_CATEGORIES = [
   'Hrana',
+  'Kafići i barovi',
+  'Restorani',
   'Kućanstvo',
   'Higijena',
   'Prijevoz',
@@ -127,33 +129,31 @@ Važna pravila za cijene i zbroj:
 - Ako nisi siguran u cijenu stavke, ipak vrati najbolju procjenu, ali nemoj prilagođavati stavke samo zato da zbroj izgleda savršeno.
 
 Kategoriziraj stavke STROGO u jednu od ovih kategorija (koristi TOČNO ovaj naziv):
-- "Hrana" - prehrambeni proizvodi, piće, namirnice, slatkiši, kava, čaj, voda, sok, alkohol
+- "Hrana" - SAMO namirnice kupljene u trgovini/supermarketu (Konzum, Lidl, Plodine, Kaufland, Spar, Tommy, Studenac itd.): prehrambeni proizvodi, sirovo/pakirano meso, kruh, mlijeko, jaja, voće, povrće, tjestenina, riža, začini, slatkiši iz trgovine, pakirano piće, boca vode, boca soka, alkohol iz trgovine
+- "Kafići i barovi" - konzumacija u kafiću, caffe baru, slastičarni, pubu, birtiji, disco baru: espresso, kava s mlijekom, macchiato, cappuccino, čaj, pivo (točeno ili u boci u kafiću), vino na čaši, koktel, sok/gazirano piće posluženo u kafiću, sladoled u kugli, kolač u slastičarni. Tipični izdavatelji: caffe bar, bar, pub, slastičarna, buffet.
+- "Restorani" - jelo i piće posluženo u restoranu, konobi, pizzeriji, fast foodu, dostavi hrane: predjelo, glavno jelo, juha, salata, pizza, burger, ćevapi, riba, pomfrit, desert u restoranu, uz to i piće naručeno tijekom obroka. Tipični izdavatelji: restoran, konoba, pizzeria, gostionica, McDonald's, KFC, Submarine, Wolt/Glovo dostava.
 - "Higijena" - SVI proizvodi za osobnu njegu i tijelo: šampon, regenerator, balzam za kosu, gel za tuširanje, sapun, tekući sapun, dezodorans, antiperspirant, pasta za zube, četkica za zube, zubni konac, vodica za usta, ulošci, tamponi, higijenski ulošci, vlažne maramice, toaletni papir, papirnati rupčići, britvice, brijač, pjena za brijanje, krema za tijelo, krema za lice, krema za ruke, losion, parfem, šminka, lak za nokte, maska za lice, gel za čišćenje lica, vata, štapići za uši, pelene, proizvodi za bebe (krema, šampon, kupka)
 - "Kućanstvo" - SAMO sredstva za čišćenje DOMA i predmeta (NE tijela): deterdžent za rublje, omekšivač, deterdžent za posuđe, sredstvo za čišćenje (Cif, Domestos, Bref), sredstva za WC, spužve, krpe, vreće za smeće, papirnati ručnici za kuhinju, folije, alu-folije, svijeće, žarulje, baterije
 - "Prijevoz" - gorivo, parking, javni prijevoz, cestarina
 - "Zdravlje" - lijekovi, vitamini, dodaci prehrani, medicinski proizvodi, zavoji, flasteri, toplomjer
-- "Zabava" - igračke, hobi, izlasci, kino, knjige za zabavu
+- "Zabava" - igračke, hobi, izlasci (ulaznice), kino, knjige za zabavu
 - "Odjeća" - odjeća, obuća, modni dodaci, čarape
 - "Obrazovanje" - školski pribor, udžbenici, tečajevi
 - "Računi" - režije, pretplate, internet, telefon
 - "Ostalo" - sve ostalo
+
+KLJUČNO PRAVILO za razlikovanje "Hrana" vs "Kafići i barovi" vs "Restorani":
+- Ako je račun iz TRGOVINE/SUPERMARKETA (Konzum, Lidl, Plodine, Kaufland, Spar, Tommy, Studenac, Metro, Interspar, Ribola, KTC, DM, Bipa, Müller) → hrana i piće idu u "Hrana"
+- Ako je račun iz KAFIĆA/CAFFE BARA/SLASTIČARNE/PUBA → sve stavke (kava, pića, kolači, sladoled) idu u "Kafići i barovi", čak i ako se pojedinačno zovu "kava" ili "sok"
+- Ako je račun iz RESTORANA/KONOBE/PIZZERIJE/FAST FOODA/DOSTAVE HRANE → sve stavke (hrana i piće posluženo uz obrok) idu u "Restorani"
+- Prepoznaj tip lokala iz naziva izdavatelja na vrhu računa (npr. "Caffe bar Zagreb" → Kafići i barovi; "Restoran Dubrovnik" → Restorani; "Konzum d.d." → Hrana)
+- Ako naziv trgovine nije jasan, koristi kontekst stavki: mali broj stavki tipa espresso/pivo/kava → kafić; jela s prilogom, pizza, burger → restoran; velik popis raznih namirnica → trgovina/Hrana
 
 KLJUČNO PRAVILO za razlikovanje Higijene i Kućanstva:
 - Ako proizvod ide NA TIJELO (kožu, kosu, zube, intimu) → "Higijena"
 - Ako proizvod čisti PREDMETE ili PROSTOR (pod, posuđe, rublje, WC) → "Kućanstvo"
 - Toaletni papir, vlažni toaletni papir, ulošci, pelene → uvijek "Higijena"
 - Papirnati ručnici za kuhinju → "Kućanstvo"
-
-Primjeri ispravne kategorizacije:
-- "NIVEA gel za tuširanje" → Higijena
-- "Persil deterdžent" → Kućanstvo
-- "Šampon Herbal Essences" → Higijena
-- "Pasta za zube Colgate" → Higijena
-- "Bref WC" → Kućanstvo
-- "Toaletni papir Violeta" → Higijena
-- "Papirnati ručnici S&S" → Kućanstvo
-- "Dezodorans Borotalco" → Higijena
-- "Omekšivač Violeta" → Kućanstvo
 
 Odgovori ISKLJUČIVO u JSON formatu bez dodatnog teksta.`
           },
@@ -193,7 +193,7 @@ Odgovori ISKLJUČIVO u JSON formatu bez dodatnog teksta.`
                         price: { type: 'number', description: 'Konačna cijena stavke u eurima' },
                         category: { 
                           type: 'string', 
-                          enum: ['Hrana', 'Kućanstvo', 'Higijena', 'Prijevoz', 'Zdravlje', 'Zabava', 'Odjeća', 'Obrazovanje', 'Računi', 'Ostalo'],
+                          enum: ['Hrana', 'Kafići i barovi', 'Restorani', 'Kućanstvo', 'Higijena', 'Prijevoz', 'Zdravlje', 'Zabava', 'Odjeća', 'Obrazovanje', 'Računi', 'Ostalo'],
                           description: 'Kategorija proizvoda'
                         }
                       },
