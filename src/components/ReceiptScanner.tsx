@@ -668,7 +668,7 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
             <Button 
               onClick={handleScan} 
               className="flex-1"
-              disabled={isScanning || isUploading}
+              disabled={isScanning || isUploading || limitReached}
             >
               {isScanning || isUploading ? (
                 <>
