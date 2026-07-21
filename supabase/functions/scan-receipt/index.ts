@@ -89,7 +89,7 @@ const normalizeCategory = (category: unknown): typeof ALLOWED_CATEGORIES[number]
 const normalizeReceiptData = (receiptData: any) => {
   const items: ReceiptItem[] = Array.isArray(receiptData?.items)
     ? receiptData.items.map((item: any) => ({
-        name: String(item?.name || 'Nepoznata stavka').trim(),
+        name: (redactPII(item?.name) || 'Nepoznata stavka'),
         quantity: item?.quantity === undefined ? undefined : toNumber(item.quantity),
         price: roundMoney(toNumber(item?.price)),
         category: normalizeCategory(item?.category),
@@ -103,6 +103,7 @@ const normalizeReceiptData = (receiptData: any) => {
 
   return {
     ...receiptData,
+    store_name: receiptData?.store_name ? redactPII(receiptData.store_name) : receiptData?.store_name,
     items,
     total_amount: aiTotal || calculatedTotal,
     calculated_total: calculatedTotal,
