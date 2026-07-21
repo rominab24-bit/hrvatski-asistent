@@ -19,6 +19,13 @@ const ALLOWED_CATEGORIES = [
   'Odjeća',
   'Obrazovanje',
   'Računi',
+  'Voda',
+  'Struja',
+  'Grijanje',
+  'Pričuva TV',
+  'Smeće',
+  'Komunalna naknada',
+  'Kućni internet',
   'Ostalo',
 ] as const;
 
