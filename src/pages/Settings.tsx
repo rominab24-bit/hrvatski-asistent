@@ -138,6 +138,19 @@ export default function Settings() {
           </div>
         </Card>
 
+        <Card className="p-6 space-y-4">
+          <div className="flex items-start gap-3">
+            <Calculator className="w-5 h-5 text-primary shrink-0 mt-1" />
+            <div>
+              <h2 className="text-lg font-serif">Kalkulator pretplate</h2>
+              <p className="text-sm text-muted-foreground mt-1">
+                Procijenite mjesečni trošak Lovable kredita prema broju korisnika i očekivanom broju AI skeniranja te dobijte preporuku plana.
+              </p>
+            </div>
+          </div>
+          <SubscriptionWizard />
+        </Card>
+
         <Card className="p-6 space-y-4 border-destructive/40">
           <div className="flex items-start gap-3">
             <AlertTriangle className="w-5 h-5 text-destructive shrink-0 mt-1" />
