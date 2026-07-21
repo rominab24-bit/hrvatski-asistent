@@ -12,13 +12,51 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { ArrowLeft, Trash2, Loader2, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Trash2, Loader2, AlertTriangle, Download, FileText, FileSpreadsheet } from 'lucide-react';
+import { exportToCSV, exportToPDF } from '@/lib/exportData';
 
 export default function Settings() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [confirmText, setConfirmText] = useState('');
   const [loading, setLoading] = useState(false);
+  const [exporting, setExporting] = useState<'csv' | 'pdf' | null>(null);
+
+  const fetchAllData = async () => {
+    const { data: expenses, error: e1 } = await supabase
+      .from('expenses')
+      .select('id, description, amount, expense_date, category:expense_categories(name, icon)')
+      .order('expense_date', { ascending: false });
+    if (e1) throw e1;
+    const { data: categories, error: e2 } = await supabase
+      .from('expense_categories')
+      .select('id, name, icon, color');
+    if (e2) throw e2;
+    return { expenses: (expenses ?? []) as any[], categories: (categories ?? []) as any[] };
+  };
+
+  const handleExport = async (kind: 'csv' | 'pdf') => {
+    setExporting(kind);
+    try {
+      const { expenses, categories } = await fetchAllData();
+      if (!expenses.length) {
+        toast.info('Nemate spremljenih troškova za izvoz');
+        return;
+      }
+      const total = expenses.reduce((s, e) => s + Number(e.amount), 0);
+      if (kind === 'csv') {
+        exportToCSV(expenses, 'moji-podaci');
+        toast.success(`Izvezeno ${expenses.length} troškova u CSV`);
+      } else {
+        exportToPDF(expenses, categories, total, 'moji-podaci');
+        toast.success(`Izvezeno ${expenses.length} troškova u PDF`);
+      }
+    } catch (e: any) {
+      toast.error(`Greška pri izvozu: ${e.message ?? 'Nepoznata greška'}`);
+    } finally {
+      setExporting(null);
+    }
+  };
 
   const handleDelete = async () => {
     if (confirmText !== 'OBRIŠI') {
