@@ -22,7 +22,8 @@ const ALLOWED_CATEGORIES = [
   'Voda',
   'Struja',
   'Grijanje',
-  'Pričuva TV',
+  'Stambena pričuva',
+  'TV',
   'Smeće',
   'Komunalna naknada',
   'Kućni internet',
@@ -397,7 +398,8 @@ Kategoriziraj stavke STROGO u jednu od ovih kategorija (koristi TOČNO ovaj nazi
 - "Voda" - račun za vodu, vodovod, kanalizacija, trošak vode
 - "Struja" - račun za električnu energiju, struja, HEP, ELectro distribucija
 - "Grijanje" - račun za grijanje, plin, toplana, centralno grijanje, pelete, drva za grijanje
-- "Pričuva TV" - mjesečna naknada za pričuva/kabelsku/televizijsku uslugu, TV pretplata, pričuva programa
+- "Stambena pričuva" - mjesečna stambena pričuva/pričuva zgrade, upravitelj zgrade, održavanje zajedničkih dijelova
+- "TV" - TV pretplata, kabelska/satelitska televizija, RTL/HRT pristojba, streaming TV paketi
 - "Smeće" - naknada za odvoz smeća, odvoz otpada, komunalno smeće
 - "Komunalna naknada" - opća komunalna naknada (nekretnina/stan), naknada za čišćenje javnih površina, komunalni doprinos
 - "Kućni internet" - račun za fiksni/kućni internet (ne mobilni), Wi-Fi, širokopojasni pristup
@@ -455,7 +457,7 @@ Odgovori ISKLJUČIVO u JSON formatu bez dodatnog teksta.${feedbackHint}`
                         price: { type: 'number', description: 'Konačna cijena stavke u eurima' },
                         category: { 
                           type: 'string', 
-                          enum: ['Hrana', 'Kafići i barovi', 'Restorani', 'Kućanstvo', 'Higijena', 'Prijevoz', 'Zdravlje', 'Zabava', 'Odjeća', 'Obrazovanje', 'Računi', 'Voda', 'Struja', 'Grijanje', 'Pričuva TV', 'Smeće', 'Komunalna naknada', 'Kućni internet', 'Kućni ljubimci', 'Ostalo'],
+                          enum: ['Hrana', 'Kafići i barovi', 'Restorani', 'Kućanstvo', 'Higijena', 'Prijevoz', 'Zdravlje', 'Zabava', 'Odjeća', 'Obrazovanje', 'Računi', 'Voda', 'Struja', 'Grijanje', 'Stambena pričuva', 'TV', 'Smeće', 'Komunalna naknada', 'Kućni internet', 'Kućni ljubimci', 'Ostalo'],
                           description: 'Kategorija proizvoda'
                         }
                       },
