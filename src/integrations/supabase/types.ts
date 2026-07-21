@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      category_feedback: {
+        Row: {
+          corrected_category: string
+          created_at: string
+          id: string
+          item_name: string
+          original_category: string | null
+          store_name: string | null
+          user_id: string
+        }
+        Insert: {
+          corrected_category: string
+          created_at?: string
+          id?: string
+          item_name: string
+          original_category?: string | null
+          store_name?: string | null
+          user_id: string
+        }
+        Update: {
+          corrected_category?: string
+          created_at?: string
+          id?: string
+          item_name?: string
+          original_category?: string | null
+          store_name?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       email_send_log: {
         Row: {
           created_at: string
