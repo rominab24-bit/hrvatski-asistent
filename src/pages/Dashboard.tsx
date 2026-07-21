@@ -17,7 +17,7 @@ import { ExportDialog } from '@/components/ExportDialog';
 import { DateRangeFilter } from '@/components/DateRangeFilter';
 import { ReceiptData } from '@/hooks/useReceiptScanner';
 import { Button } from '@/components/ui/button';
-import { Receipt, Plus, LogOut, Wallet, TrendingDown, PieChart, Loader2, BarChart3, Filter, Tags, Search, X, Home } from 'lucide-react';
+import { Receipt, Plus, LogOut, Wallet, TrendingDown, PieChart, Loader2, BarChart3, Filter, Tags, Search, X, Home, Settings as SettingsIcon } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
 export default function Dashboard() {
@@ -176,7 +176,10 @@ export default function Dashboard() {
           <Button variant="ghost" size="icon" onClick={() => navigate('/statistics')}>
             <BarChart3 className="w-5 h-5" />
           </Button>
-          <Button variant="ghost" size="icon" onClick={signOut}>
+          <Button variant="ghost" size="icon" onClick={() => navigate('/settings')} title="Postavke">
+            <SettingsIcon className="w-5 h-5" />
+          </Button>
+          <Button variant="ghost" size="icon" onClick={signOut} title="Odjava">
             <LogOut className="w-5 h-5" />
           </Button>
         </div>
