@@ -597,6 +597,31 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
         </div>
       </div>
 
+      {/* Monthly scan usage indicator */}
+      {usage && (
+        <div
+          className={cn(
+            'mb-4 p-3 rounded-lg border text-sm',
+            limitReached
+              ? 'bg-destructive/10 border-destructive/30 text-destructive'
+              : 'bg-secondary/50 border-border text-muted-foreground'
+          )}
+        >
+          <p className="font-medium">
+            Mjesečno AI skeniranje: {usage.count} / {usage.limit}
+          </p>
+          {limitReached ? (
+            <p className="mt-1">
+              Mjesečni limit je iscrpljen. Skeniranje je onemogućeno do 1. sljedećeg mjeseca. Troškove možete unijeti ručno.
+            </p>
+          ) : (
+            <p className="mt-1 opacity-80">
+              Zajednički limit za sve korisnike aplikacije. Preostalo: {Math.max(0, usage.limit - usage.count)} skeniranja.
+            </p>
+          )}
+        </div>
+      )}
+
       {!imagePreview ? (
         <div className="space-y-3">
           <Button
