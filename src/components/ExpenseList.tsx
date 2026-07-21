@@ -1,18 +1,27 @@
+import { useState } from 'react';
 import { Expense } from '@/hooks/useExpenses';
-import { getCategoryIcon } from '@/lib/categories';
-import { Trash2, Pencil } from 'lucide-react';
+import { Category, getCategoryIcon } from '@/lib/categories';
+import { Trash2, Pencil, History } from 'lucide-react';
 import { format } from 'date-fns';
 import { hr } from 'date-fns/locale';
 import { ReceiptThumbnail } from '@/components/ReceiptThumbnail';
 import { CategoryRating } from '@/components/CategoryRating';
+import { ExpenseHistoryDialog } from '@/components/ExpenseHistoryDialog';
 
 interface ExpenseListProps {
   expenses: Expense[];
   onDelete: (id: string) => void;
   onEdit: (expense: Expense) => void;
+  categories?: Category[];
+  onRestore?: (
+    id: string,
+    updates: { description?: string; amount?: number; category_id?: string | null; expense_date?: string }
+  ) => Promise<unknown>;
 }
 
-export function ExpenseList({ expenses, onDelete, onEdit }: ExpenseListProps) {
+export function ExpenseList({ expenses, onDelete, onEdit, categories, onRestore }: ExpenseListProps) {
+  const [historyExpense, setHistoryExpense] = useState<Expense | null>(null);
+
   if (expenses.length === 0) {
     return (
       <div className="text-center py-12 text-muted-foreground">
@@ -21,6 +30,8 @@ export function ExpenseList({ expenses, onDelete, onEdit }: ExpenseListProps) {
       </div>
     );
   }
+
+  const historyEnabled = !!categories && !!onRestore;
 
   return (
     <div className="space-y-2">
@@ -69,6 +80,17 @@ export function ExpenseList({ expenses, onDelete, onEdit }: ExpenseListProps) {
                 </p>
               </div>
 
+              {/* History button */}
+              {historyEnabled && !expense.pending_sync && !expense.id.startsWith('offline_') && (
+                <button
+                  onClick={() => setHistoryExpense(expense)}
+                  title="Povijest izmjena"
+                  className="opacity-0 group-hover:opacity-100 p-2 rounded-lg hover:bg-primary/20 text-muted-foreground hover:text-primary transition-all"
+                >
+                  <History className="w-4 h-4" />
+                </button>
+              )}
+
               {/* Edit button */}
               <button
                 onClick={() => onEdit(expense)}
@@ -93,6 +115,16 @@ export function ExpenseList({ expenses, onDelete, onEdit }: ExpenseListProps) {
           </div>
         );
       })}
+
+      {historyEnabled && (
+        <ExpenseHistoryDialog
+          expense={historyExpense}
+          categories={categories!}
+          open={!!historyExpense}
+          onOpenChange={(v) => !v && setHistoryExpense(null)}
+          onRestore={onRestore!}
+        />
+      )}
     </div>
   );
 }
