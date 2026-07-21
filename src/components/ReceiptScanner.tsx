@@ -537,6 +537,14 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
           </p>
         </div>
 
+        {/* AI verification reminder before saving */}
+        <div className="mt-4 p-3 rounded-lg bg-warning/10 border border-warning/20 flex items-start gap-3">
+          <AlertCircle className="w-4 h-4 text-warning shrink-0 mt-0.5" />
+          <p className="text-xs text-muted-foreground">
+            Prije spremanja provjerite sve stavke, iznose i kategorije — AI ponekad može krivo protumačiti račun.
+          </p>
+        </div>
+
         <div className="flex gap-2 mt-4">
           <Button onClick={handleCancelEdit} variant="outline" className="flex-1">
             <X className="w-4 h-4 mr-2" />
