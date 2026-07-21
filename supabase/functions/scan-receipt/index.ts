@@ -26,6 +26,7 @@ const ALLOWED_CATEGORIES = [
   'Smeće',
   'Komunalna naknada',
   'Kućni internet',
+  'Kućni ljubimci',
   'Ostalo',
 ] as const;
 
@@ -335,6 +336,7 @@ Kategoriziraj stavke STROGO u jednu od ovih kategorija (koristi TOČNO ovaj nazi
 - "Smeće" - naknada za odvoz smeća, odvoz otpada, komunalno smeće
 - "Komunalna naknada" - opća komunalna naknada (nekretnina/stan), naknada za čišćenje javnih površina, komunalni doprinos
 - "Kućni internet" - račun za fiksni/kućni internet (ne mobilni), Wi-Fi, širokopojasni pristup
+- "Kućni ljubimci" - SVE za pse, mačke i druge kućne ljubimce: hrana za mačke (Whiskas, Felix, Sheba, Gourmet, Purina One/Cat Chow, Friskies, Kitekat, Perfect Fit, Royal Canin, Hill's, mokra/suha hrana, konzerve, vrećice, pounches, "mačja hrana", "cat food"), hrana za pse (Pedigree, Chappi, Frolic, Bakers, Cesar, Rocco, Royal Canin, Hill's, "pseća hrana", "dog food"), poslastice/priboljšci za ljubimce, mačji pijesak/podloga (Catsan, Ever Clean), grickalice za pse, konzerve za ljubimce, oprema (uzice, ogrlice, zdjelice, kućice, transporteri, igračke za ljubimce), antiparaziti (Frontline, Advantix, Bravecto), veterinarski proizvodi. Trgovine specijalizirane za ljubimce: Pet Centar, Fressnapf, Zoo Plus, Zoomania.
 - "Ostalo" - sve ostalo
 
 KLJUČNO PRAVILO za razlikovanje "Hrana" vs "Kafići i barovi" vs "Restorani":
@@ -388,7 +390,7 @@ Odgovori ISKLJUČIVO u JSON formatu bez dodatnog teksta.${feedbackHint}`
                         price: { type: 'number', description: 'Konačna cijena stavke u eurima' },
                         category: { 
                           type: 'string', 
-                          enum: ['Hrana', 'Kafići i barovi', 'Restorani', 'Kućanstvo', 'Higijena', 'Prijevoz', 'Zdravlje', 'Zabava', 'Odjeća', 'Obrazovanje', 'Računi', 'Voda', 'Struja', 'Grijanje', 'Pričuva TV', 'Smeće', 'Komunalna naknada', 'Kućni internet', 'Ostalo'],
+                          enum: ['Hrana', 'Kafići i barovi', 'Restorani', 'Kućanstvo', 'Higijena', 'Prijevoz', 'Zdravlje', 'Zabava', 'Odjeća', 'Obrazovanje', 'Računi', 'Voda', 'Struja', 'Grijanje', 'Pričuva TV', 'Smeće', 'Komunalna naknada', 'Kućni internet', 'Kućni ljubimci', 'Ostalo'],
                           description: 'Kategorija proizvoda'
                         }
                       },
