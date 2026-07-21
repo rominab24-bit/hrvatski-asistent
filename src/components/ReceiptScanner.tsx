@@ -537,6 +537,14 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
           </p>
         </div>
 
+        {/* AI verification reminder before saving */}
+        <div className="mt-4 p-3 rounded-lg bg-warning/10 border border-warning/20 flex items-start gap-3">
+          <AlertCircle className="w-4 h-4 text-warning shrink-0 mt-0.5" />
+          <p className="text-xs text-muted-foreground">
+            Prije spremanja provjerite sve stavke, iznose i kategorije — AI ponekad može krivo protumačiti račun.
+          </p>
+        </div>
+
         <div className="flex gap-2 mt-4">
           <Button onClick={handleCancelEdit} variant="outline" className="flex-1">
             <X className="w-4 h-4 mr-2" />
@@ -577,6 +585,17 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
         onChange={handleFileSelect}
         className="hidden"
       />
+
+      {/* AI disclaimer warning */}
+      <div className="mb-4 p-3 rounded-lg bg-warning/10 border border-warning/20 flex items-start gap-3">
+        <AlertCircle className="w-5 h-5 text-warning shrink-0 mt-0.5" />
+        <div className="text-sm">
+          <p className="font-medium text-warning">Račune analizira umjetna inteligencija</p>
+          <p className="text-muted-foreground mt-1">
+            AI može pogriješiti pri prepoznavanju stavki, iznosa i kategorija. Prije spremanja uvijek provjerite podatke i prilagodite ih ako je potrebno.
+          </p>
+        </div>
+      </div>
 
       {!imagePreview ? (
         <div className="space-y-3">
