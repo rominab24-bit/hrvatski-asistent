@@ -48,7 +48,7 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
   const [uploadedPath, setUploadedPath] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { isScanning, receiptData, scanReceipt, clearData } = useReceiptScanner();
+  const { isScanning, receiptData, scanReceipt, clearData, usage, limitReached } = useReceiptScanner();
   const { toast } = useToast();
 
   // When receipt data is received, set up editable state
@@ -597,12 +597,38 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
         </div>
       </div>
 
+      {/* Monthly scan usage indicator */}
+      {usage && (
+        <div
+          className={cn(
+            'mb-4 p-3 rounded-lg border text-sm',
+            limitReached
+              ? 'bg-destructive/10 border-destructive/30 text-destructive'
+              : 'bg-secondary/50 border-border text-muted-foreground'
+          )}
+        >
+          <p className="font-medium">
+            Mjesečno AI skeniranje: {usage.count} / {usage.limit}
+          </p>
+          {limitReached ? (
+            <p className="mt-1">
+              Mjesečni limit je iscrpljen. Skeniranje je onemogućeno do 1. sljedećeg mjeseca. Troškove možete unijeti ručno.
+            </p>
+          ) : (
+            <p className="mt-1 opacity-80">
+              Zajednički limit za sve korisnike aplikacije. Preostalo: {Math.max(0, usage.limit - usage.count)} skeniranja.
+            </p>
+          )}
+        </div>
+      )}
+
       {!imagePreview ? (
         <div className="space-y-3">
           <Button
             onClick={handleCameraCapture}
             variant="outline"
             className="w-full h-32 border-dashed border-2 flex flex-col gap-2"
+            disabled={limitReached}
           >
             <Camera className="w-8 h-8 text-muted-foreground" />
             <span className="text-muted-foreground">Slikaj račun</span>
@@ -612,6 +638,7 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
             onClick={handleGallerySelect}
             variant="secondary"
             className="w-full"
+            disabled={limitReached}
           >
             <Upload className="w-4 h-4 mr-2" />
             Odaberi iz galerije
@@ -641,7 +668,7 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
             <Button 
               onClick={handleScan} 
               className="flex-1"
-              disabled={isScanning || isUploading}
+              disabled={isScanning || isUploading || limitReached}
             >
               {isScanning || isUploading ? (
                 <>

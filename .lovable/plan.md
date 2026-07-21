@@ -1,60 +1,42 @@
-# Plan: Priprema Android Studio projekta i izrada testnog APK-a
 
-## Cilj
-Pripremiti „Kućni Budžet" za lokalno testiranje na Android uređaju: dodati Android platformu u Capacitor, otvoriti projekt u Android Studio, izgraditi debug APK i omogućiti instalaciju na mobitel. Web objava na domeni ostaje za kasniju odluku.
+# Globalni mjesečni limit AI skeniranja računa
 
-## Trenutačno stanje
-- Aplikacija nije objavljena na webu (`published_url: null`).
-- Custom domena `rominab24.com` je već spojena, ali stranice `/privacy` i `/terms` nisu javno dostupne dok se ne objavi.
-- Capacitor konfiguracija postoji (`capacitor.config.ts`), ali Android platforma još nije dodana (`android/` direktorij ne postoji).
-- Security scan pokazuje upozorenja na pakete `@capacitor/cli` i `jspdf` — preporučljivo ih je ažurirati prije builda.
+Cilj: ograničiti ukupan broj AI skeniranja računa na **250 po kalendarskom mjesecu** za cijelu aplikaciju (svi korisnici zajedno). Kad se limit dosegne, skeniranje se blokira do 1. sljedećeg mjeseca uz jasnu poruku korisniku.
 
-## Koraci
+## Što se mijenja
 
-1. **Ažuriranje ranjivih ovisnosti**
-   - Provjeriti dostupne nove verzije za `@capacitor/cli` i `jspdf`.
-   - Ažurirati ih ako su kompatibilne s Capacitor 8.
-   - Pokrenuti build kako bi se potvrdilo da nije došlo do pogoršanja.
+### 1. Baza — brojač u novoj tablici
+Nova tablica `ai_scan_usage` s jednim retkom po mjesecu:
+- `month` (npr. `2026-07`) kao primarni ključ
+- `count` — koliko je skeniranja obavljeno tog mjeseca
+- `updated_at`
 
-2. **Provjera Capacitor resursa**
-   - Osigurati da postoje izvorne datoteke za ikone i splash screen (`public/icon.png`, `public/splash.png` ili slične).
-   - Provjeriti da `capacitor.config.ts` nema `server.url` (produkcijski build mora koristiti lokalne datoteke).
+Uz nju SECURITY DEFINER funkcija `increment_scan_usage(monthly_limit int)` koja atomarno:
+1. Umetne/pročita redak za tekući mjesec.
+2. Ako je `count >= monthly_limit` → vrati `{ allowed: false, count, limit }`.
+3. Inače inkrementira i vrati `{ allowed: true, count, limit }`.
 
-3. **Dodavanje Android platforme**
-   - Pokrenuti `npx cap add android`.
-   - Time se kreira `android/` direktorij s Gradle projektom.
+RLS: tablica zaključana, pristup samo preko funkcije (poziva ju edge funkcija sa service role ključem). Autentificirani korisnici smiju pročitati samo tekući `count` i limit preko posebne read-only funkcije `get_scan_usage()` da UI može prikazati stanje.
 
-4. **Build web aplikacije**
-   - Pokrenuti `npm run build`.
-   - Provjeriti da `dist/` sadrži sve potrebne statičke datoteke.
+### 2. Edge funkcija `scan-receipt`
+Na samom početku (nakon auth provjere, prije poziva AI-ja):
+- Pozove `increment_scan_usage(250)`.
+- Ako `allowed = false`, vrati **HTTP 429** s porukom:
+  > „Dosegnut je mjesečni limit AI skeniranja (250/mjesec). Skeniranje će ponovno biti dostupno 1. u sljedećem mjesecu. Troškove možete i dalje unositi ručno."
+- Inače nastavi normalno. (Nema smanjivanja brojača kod AI greške — jednostavnije i sprječava zlouporabu; 250/mjesec ima dovoljno margine.)
 
-5. **Sinkronizacija nativnog projekta**
-   - Pokrenuti `npx cap sync android`.
-   - Time se kopira web build u Android projekt i ažuriraju Capacitor pluginovi (Camera, Splash Screen).
+### 3. Frontend
+- `useReceiptScanner` prepoznaje status 429 s poljem `limit_reached` i prikazuje jasan toast s porukom iznad.
+- `ReceiptScanner` komponenta na ulaznom ekranu diskretno prikazuje „Iskorišteno X / 250 skeniranja ovog mjeseca" (dohvat preko `get_scan_usage` RPC-a pri otvaranju).
+- Kad je limit dosegnut, gumbi „Fotografiraj" i „Odaberi sliku" su onemogućeni s objašnjenjem; ručni unos troška ostaje potpuno funkcionalan.
 
-6. **Otvaranje u Android Studio**
-   - Pokrenuti `npx cap open android`.
-   - Alternativno: ručno otvoriti `android/` direktorij u Android Studio.
+## Što se NE mijenja
+- Postojeći tijek skeniranja, PII redakcija, kategorizacija i feedback ostaju identični.
+- Nema per-user limita — samo globalni.
+- Nema promjena u naplati/kreditima; ovo je aplikacijski limit neovisan od Lovable kredita.
 
-7. **Izrada debug APK-a**
-   - U Android Studio odabrati `Build → Build Bundle(s) / APK(s) → Build APK(s)`.
-   - Dobivena datoteka bit će smještena u `android/app/build/outputs/apk/debug/app-debug.apk`.
+## Tehnički detalji
 
-8. **Upute za instalaciju na uređaj**
-   - Omogućiti „Nepoznate izvore" na Android uređaju.
-   - Prebaciti `app-debug.apk` na mobitel (Bluetooth, USB, Google Drive, itd.).
-   - Pokrenuti datoteku i instalirati aplikaciju.
-
-9. **Verifikacija**
-   - Provjeriti da se aplikacija pokreće bez grešaka.
-   - Testirati osnovne funkcije: prijava, ručni unos troška, skeniranje računa (ako kamera radi).
-
-## Napomene za buduću Google Play objavu
-- Za Google Play je potrebna **Google Play Developer** račun (jednokratna naknada).
-- Google Play zahtijeva **Android App Bundle (AAB)**, a ne APK.
-- AAB se generira u Android Studio putem `Build → Generate Signed Bundle / APK` uz vlastiti keystore.
-- Aplikacija mora biti objavljena na javnoj domeni (`rominab24.com/privacy`) jer prikuplja email, lozinku, financijske podatke i fotografije računa.
-
-## Što očekivati nakon plana
-- Dobit ćete radnu `app-debug.apk` datoteku za testiranje na vlastitom uređaju.
-- Web aplikacija ostaje neobjavljena dok sami ne odlučite objaviti je.
+- `month` se računa iz `now() AT TIME ZONE 'Europe/Zagreb'` formatiranog kao `YYYY-MM` da se reset događa u ponoć po lokalnom vremenu.
+- Broj 250 je konstanta u edge funkciji — lako promjenjiva jednom vrijednošću ako kasnije poželiš drugi limit.
+- Read RPC `get_scan_usage()` vraća `{ count, limit, month }` bez ikakvih osobnih podataka; siguran za sve prijavljene korisnike.

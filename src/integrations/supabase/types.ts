@@ -14,6 +14,24 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_scan_usage: {
+        Row: {
+          count: number
+          month: string
+          updated_at: string
+        }
+        Insert: {
+          count?: number
+          month: string
+          updated_at?: string
+        }
+        Update: {
+          count?: number
+          month?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       category_feedback: {
         Row: {
           corrected_category: string
@@ -306,6 +324,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      current_scan_month: { Args: never; Returns: string }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
@@ -315,6 +334,8 @@ export type Database = {
         Args: { payload: Json; queue_name: string }
         Returns: number
       }
+      get_scan_usage: { Args: { monthly_limit?: number }; Returns: Json }
+      increment_scan_usage: { Args: { monthly_limit: number }; Returns: Json }
       move_to_dlq: {
         Args: {
           dlq_name: string
