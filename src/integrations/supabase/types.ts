@@ -161,6 +161,48 @@ export type Database = {
         }
         Relationships: []
       }
+      expense_versions: {
+        Row: {
+          amount: number | null
+          category_id: string | null
+          change_type: string
+          created_at: string
+          description: string | null
+          expense_date: string | null
+          expense_id: string
+          id: string
+          receipt_data: Json | null
+          receipt_image_url: string | null
+          user_id: string
+        }
+        Insert: {
+          amount?: number | null
+          category_id?: string | null
+          change_type: string
+          created_at?: string
+          description?: string | null
+          expense_date?: string | null
+          expense_id: string
+          id?: string
+          receipt_data?: Json | null
+          receipt_image_url?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number | null
+          category_id?: string | null
+          change_type?: string
+          created_at?: string
+          description?: string | null
+          expense_date?: string | null
+          expense_id?: string
+          id?: string
+          receipt_data?: Json | null
+          receipt_image_url?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       expenses: {
         Row: {
           amount: number
