@@ -16,10 +16,6 @@ import {
 
 interface EmailChangeEmailProps {
   siteName: string
-  // oldEmail is the user's current address (HookData.OldEmail). For the
-  // NEW-recipient half of a secure email_change fanout, `email` equals the
-  // recipient (NEW), so the "from" line must render oldEmail to read
-  // "from OLD to NEW" instead of "from NEW to NEW".
   oldEmail: string
   email: string
   newEmail: string
@@ -32,32 +28,29 @@ export const EmailChangeEmail = ({
   newEmail,
   confirmationUrl,
 }: EmailChangeEmailProps) => (
-  <Html lang="en" dir="ltr">
+  <Html lang="hr" dir="ltr">
     <Head />
-    <Preview>Confirm your email change for {siteName}</Preview>
+    <Preview>Potvrdite promjenu e-mail adrese za {siteName}</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Heading style={h1}>Confirm your email change</Heading>
+        <Heading style={h1}>Potvrdite promjenu e-mail adrese</Heading>
         <Text style={text}>
-          You requested to change your email address for {siteName} from{' '}
+          Zatražili ste promjenu e-mail adrese za {siteName} s{' '}
           <Link href={`mailto:${oldEmail}`} style={link}>
             {oldEmail}
           </Link>{' '}
-          to{' '}
+          na{' '}
           <Link href={`mailto:${newEmail}`} style={link}>
             {newEmail}
           </Link>
           .
         </Text>
-        <Text style={text}>
-          Click the button below to confirm this change:
-        </Text>
+        <Text style={text}>Kliknite gumb ispod da potvrdite promjenu:</Text>
         <Button style={button} href={confirmationUrl}>
-          Confirm Email Change
+          Potvrdi promjenu
         </Button>
         <Text style={footer}>
-          If you didn't request this change, please secure your account
-          immediately.
+          Ako niste zatražili ovu promjenu, odmah osigurajte svoj račun.
         </Text>
       </Container>
     </Body>
@@ -66,27 +59,32 @@ export const EmailChangeEmail = ({
 
 export default EmailChangeEmail
 
-const main = { backgroundColor: '#ffffff', fontFamily: 'Arial, sans-serif' }
+const main = {
+  backgroundColor: '#f5f2ea',
+  fontFamily: "'Karla', Arial, sans-serif",
+}
 const container = { padding: '20px 25px' }
 const h1 = {
-  fontSize: '22px',
-  fontWeight: 'bold' as const,
-  color: '#000000',
+  fontFamily: "'Cormorant Garamond', Georgia, serif",
+  fontSize: '24px',
+  fontWeight: 600,
+  color: '#2a2f22',
   margin: '0 0 20px',
 }
 const text = {
   fontSize: '14px',
-  color: '#55575d',
+  color: '#5a6b52',
   lineHeight: '1.5',
   margin: '0 0 25px',
 }
-const link = { color: 'inherit', textDecoration: 'underline' }
+const link = { color: '#6b8e5a', textDecoration: 'underline' }
 const button = {
-  backgroundColor: '#000000',
-  color: '#ffffff',
+  backgroundColor: '#6b8e5a',
+  color: '#fbf9f4',
   fontSize: '14px',
-  borderRadius: '8px',
-  padding: '12px 20px',
+  fontWeight: 600,
+  borderRadius: '20px',
+  padding: '12px 24px',
   textDecoration: 'none',
 }
-const footer = { fontSize: '12px', color: '#999999', margin: '30px 0 0' }
+const footer = { fontSize: '12px', color: '#8a9a7c', margin: '30px 0 0' }

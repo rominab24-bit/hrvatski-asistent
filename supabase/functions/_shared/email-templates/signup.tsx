@@ -27,31 +27,31 @@ export const SignupEmail = ({
   recipient,
   confirmationUrl,
 }: SignupEmailProps) => (
-  <Html lang="en" dir="ltr">
+  <Html lang="hr" dir="ltr">
     <Head />
-    <Preview>Confirm your email for {siteName}</Preview>
+    <Preview>Potvrdite registraciju — {siteName}</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Heading style={h1}>Confirm your email</Heading>
+        <Heading style={h1}>Potvrdite registraciju — {siteName}</Heading>
         <Text style={text}>
-          Thanks for signing up for{' '}
+          Hvala na registraciji u aplikaciju{' '}
           <Link href={siteUrl} style={link}>
             <strong>{siteName}</strong>
           </Link>
           !
         </Text>
         <Text style={text}>
-          Please confirm your email address (
+          Potvrdite svoju e-mail adresu (
           <Link href={`mailto:${recipient}`} style={link}>
             {recipient}
           </Link>
-          ) by clicking the button below:
+          ) klikom na gumb ispod:
         </Text>
         <Button style={button} href={confirmationUrl}>
-          Verify Email
+          Potvrdi e-mail adresu
         </Button>
         <Text style={footer}>
-          If you didn't create an account, you can safely ignore this email.
+          Ako niste kreirali račun, možete zanemariti ovu poruku.
         </Text>
       </Container>
     </Body>
@@ -60,27 +60,32 @@ export const SignupEmail = ({
 
 export default SignupEmail
 
-const main = { backgroundColor: '#ffffff', fontFamily: 'Arial, sans-serif' }
+const main = {
+  backgroundColor: '#f5f2ea',
+  fontFamily: "'Karla', Arial, sans-serif",
+}
 const container = { padding: '20px 25px' }
 const h1 = {
-  fontSize: '22px',
-  fontWeight: 'bold' as const,
-  color: '#000000',
+  fontFamily: "'Cormorant Garamond', Georgia, serif",
+  fontSize: '24px',
+  fontWeight: 600,
+  color: '#2a2f22',
   margin: '0 0 20px',
 }
 const text = {
   fontSize: '14px',
-  color: '#55575d',
+  color: '#5a6b52',
   lineHeight: '1.5',
   margin: '0 0 25px',
 }
-const link = { color: 'inherit', textDecoration: 'underline' }
+const link = { color: '#6b8e5a', textDecoration: 'underline' }
 const button = {
-  backgroundColor: '#000000',
-  color: '#ffffff',
+  backgroundColor: '#6b8e5a',
+  color: '#fbf9f4',
   fontSize: '14px',
-  borderRadius: '8px',
-  padding: '12px 20px',
+  fontWeight: 600,
+  borderRadius: '20px',
+  padding: '12px 24px',
   textDecoration: 'none',
 }
-const footer = { fontSize: '12px', color: '#999999', margin: '30px 0 0' }
+const footer = { fontSize: '12px', color: '#8a9a7c', margin: '30px 0 0' }

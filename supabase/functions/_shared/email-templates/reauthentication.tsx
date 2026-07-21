@@ -17,17 +17,17 @@ interface ReauthenticationEmailProps {
 }
 
 export const ReauthenticationEmail = ({ token }: ReauthenticationEmailProps) => (
-  <Html lang="en" dir="ltr">
+  <Html lang="hr" dir="ltr">
     <Head />
-    <Preview>Your verification code</Preview>
+    <Preview>Vaš kontrolni kod</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Heading style={h1}>Confirm reauthentication</Heading>
-        <Text style={text}>Use the code below to confirm your identity:</Text>
+        <Heading style={h1}>Potvrdite identitet</Heading>
+        <Text style={text}>Upotrijebite kod ispod da potvrdite svoj identitet:</Text>
         <Text style={codeStyle}>{token}</Text>
         <Text style={footer}>
-          This code will expire shortly. If you didn't request this, you can
-          safely ignore this email.
+          Ovaj kod uskoro istječe. Ako niste zatražili ovu potvrdu, možete
+          zanemariti ovu poruku.
         </Text>
       </Container>
     </Body>
@@ -36,25 +36,30 @@ export const ReauthenticationEmail = ({ token }: ReauthenticationEmailProps) => 
 
 export default ReauthenticationEmail
 
-const main = { backgroundColor: '#ffffff', fontFamily: 'Arial, sans-serif' }
+const main = {
+  backgroundColor: '#f5f2ea',
+  fontFamily: "'Karla', Arial, sans-serif",
+}
 const container = { padding: '20px 25px' }
 const h1 = {
-  fontSize: '22px',
-  fontWeight: 'bold' as const,
-  color: '#000000',
+  fontFamily: "'Cormorant Garamond', Georgia, serif",
+  fontSize: '24px',
+  fontWeight: 600,
+  color: '#2a2f22',
   margin: '0 0 20px',
 }
 const text = {
   fontSize: '14px',
-  color: '#55575d',
+  color: '#5a6b52',
   lineHeight: '1.5',
   margin: '0 0 25px',
 }
 const codeStyle = {
-  fontFamily: 'Courier, monospace',
-  fontSize: '22px',
-  fontWeight: 'bold' as const,
-  color: '#000000',
+  fontFamily: "'JetBrains Mono', 'Courier New', monospace",
+  fontSize: '24px',
+  fontWeight: 700,
+  color: '#2a2f22',
   margin: '0 0 30px',
+  letterSpacing: '0.08em',
 }
-const footer = { fontSize: '12px', color: '#999999', margin: '30px 0 0' }
+const footer = { fontSize: '12px', color: '#8a9a7c', margin: '30px 0 0' }

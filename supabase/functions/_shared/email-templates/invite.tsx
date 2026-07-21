@@ -25,26 +25,24 @@ export const InviteEmail = ({
   siteUrl,
   confirmationUrl,
 }: InviteEmailProps) => (
-  <Html lang="en" dir="ltr">
+  <Html lang="hr" dir="ltr">
     <Head />
-    <Preview>You've been invited to join {siteName}</Preview>
+    <Preview>Pozivnica za {siteName}</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Heading style={h1}>You've been invited</Heading>
+        <Heading style={h1}>Pozvani ste</Heading>
         <Text style={text}>
-          You've been invited to join{' '}
+          Pozvani ste se pridružiti{' '}
           <Link href={siteUrl} style={link}>
             <strong>{siteName}</strong>
           </Link>
-          . Click the button below to accept the invitation and create your
-          account.
+          . Kliknite gumb ispod da prihvatite pozivnicu i kreirate račun.
         </Text>
         <Button style={button} href={confirmationUrl}>
-          Accept Invitation
+          Prihvati pozivnicu
         </Button>
         <Text style={footer}>
-          If you weren't expecting this invitation, you can safely ignore this
-          email.
+          Ako niste očekivali ovu pozivnicu, možete je zanemariti.
         </Text>
       </Container>
     </Body>
@@ -53,27 +51,32 @@ export const InviteEmail = ({
 
 export default InviteEmail
 
-const main = { backgroundColor: '#ffffff', fontFamily: 'Arial, sans-serif' }
+const main = {
+  backgroundColor: '#f5f2ea',
+  fontFamily: "'Karla', Arial, sans-serif",
+}
 const container = { padding: '20px 25px' }
 const h1 = {
-  fontSize: '22px',
-  fontWeight: 'bold' as const,
-  color: '#000000',
+  fontFamily: "'Cormorant Garamond', Georgia, serif",
+  fontSize: '24px',
+  fontWeight: 600,
+  color: '#2a2f22',
   margin: '0 0 20px',
 }
 const text = {
   fontSize: '14px',
-  color: '#55575d',
+  color: '#5a6b52',
   lineHeight: '1.5',
   margin: '0 0 25px',
 }
-const link = { color: 'inherit', textDecoration: 'underline' }
+const link = { color: '#6b8e5a', textDecoration: 'underline' }
 const button = {
-  backgroundColor: '#000000',
-  color: '#ffffff',
+  backgroundColor: '#6b8e5a',
+  color: '#fbf9f4',
   fontSize: '14px',
-  borderRadius: '8px',
-  padding: '12px 20px',
+  fontWeight: 600,
+  borderRadius: '20px',
+  padding: '12px 24px',
   textDecoration: 'none',
 }
-const footer = { fontSize: '12px', color: '#999999', margin: '30px 0 0' }
+const footer = { fontSize: '12px', color: '#8a9a7c', margin: '30px 0 0' }
