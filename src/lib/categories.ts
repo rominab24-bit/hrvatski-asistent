@@ -3,10 +3,11 @@ import {
   Utensils, Coffee, Wine, Pizza, Plane, Train, Bus, Fuel, Bike,
   GraduationCap, Baby, Dog, Cat, Gift, Music, Film, Tv, Headphones,
   Smartphone, Laptop, Camera, Wifi, CreditCard, Wallet, PiggyBank, TrendingUp,
-  Briefcase, Building, Hammer, Wrench, Scissors, Paintbrush, Flower2, Trees,
+  Briefcase, Building, Building2, Hammer, Wrench, Scissors, Paintbrush, Flower2, Trees,
   Dumbbell, Trophy, Target, Sparkles, Star, Moon, Sun, Cloud, Umbrella,
   Thermometer, Pill, Stethoscope, Syringe, Cross, ShieldCheck, Lock, Key,
   MapPin, Compass, Globe, Flag, Ticket, PartyPopper, Cake, IceCream,
+  Droplet, Flame, Trash2,
   LucideIcon 
 } from "lucide-react";
 
