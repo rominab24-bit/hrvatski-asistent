@@ -1,13 +1,15 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card } from '@/components/ui/card';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-import { Receipt, Mail, Lock, ArrowRight, Loader2 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { Receipt, Mail, Lock, ArrowRight, Loader2, ArrowLeft } from 'lucide-react';
+
+type Mode = 'login' | 'signup' | 'forgot';
 
 export function AuthForm() {
-  const [isLogin, setIsLogin] = useState(true);
+  const [mode, setMode] = useState<Mode>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -18,24 +20,33 @@ export function AuthForm() {
     e.preventDefault();
     setIsLoading(true);
 
-    const { error } = isLogin 
+    if (mode === 'forgot') {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      if (error) {
+        toast({ title: 'Greška', description: error.message, variant: 'destructive' });
+      } else {
+        toast({
+          title: 'Provjerite e-mail',
+          description: 'Poslali smo vam poveznicu za resetiranje lozinke.',
+        });
+        setMode('login');
+      }
+      setIsLoading(false);
+      return;
+    }
+
+    const { error } = mode === 'login'
       ? await signIn(email, password)
       : await signUp(email, password);
 
     if (error) {
-      toast({
-        title: 'Greška',
-        description: error.message,
-        variant: 'destructive',
-      });
-    } else if (!isLogin) {
-      toast({
-        title: 'Uspjeh!',
-        description: 'Račun je kreiran. Možete se prijaviti.',
-      });
-      setIsLogin(true);
+      toast({ title: 'Greška', description: error.message, variant: 'destructive' });
+    } else if (mode === 'signup') {
+      toast({ title: 'Uspjeh!', description: 'Račun je kreiran. Možete se prijaviti.' });
+      setMode('login');
     } else {
-      // Successful sign-in: honor ?next= for OAuth consent flow
       const params = new URLSearchParams(window.location.search);
       const next = params.get('next');
       if (next && next.startsWith('/')) {
@@ -47,8 +58,10 @@ export function AuthForm() {
     setIsLoading(false);
   };
 
+  const submitLabel =
+    mode === 'login' ? 'Prijavi se' : mode === 'signup' ? 'Registriraj se' : 'Pošalji poveznicu';
+
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 bg-background">
     <div className="min-h-screen flex items-center justify-center p-6 bg-background">
       <div className="w-full max-w-[400px] flex flex-col items-center animate-fade-in">
         {/* Brand Identity */}
@@ -64,15 +77,12 @@ export function AuthForm() {
             Kućni budžet
           </h1>
           <p className="text-muted-foreground text-sm">
-            Pratite troškove pametno
+            {mode === 'forgot' ? 'Resetirajte svoju lozinku' : 'Pratite troškove pametno'}
           </p>
         </div>
 
-        </div>
-
-        {/* Login Form Container */}
+        {/* Form Container */}
         <div className="w-full bg-card border border-border rounded-[2rem] p-8 shadow-md">
-
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
               <label className="block text-xs font-semibold text-primary uppercase tracking-widest ml-1">
@@ -93,27 +103,38 @@ export function AuthForm() {
               </div>
             </div>
 
-            <div className="space-y-2">
-              <div className="flex justify-between items-end ml-1">
-                <label className="text-xs font-semibold text-primary uppercase tracking-widest">
-                  Lozinka
-                </label>
-              </div>
-              <div className="relative group">
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground/60 group-focus-within:text-primary transition-colors">
-                  <Lock className="w-5 h-5" />
+            {mode !== 'forgot' && (
+              <div className="space-y-2">
+                <div className="flex justify-between items-end ml-1">
+                  <label className="text-xs font-semibold text-primary uppercase tracking-widest">
+                    Lozinka
+                  </label>
+                  {mode === 'login' && (
+                    <button
+                      type="button"
+                      onClick={() => setMode('forgot')}
+                      className="text-xs text-primary hover:underline decoration-2 underline-offset-4"
+                    >
+                      Zaboravili ste lozinku?
+                    </button>
+                  )}
                 </div>
-                <Input
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  minLength={6}
-                  className="h-auto w-full bg-input border border-border rounded-2xl py-4 pl-12 pr-4 text-foreground placeholder:text-muted-foreground/60 focus-visible:border-primary/60 focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-0 transition-all"
-                />
+                <div className="relative group">
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground/60 group-focus-within:text-primary transition-colors">
+                    <Lock className="w-5 h-5" />
+                  </div>
+                  <Input
+                    type="password"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    minLength={6}
+                    className="h-auto w-full bg-input border border-border rounded-2xl py-4 pl-12 pr-4 text-foreground placeholder:text-muted-foreground/60 focus-visible:border-primary/60 focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-0 transition-all"
+                  />
+                </div>
               </div>
-            </div>
+            )}
 
             <Button
               type="submit"
@@ -124,7 +145,7 @@ export function AuthForm() {
                 <Loader2 className="w-5 h-5 animate-spin" />
               ) : (
                 <>
-                  <span>{isLogin ? 'Prijavi se' : 'Registriraj se'}</span>
+                  <span>{submitLabel}</span>
                   <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
                 </>
               )}
@@ -134,16 +155,27 @@ export function AuthForm() {
 
         {/* Bottom Action */}
         <div className="mt-8 flex flex-col items-center">
-          <p className="text-muted-foreground text-sm">
-            {isLogin ? 'Nemate račun? ' : 'Već imate račun? '}
+          {mode === 'forgot' ? (
             <button
               type="button"
-              onClick={() => setIsLogin(!isLogin)}
-              className="font-semibold text-primary hover:underline decoration-2 underline-offset-4"
+              onClick={() => setMode('login')}
+              className="flex items-center gap-2 text-sm font-semibold text-primary hover:underline decoration-2 underline-offset-4"
             >
-              {isLogin ? 'Registrirajte se' : 'Prijavite se'}
+              <ArrowLeft className="w-4 h-4" />
+              Natrag na prijavu
             </button>
-          </p>
+          ) : (
+            <p className="text-muted-foreground text-sm">
+              {mode === 'login' ? 'Nemate račun? ' : 'Već imate račun? '}
+              <button
+                type="button"
+                onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}
+                className="font-semibold text-primary hover:underline decoration-2 underline-offset-4"
+              >
+                {mode === 'login' ? 'Registrirajte se' : 'Prijavite se'}
+              </button>
+            </p>
+          )}
         </div>
       </div>
     </div>
