@@ -457,7 +457,7 @@ Odgovori ISKLJUČIVO u JSON formatu bez dodatnog teksta.${feedbackHint}`
                         price: { type: 'number', description: 'Konačna cijena stavke u eurima' },
                         category: { 
                           type: 'string', 
-                          enum: ['Hrana', 'Kafići i barovi', 'Restorani', 'Kućanstvo', 'Higijena', 'Prijevoz', 'Zdravlje', 'Zabava', 'Odjeća', 'Obrazovanje', 'Računi', 'Voda', 'Struja', 'Grijanje', 'Pričuva TV', 'Smeće', 'Komunalna naknada', 'Kućni internet', 'Kućni ljubimci', 'Ostalo'],
+                          enum: ['Hrana', 'Kafići i barovi', 'Restorani', 'Kućanstvo', 'Higijena', 'Prijevoz', 'Zdravlje', 'Zabava', 'Odjeća', 'Obrazovanje', 'Računi', 'Voda', 'Struja', 'Grijanje', 'Stambena pričuva', 'TV', 'Smeće', 'Komunalna naknada', 'Kućni internet', 'Kućni ljubimci', 'Ostalo'],
                           description: 'Kategorija proizvoda'
                         }
                       },
