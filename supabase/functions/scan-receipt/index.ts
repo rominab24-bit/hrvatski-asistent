@@ -67,6 +67,12 @@ const redactPII = (input: unknown): string => {
   text = text.replace(/\b(?:Ulica|Ul\.?|Trg|Cesta|Put|Avenija|Aleja|Šetalište|Obala|Prilaz|Naselje)\s+[^\n,;]{2,60}?\s+\d+[a-zA-Z]?\b/gi, PII_PLACEHOLDER);
   // Poštanski broj + grad (npr. 10000 Zagreb)
   text = text.replace(/\b\d{5}\s+[A-ZŠĐČĆŽ][a-zšđčćž]+(?:\s+[A-ZŠĐČĆŽ][a-zšđčćž]+)?\b/g, PII_PLACEHOLDER);
+  // Ime i prezime kupca nakon oznaka tipa "Kupac:", "Naručitelj:", "Ime i prezime:", "Platitelj:", "Korisnik:", "Primatelj:"
+  // Hvata do kraja retka ili sljedećeg separatora (,;|). NE dira naziv trgovine jer traži eksplicitnu oznaku.
+  text = text.replace(
+    /\b(Kupac|Naru[čc]itelj|Ime\s+i\s+prezime|Ime\/prezime|Platitelj|Korisnik|Primatelj|Klijent)\s*[:\-]\s*[^\n,;|]{2,80}/gi,
+    `$1: ${PII_PLACEHOLDER}`,
+  );
 
   return text.trim();
 };
