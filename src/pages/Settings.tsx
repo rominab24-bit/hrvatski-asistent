@@ -12,8 +12,9 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { ArrowLeft, Trash2, Loader2, AlertTriangle, Download, FileText, FileSpreadsheet } from 'lucide-react';
+import { ArrowLeft, Trash2, Loader2, AlertTriangle, Download, FileText, FileSpreadsheet, Calculator } from 'lucide-react';
 import { exportToCSV, exportToPDF } from '@/lib/exportData';
+import SubscriptionWizard from '@/components/SubscriptionWizard';
 
 export default function Settings() {
   const navigate = useNavigate();
