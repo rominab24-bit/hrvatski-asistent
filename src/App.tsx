@@ -10,6 +10,7 @@ import Install from "./pages/Install";
 import NotFound from "./pages/NotFound";
 import OAuthConsent from "./pages/OAuthConsent";
 import McpStatus from "./pages/McpStatus";
+import ResetPassword from "./pages/ResetPassword";
 
 const queryClient = new QueryClient();
 
