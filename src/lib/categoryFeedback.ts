@@ -88,3 +88,44 @@ export function setExpenseRating(expenseId: string, status: RatingStatus) {
   map[expenseId] = status;
   writeRatingMap(map);
 }
+
+/** Briše lokalni zapis ocjene za dati trošak. */
+export function clearExpenseRating(expenseId: string) {
+  const map = readRatingMap();
+  delete map[expenseId];
+  writeRatingMap(map);
+}
+
+/**
+ * Best-effort brisanje zadnjeg zapisa povratne informacije koji odgovara
+ * ovoj stavci (isti korisnik, izdavatelj i naziv stavke). Koristi se kad
+ * korisnik poništi svoju ocjenu kako bi se pojačanje/ispravka poništili.
+ */
+export async function removeLatestCategoryFeedback(params: {
+  storeName?: string | null;
+  itemName: string;
+}): Promise<void> {
+  const itemName = params.itemName?.trim();
+  if (!itemName) return;
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    let query = supabase
+      .from('category_feedback')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('item_name', itemName)
+      .order('created_at', { ascending: false })
+      .limit(1);
+
+    const store = params.storeName?.trim();
+    query = store ? query.eq('store_name', store) : query.is('store_name', null);
+
+    const { data, error } = await query;
+    if (error || !data?.length) return;
+    await supabase.from('category_feedback').delete().eq('id', data[0].id);
+  } catch (err) {
+    console.warn('Poništavanje ocjene nije uspjelo:', err);
+  }
+}
