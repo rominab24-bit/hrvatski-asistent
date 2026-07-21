@@ -103,6 +103,40 @@ export default function Settings() {
           <p className="text-sm text-muted-foreground">Prijavljeni ste kao <span className="font-medium text-foreground">{user?.email}</span></p>
         </Card>
 
+        <Card className="p-6 space-y-4">
+          <div className="flex items-start gap-3">
+            <Download className="w-5 h-5 text-primary shrink-0 mt-1" />
+            <div>
+              <h2 className="text-lg font-serif">Izvoz mojih podataka</h2>
+              <p className="text-sm text-muted-foreground mt-1">
+                Preuzmite kopiju svih svojih troškova prije brisanja računa. Preporučujemo izvoz prije trajnog uklanjanja podataka.
+              </p>
+            </div>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <Button
+              variant="outline"
+              onClick={() => handleExport('csv')}
+              disabled={exporting !== null}
+              className="flex-1"
+            >
+              {exporting === 'csv'
+                ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Priprema...</>
+                : <><FileSpreadsheet className="w-4 h-4 mr-2" />Preuzmi CSV</>}
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => handleExport('pdf')}
+              disabled={exporting !== null}
+              className="flex-1"
+            >
+              {exporting === 'pdf'
+                ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Priprema...</>
+                : <><FileText className="w-4 h-4 mr-2" />Preuzmi PDF</>}
+            </Button>
+          </div>
+        </Card>
+
         <Card className="p-6 space-y-4 border-destructive/40">
           <div className="flex items-start gap-3">
             <AlertTriangle className="w-5 h-5 text-destructive shrink-0 mt-1" />
@@ -110,6 +144,9 @@ export default function Settings() {
               <h2 className="text-lg font-serif text-destructive">Opasna zona</h2>
               <p className="text-sm text-muted-foreground mt-1">
                 Trajno brisanje računa uklanja sve vaše troškove, skenirane račune, kategorije, verzije i povratne informacije. Ova radnja se ne može poništiti.
+              </p>
+              <p className="text-xs text-muted-foreground mt-2">
+                💡 Savjet: prvo preuzmite CSV ili PDF izvoz iznad — nakon brisanja podaci se ne mogu vratiti.
               </p>
             </div>
           </div>
