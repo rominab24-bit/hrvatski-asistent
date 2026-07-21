@@ -578,6 +578,17 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
         className="hidden"
       />
 
+      {/* AI disclaimer warning */}
+      <div className="mb-4 p-3 rounded-lg bg-warning/10 border border-warning/20 flex items-start gap-3">
+        <AlertCircle className="w-5 h-5 text-warning shrink-0 mt-0.5" />
+        <div className="text-sm">
+          <p className="font-medium text-warning">Račune analizira umjetna inteligencija</p>
+          <p className="text-muted-foreground mt-1">
+            AI može pogriješiti pri prepoznavanju stavki, iznosa i kategorija. Prije spremanja uvijek provjerite podatke i prilagodite ih ako je potrebno.
+          </p>
+        </div>
+      </div>
+
       {!imagePreview ? (
         <div className="space-y-3">
           <Button
