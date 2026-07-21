@@ -1,55 +1,60 @@
-# Plan: Dodavanje pravila privatnosti i uvjeta korištenja
+# Plan: Priprema Android Studio projekta i izrada testnog APK-a
 
 ## Cilj
-Dodati dvije javne stranice u aplikaciju:
-- `/privacy` — Pravila privatnosti
-- `/terms` — Uvjeti korištenja
+Pripremiti „Kućni Budžet" za lokalno testiranje na Android uređaju: dodati Android platformu u Capacitor, otvoriti projekt u Android Studio, izgraditi debug APK i omogućiti instalaciju na mobitel. Web objava na domeni ostaje za kasniju odluku.
 
-Stranice će pratiti postojeći „Organic Sage“ dizajn, biti dostupne bez prijave, i imati poveznice s ekrana za prijavu/registraciju.
-
-## Zašto je važno za Google Play
-Google Play zahtijeva URL pravila privatnosti za aplikacije koje prikupljaju osobne podatke — ova aplikacija prikuplja email adresu, lozinku, financijske unose i fotografije računa. Uvjeti korištenja nisu uvijek obavezni, ali su preporučeni za registraciju korisnika. Nakon objave, URL-ovi će biti javno dostupni i moći ćete ih unijeti u Google Play Console.
+## Trenutačno stanje
+- Aplikacija nije objavljena na webu (`published_url: null`).
+- Custom domena `rominab24.com` je već spojena, ali stranice `/privacy` i `/terms` nisu javno dostupne dok se ne objavi.
+- Capacitor konfiguracija postoji (`capacitor.config.ts`), ali Android platforma još nije dodana (`android/` direktorij ne postoji).
+- Security scan pokazuje upozorenja na pakete `@capacitor/cli` i `jspdf` — preporučljivo ih je ažurirati prije builda.
 
 ## Koraci
 
-1. **Kreirati `src/pages/Privacy.tsx`**
-   - Prikazati sadržaj iz uploadane HTML datoteke `pravila-privatnosti-3.html`.
-   - Zamijeniti placeholder kontakt podatke s: **Romina Nikolić**, **rominab24@gmail.com**.
-   - Dodati sekciju o brisanju korisničkog računa i pripadajućih podataka.
-   - Koristiti postojeći dizajn aplikacije: `bg-background`, `text-foreground`, `card`, `font-display`, `rounded-3xl` itd.
-   - Na dnu dodati napomenu da je stranica održavana od strane vlasnika aplikacije i da nije pravni savjet.
+1. **Ažuriranje ranjivih ovisnosti**
+   - Provjeriti dostupne nove verzije za `@capacitor/cli` i `jspdf`.
+   - Ažurirati ih ako su kompatibilne s Capacitor 8.
+   - Pokrenuti build kako bi se potvrdilo da nije došlo do pogoršanja.
 
-2. **Kreirati `src/pages/Terms.tsx`**
-   - Uvjeti korištenja na hrvatskom: prihvatljiva upotreba, odgovornost korisnika, intelektualno vlasništvo, izmjene uvjeta, kontakt i rješavanje sporova.
-   - Isti vizualni identitet kao stranica Pravila privatnosti.
+2. **Provjera Capacitor resursa**
+   - Osigurati da postoje izvorne datoteke za ikone i splash screen (`public/icon.png`, `public/splash.png` ili slične).
+   - Provjeriti da `capacitor.config.ts` nema `server.url` (produkcijski build mora koristiti lokalne datoteke).
 
-3. **Registrirati rute u `src/App.tsx`**
-   - Dodati `<Route path="/privacy" element={<Privacy />} />`.
-   - Dodati `<Route path="/terms" element={<Terms />} />`.
-   - Rute su javne — bez zahtjeva za prijavu.
+3. **Dodavanje Android platforme**
+   - Pokrenuti `npx cap add android`.
+   - Time se kreira `android/` direktorij s Gradle projektom.
 
-4. **Dodati poveznice u `src/components/AuthForm.tsx`**
-   - Ispod gumba za registraciju dodati tekst: „Registrirajući se prihvaćate Uvjete korištenja i Pravila privatnosti."
-   - Riječi „Uvjeti korištenja" i „Pravila privatnosti" bit će linkovi na `/terms` i `/privacy`.
-   - Linkovi otvaraju stranicu unutar aplikacije, a ne u vanjskom pregledniku.
+4. **Build web aplikacije**
+   - Pokrenuti `npm run build`.
+   - Provjeriti da `dist/` sadrži sve potrebne statičke datoteke.
 
-5. **Dodati poveznice u `src/pages/Dashboard.tsx`**
-   - Dodati diskretan footer na dnu glavnog sadržaja s linkovima: „Pravila privatnosti · Uvjeti korištenja".
-   - Link vodi na `/privacy` i `/terms`.
+5. **Sinkronizacija nativnog projekta**
+   - Pokrenuti `npx cap sync android`.
+   - Time se kopira web build u Android projekt i ažuriraju Capacitor pluginovi (Camera, Splash Screen).
 
-6. **SEO / meta**
-   - Postaviti `document.title` unutar svake komponente: „Pravila privatnosti — Kućni Budžet" i „Uvjeti korištenja — Kućni Budžet".
-   - Koristiti semantički HTML (`<main>`, `<section>`, `<h1>`, `<h2>`).
+6. **Otvaranje u Android Studio**
+   - Pokrenuti `npx cap open android`.
+   - Alternativno: ručno otvoriti `android/` direktorij u Android Studio.
 
-7. **Verifikacija**
-   - Pokrenuti build (`npm run build` ili ekvivalent).
-   - Testirati rute `/privacy` i `/terms` u pregledniku.
-   - Provjeriti da linkovi iz `AuthForm` i `Dashboard` ispravno otvaraju stranice.
-   - Potvrditi da stranice rade bez prijave (javna ruta).
+7. **Izrada debug APK-a**
+   - U Android Studio odabrati `Build → Build Bundle(s) / APK(s) → Build APK(s)`.
+   - Dobivena datoteka bit će smještena u `android/app/build/outputs/apk/debug/app-debug.apk`.
 
-## Napomena o objavi za Google Play
-Da bi Google Play mogao vidjeti stranicu, aplikaciju je potrebno objaviti na javnoj domeni. Vaš projekt ima spojenu domenu `rominab24.com`, ali trenutno nije objavljen. Nakon objave, stranice će biti dostupne na:
-- `https://rominab24.com/privacy`
-- `https://rominab24.com/terms`
+8. **Upute za instalaciju na uređaj**
+   - Omogućiti „Nepoznate izvore" na Android uređaju.
+   - Prebaciti `app-debug.apk` na mobitel (Bluetooth, USB, Google Drive, itd.).
+   - Pokrenuti datoteku i instalirati aplikaciju.
 
-Ti URL-ovi se zatim unose u Google Play Console kod popunjavanja podataka o aplikaciji.
+9. **Verifikacija**
+   - Provjeriti da se aplikacija pokreće bez grešaka.
+   - Testirati osnovne funkcije: prijava, ručni unos troška, skeniranje računa (ako kamera radi).
+
+## Napomene za buduću Google Play objavu
+- Za Google Play je potrebna **Google Play Developer** račun (jednokratna naknada).
+- Google Play zahtijeva **Android App Bundle (AAB)**, a ne APK.
+- AAB se generira u Android Studio putem `Build → Generate Signed Bundle / APK` uz vlastiti keystore.
+- Aplikacija mora biti objavljena na javnoj domeni (`rominab24.com/privacy`) jer prikuplja email, lozinku, financijske podatke i fotografije računa.
+
+## Što očekivati nakon plana
+- Dobit ćete radnu `app-debug.apk` datoteku za testiranje na vlastitom uređaju.
+- Web aplikacija ostaje neobjavljena dok sami ne odlučite objaviti je.
