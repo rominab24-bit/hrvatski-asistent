@@ -1,4 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -73,6 +75,93 @@ const normalizeReceiptData = (receiptData: any) => {
   };
 };
 
+type FeedbackRow = {
+  store_name: string | null;
+  item_name: string;
+  original_category: string | null;
+  corrected_category: string;
+};
+
+async function fetchUserFeedback(req: Request): Promise<FeedbackRow[]> {
+  try {
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) return [];
+    const token = authHeader.replace(/^Bearer\s+/i, '');
+    if (!token) return [];
+
+    const SUPABASE_URL = Deno.env.get('SUPABASE_URL');
+    const SUPABASE_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY');
+    if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return [];
+
+    // Klijent s korisnikovim tokenom — RLS automatski filtrira po auth.uid().
+    const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      global: { headers: { Authorization: `Bearer ${token}` } },
+    });
+
+    const { data, error } = await client
+      .from('category_feedback')
+      .select('store_name, item_name, original_category, corrected_category')
+      .order('created_at', { ascending: false })
+      .limit(80);
+
+    if (error) {
+      console.warn('Ne mogu dohvatiti feedback:', error.message);
+      return [];
+    }
+    return (data ?? []) as FeedbackRow[];
+  } catch (e) {
+    console.warn('fetchUserFeedback iznimka:', e);
+    return [];
+  }
+}
+
+function buildFeedbackHint(rows: FeedbackRow[]): string {
+  if (!rows.length) return '';
+
+  // Grupiraj po trgovini → { itemName: correctedCategory (najnovija) }
+  const byStore = new Map<string, Map<string, string>>();
+  const byItem = new Map<string, string>();
+
+  for (const row of rows) {
+    const item = row.item_name?.trim();
+    const corrected = row.corrected_category?.trim();
+    if (!item || !corrected) continue;
+
+    if (!byItem.has(item.toLowerCase())) {
+      byItem.set(item.toLowerCase(), `"${item}" → ${corrected}`);
+    }
+
+    const store = row.store_name?.trim();
+    if (store) {
+      const key = store.toLowerCase();
+      if (!byStore.has(key)) byStore.set(key, new Map());
+      const map = byStore.get(key)!;
+      if (!map.has(item.toLowerCase())) {
+        map.set(item.toLowerCase(), `"${item}" → ${corrected}`);
+      }
+    }
+  }
+
+  const storeBlocks: string[] = [];
+  for (const [store, items] of byStore) {
+    const list = Array.from(items.values()).slice(0, 10).join('; ');
+    storeBlocks.push(`- Trgovina/lokal "${store}": ${list}`);
+  }
+
+  const itemLines = Array.from(byItem.values()).slice(0, 25).join('; ');
+
+  return `
+
+VAŽNO — Prethodne korisničke ispravke kategorija (koristi ih kao jaku smjernicu):
+Kad prepoznaš isti ili sličan izdavatelj/lokal, ili istu/sličnu stavku, prati kategoriju koju je korisnik prethodno odabrao, umjesto svoje početne pretpostavke.
+
+Ispravke po lokalima:
+${storeBlocks.slice(0, 15).join('\n') || '(nema)'}
+
+Ispravke po stavkama (bilo koji lokal):
+${itemLines || '(nema)'}`;
+}
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -92,6 +181,13 @@ serve(async (req) => {
     }
 
     console.log('Analiziram račun s AI...');
+
+    // Dohvati korisnikove prethodne ispravke kategorija i pripremi hint.
+    const feedbackRows = await fetchUserFeedback(req);
+    const feedbackHint = buildFeedbackHint(feedbackRows);
+    if (feedbackHint) {
+      console.log(`Injektiram ${feedbackRows.length} korisničkih ispravki kao kontekst.`);
+    }
 
     // Prepare the image content for the AI
     const imageContent = imageBase64 
