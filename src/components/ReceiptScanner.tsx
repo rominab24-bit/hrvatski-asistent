@@ -48,7 +48,7 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
   const [uploadedPath, setUploadedPath] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { isScanning, receiptData, scanReceipt, clearData } = useReceiptScanner();
+  const { isScanning, receiptData, scanReceipt, clearData, usage, limitReached } = useReceiptScanner();
   const { toast } = useToast();
 
   // When receipt data is received, set up editable state
