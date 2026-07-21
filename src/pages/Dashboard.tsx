@@ -313,6 +313,8 @@ export default function Dashboard() {
               expenses={hasDateFilter ? filteredExpenses : filteredExpenses.slice(0, 10)} 
               onDelete={handleDeleteExpense} 
               onEdit={handleStartEdit} 
+              categories={categories}
+              onRestore={updateExpense}
             />
           )}
         </section>

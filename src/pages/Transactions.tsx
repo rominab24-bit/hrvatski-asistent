@@ -238,6 +238,8 @@ export default function Transactions() {
             expenses={paginatedExpenses} 
             onDelete={handleDeleteExpense} 
             onEdit={handleStartEdit} 
+            categories={categories}
+            onRestore={updateExpense}
           />
         )}
 
