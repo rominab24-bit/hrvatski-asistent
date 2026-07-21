@@ -17,12 +17,12 @@ const corsHeaders = {
 }
 
 const EMAIL_SUBJECTS: Record<string, string> = {
-  signup: 'Confirm your email',
-  invite: "You've been invited",
-  magiclink: 'Your login link',
-  recovery: 'Reset your password',
-  email_change: 'Confirm your new email',
-  reauthentication: 'Your verification code',
+  signup: 'Potvrdite registraciju — Kućni Budžet',
+  invite: 'Pozivnica — Kućni Budžet',
+  magiclink: 'Vaša prijava — Kućni Budžet',
+  recovery: 'Resetirajte lozinku — Kućni Budžet',
+  email_change: 'Potvrdite novu e-mail adresu — Kućni Budžet',
+  reauthentication: 'Vaš kontrolni kod — Kućni Budžet',
 }
 
 // Template mapping
@@ -36,7 +36,7 @@ const EMAIL_TEMPLATES: Record<string, React.ComponentType<any>> = {
 }
 
 // Configuration
-const SITE_NAME = "aplikacija-za-sve"
+const SITE_NAME = "Kućni Budžet"
 const SENDER_DOMAIN = "notify.rominab24.com"
 const ROOT_DOMAIN = "rominab24.com"
 const FROM_DOMAIN = "rominab24.com" // Domain shown in From address (may be root or sender subdomain)
