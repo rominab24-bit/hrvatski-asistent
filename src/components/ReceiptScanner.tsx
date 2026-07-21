@@ -619,6 +619,9 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
               Zajednički limit za sve korisnike aplikacije. Preostalo: {Math.max(0, usage.limit - usage.count)} skeniranja.
             </p>
           )}
+          <p className="mt-2 text-xs opacity-70">
+            Procijenjeni trošak: ~0,01 kredit po skeniranju (skida se s Lovable kredita vlasnika aplikacije, ne s vašeg računa).
+          </p>
         </div>
       )}
 
