@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Category } from '@/lib/categories';
 import { useOnlineStatus } from '@/hooks/useOnlineStatus';
+import { recordCategoryFeedback } from '@/lib/categoryFeedback';
 import { 
   saveExpensesLocally, 
   getLocalExpenses, 
@@ -404,6 +405,10 @@ export function useExpenses() {
       return null;
     }
 
+    // Snimi staro stanje prije update-a kako bismo mogli zabilježiti ispravku
+    // kategorije (ako se promijenila i trošak potječe sa skeniranog računa).
+    const previous = expenses.find(e => e.id === id);
+
     const { data, error } = await supabase
       .from('expenses')
       .update(updates)
@@ -428,6 +433,26 @@ export function useExpenses() {
     // Update local cache
     const localExpenses = getLocalExpenses().map(e => (e.id === id ? data as OfflineExpense : e));
     saveExpensesLocally(localExpenses);
+
+    // Ako je korisnik promijenio kategoriju na trošku sa skeniranog računa,
+    // zabilježi ispravku kako bi AI ubuduće bolje pogađao.
+    if (
+      previous &&
+      updates.category_id !== undefined &&
+      updates.category_id !== previous.category_id &&
+      previous.receipt_data
+    ) {
+      const oldCat = previous.category?.name || null;
+      const newCat = data?.category?.name;
+      if (newCat) {
+        void recordCategoryFeedback({
+          storeName: (previous.receipt_data as any)?.store_name,
+          itemName: data.description || previous.description,
+          originalCategory: oldCat,
+          correctedCategory: newCat,
+        });
+      }
+    }
 
     toast({
       title: 'Uspjeh',
