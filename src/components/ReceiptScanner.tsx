@@ -33,9 +33,12 @@ interface ReceiptScannerProps {
   categories: Category[];
 }
 
+import { recordCategoryFeedback } from '@/lib/categoryFeedback';
+
 export function ReceiptScanner({ onScanComplete, onCancel, categories }: ReceiptScannerProps) {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [editedReceiptData, setEditedReceiptData] = useState<ReceiptData | null>(null);
+  const [originalCategories, setOriginalCategories] = useState<string[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [dateConfidence, setDateConfidence] = useState<DateConfidence | null>(null);
   const [showAddItem, setShowAddItem] = useState(false);
@@ -81,6 +84,7 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
       }
     }
 
+    setOriginalCategories(data.items.map((it) => it.category));
     setEditedReceiptData(data);
   };
 
@@ -231,6 +235,22 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
   const handleSaveAll = () => {
     if (!editedReceiptData) return;
 
+    // Zabilježi korisničke ispravke kategorija — po nazivu stavke usporedimo
+    // originalnu (AI) i konačnu (korisničku) kategoriju. Bilježimo samo stavke
+    // koje je AI prvotno predložio (dodane ručno nemaju "original").
+    const storeName = editedReceiptData.store_name;
+    editedReceiptData.items.forEach((item, index) => {
+      const original = originalCategories[index];
+      if (!original) return;
+      if (original === item.category) return;
+      void recordCategoryFeedback({
+        storeName,
+        itemName: item.name,
+        originalCategory: original,
+        correctedCategory: item.category,
+      });
+    });
+
     // Update the date in the format expected by Dashboard
     const formattedDate = format(selectedDate, 'yyyy-MM-dd');
     const dataToSave: ReceiptData = {
@@ -243,10 +263,12 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
     onScanComplete(dataToSave);
     clearData();
     setUploadedPath(null);
+    setOriginalCategories([]);
   };
 
   const handleCancelEdit = () => {
     setEditedReceiptData(null);
+    setOriginalCategories([]);
     clearData();
     setUploadedPath(null);
     onCancel();
