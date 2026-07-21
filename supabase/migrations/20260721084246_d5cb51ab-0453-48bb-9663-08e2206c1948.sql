@@ -1,0 +1,2 @@
+ALTER TABLE public.category_feedback
+  ADD COLUMN IF NOT EXISTS weight INTEGER NOT NULL DEFAULT 1;

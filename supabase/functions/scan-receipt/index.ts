@@ -80,6 +80,7 @@ type FeedbackRow = {
   item_name: string;
   original_category: string | null;
   corrected_category: string;
+  weight: number | null;
 };
 
 async function fetchUserFeedback(req: Request): Promise<FeedbackRow[]> {
@@ -100,9 +101,9 @@ async function fetchUserFeedback(req: Request): Promise<FeedbackRow[]> {
 
     const { data, error } = await client
       .from('category_feedback')
-      .select('store_name, item_name, original_category, corrected_category')
+      .select('store_name, item_name, original_category, corrected_category, weight')
       .order('created_at', { ascending: false })
-      .limit(80);
+      .limit(200);
 
     if (error) {
       console.warn('Ne mogu dohvatiti feedback:', error.message);
@@ -115,51 +116,94 @@ async function fetchUserFeedback(req: Request): Promise<FeedbackRow[]> {
   }
 }
 
+/**
+ * Težinski vote: za svaki ključ (trgovina|stavka) i (stavka) sumiraj težinu po
+ * kategoriji, odaberi kategoriju s najvećom težinom. Zapisi s većom težinom
+ * (npr. eksplicitna korisnička potvrda) jače utječu na ishod.
+ */
 function buildFeedbackHint(rows: FeedbackRow[]): string {
   if (!rows.length) return '';
 
-  // Grupiraj po trgovini → { itemName: correctedCategory (najnovija) }
-  const byStore = new Map<string, Map<string, string>>();
-  const byItem = new Map<string, string>();
+  // key -> { itemDisplay, storeDisplay?, byCategory: { cat: totalWeight } }
+  type Bucket = {
+    itemDisplay: string;
+    storeDisplay?: string;
+    byCategory: Record<string, number>;
+  };
+  const storeItemBuckets = new Map<string, Bucket>();
+  const itemBuckets = new Map<string, Bucket>();
 
   for (const row of rows) {
     const item = row.item_name?.trim();
     const corrected = row.corrected_category?.trim();
     if (!item || !corrected) continue;
+    const weight = Math.max(1, Math.floor(row.weight ?? 1));
 
-    if (!byItem.has(item.toLowerCase())) {
-      byItem.set(item.toLowerCase(), `"${item}" → ${corrected}`);
+    const itemKey = item.toLowerCase();
+    if (!itemBuckets.has(itemKey)) {
+      itemBuckets.set(itemKey, { itemDisplay: item, byCategory: {} });
     }
+    const ib = itemBuckets.get(itemKey)!;
+    ib.byCategory[corrected] = (ib.byCategory[corrected] ?? 0) + weight;
 
     const store = row.store_name?.trim();
     if (store) {
-      const key = store.toLowerCase();
-      if (!byStore.has(key)) byStore.set(key, new Map());
-      const map = byStore.get(key)!;
-      if (!map.has(item.toLowerCase())) {
-        map.set(item.toLowerCase(), `"${item}" → ${corrected}`);
+      const key = `${store.toLowerCase()}|${itemKey}`;
+      if (!storeItemBuckets.has(key)) {
+        storeItemBuckets.set(key, { itemDisplay: item, storeDisplay: store, byCategory: {} });
       }
+      const sb = storeItemBuckets.get(key)!;
+      sb.byCategory[corrected] = (sb.byCategory[corrected] ?? 0) + weight;
     }
   }
 
-  const storeBlocks: string[] = [];
-  for (const [store, items] of byStore) {
-    const list = Array.from(items.values()).slice(0, 10).join('; ');
-    storeBlocks.push(`- Trgovina/lokal "${store}": ${list}`);
+  const pickWinner = (bucket: Bucket): { cat: string; weight: number } | null => {
+    let best: { cat: string; weight: number } | null = null;
+    for (const [cat, w] of Object.entries(bucket.byCategory)) {
+      if (!best || w > best.weight) best = { cat, weight: w };
+    }
+    return best;
+  };
+
+  // Grupiraj po trgovini: [store] -> lista redaka
+  const storeGroups = new Map<string, string[]>();
+  for (const bucket of storeItemBuckets.values()) {
+    const winner = pickWinner(bucket);
+    if (!winner) continue;
+    const store = bucket.storeDisplay!;
+    const line = `"${bucket.itemDisplay}" → ${winner.cat} (težina ${winner.weight})`;
+    if (!storeGroups.has(store)) storeGroups.set(store, []);
+    storeGroups.get(store)!.push(line);
   }
 
-  const itemLines = Array.from(byItem.values()).slice(0, 25).join('; ');
+  const storeBlocks: string[] = [];
+  for (const [store, lines] of storeGroups) {
+    storeBlocks.push(`- Trgovina/lokal "${store}":\n    ${lines.slice(0, 10).join('\n    ')}`);
+  }
+
+  const itemLines: string[] = [];
+  for (const bucket of itemBuckets.values()) {
+    const winner = pickWinner(bucket);
+    if (!winner) continue;
+    itemLines.push(`"${bucket.itemDisplay}" → ${winner.cat} (težina ${winner.weight})`);
+  }
+  // Sortiraj po težini pa uzmi top 25
+  itemLines.sort((a, b) => {
+    const wa = Number(a.match(/težina (\d+)/)?.[1] ?? 0);
+    const wb = Number(b.match(/težina (\d+)/)?.[1] ?? 0);
+    return wb - wa;
+  });
 
   return `
 
-VAŽNO — Prethodne korisničke ispravke kategorija (koristi ih kao jaku smjernicu):
-Kad prepoznaš isti ili sličan izdavatelj/lokal, ili istu/sličnu stavku, prati kategoriju koju je korisnik prethodno odabrao, umjesto svoje početne pretpostavke.
+VAŽNO — Prethodne korisničke ocjene kategorija (koristi ih kao jaku smjernicu):
+Uz svaku smjernicu prikazana je težina — što je veća, to je korisnik čvršće potvrdio ili češće ispravljao tu kategoriju za tu stavku/lokal. Kad prepoznaš isti ili sličan izdavatelj/lokal ili istu/sličnu stavku, slijedi kategoriju s najvećom težinom umjesto svoje početne pretpostavke.
 
-Ispravke po lokalima:
+Po lokalima:
 ${storeBlocks.slice(0, 15).join('\n') || '(nema)'}
 
-Ispravke po stavkama (bilo koji lokal):
-${itemLines || '(nema)'}`;
+Po stavkama (bilo koji lokal):
+${itemLines.slice(0, 25).join('; ') || '(nema)'}`;
 }
 
 serve(async (req) => {

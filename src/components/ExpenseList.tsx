@@ -4,6 +4,7 @@ import { Trash2, Pencil } from 'lucide-react';
 import { format } from 'date-fns';
 import { hr } from 'date-fns/locale';
 import { ReceiptThumbnail } from '@/components/ReceiptThumbnail';
+import { CategoryRating } from '@/components/CategoryRating';
 
 interface ExpenseListProps {
   expenses: Expense[];
@@ -29,59 +30,66 @@ export function ExpenseList({ expenses, onDelete, onEdit }: ExpenseListProps) {
           : null;
         
         return (
-          <div 
+          <div
             key={expense.id}
-            className="flex items-center gap-3 p-3 rounded-xl bg-secondary/50 hover:bg-secondary transition-colors group animate-slide-up"
+            className="p-3 rounded-xl bg-secondary/50 hover:bg-secondary transition-colors group animate-slide-up"
             style={{ animationDelay: `${index * 50}ms` }}
           >
-            {/* Category Icon */}
-            <div 
-              className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
-              style={{ 
-                backgroundColor: expense.category ? `${expense.category.color}20` : 'hsl(var(--muted))' 
-              }}
-            >
-              {IconComponent && (
-                <IconComponent 
-                  className="w-5 h-5" 
-                  style={{ color: expense.category?.color }} 
-                />
-              )}
+            <div className="flex items-center gap-3">
+              {/* Category Icon */}
+              <div
+                className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
+                style={{
+                  backgroundColor: expense.category ? `${expense.category.color}20` : 'hsl(var(--muted))',
+                }}
+              >
+                {IconComponent && (
+                  <IconComponent
+                    className="w-5 h-5"
+                    style={{ color: expense.category?.color }}
+                  />
+                )}
+              </div>
+
+              {/* Description & Category */}
+              <div className="flex-1 min-w-0">
+                <p className="font-medium truncate">{expense.description}</p>
+                <p className="text-xs text-muted-foreground">
+                  {expense.category?.name || 'Bez kategorije'} • {format(new Date(expense.expense_date), 'd. MMM', { locale: hr })}
+                </p>
+              </div>
+
+              {/* Receipt thumbnail */}
+              <ReceiptThumbnail receiptImageUrl={expense.receipt_image_url} />
+
+              {/* Amount */}
+              <div className="text-right shrink-0">
+                <p className="font-bold font-mono text-destructive">
+                  -{Number(expense.amount).toFixed(2)} €
+                </p>
+              </div>
+
+              {/* Edit button */}
+              <button
+                onClick={() => onEdit(expense)}
+                className="opacity-0 group-hover:opacity-100 p-2 rounded-lg hover:bg-primary/20 text-muted-foreground hover:text-primary transition-all"
+              >
+                <Pencil className="w-4 h-4" />
+              </button>
+
+              {/* Delete button */}
+              <button
+                onClick={() => onDelete(expense.id)}
+                className="opacity-0 group-hover:opacity-100 p-2 rounded-lg hover:bg-destructive/20 text-muted-foreground hover:text-destructive transition-all"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
             </div>
 
-            {/* Description & Category */}
-            <div className="flex-1 min-w-0">
-              <p className="font-medium truncate">{expense.description}</p>
-              <p className="text-xs text-muted-foreground">
-                {expense.category?.name || 'Bez kategorije'} • {format(new Date(expense.expense_date), 'd. MMM', { locale: hr })}
-              </p>
+            {/* AI category rating (samo za skenirane troškove) */}
+            <div className="pl-[52px]">
+              <CategoryRating expense={expense} onReject={onEdit} />
             </div>
-
-            {/* Receipt thumbnail */}
-            <ReceiptThumbnail receiptImageUrl={expense.receipt_image_url} />
-
-            {/* Amount */}
-            <div className="text-right shrink-0">
-              <p className="font-bold font-mono text-destructive">
-                -{Number(expense.amount).toFixed(2)} €
-              </p>
-            </div>
-
-            {/* Edit button */}
-            <button
-              onClick={() => onEdit(expense)}
-              className="opacity-0 group-hover:opacity-100 p-2 rounded-lg hover:bg-primary/20 text-muted-foreground hover:text-primary transition-all"
-            >
-              <Pencil className="w-4 h-4" />
-            </button>
-
-            {/* Delete button */}
-            <button
-              onClick={() => onDelete(expense.id)}
-              className="opacity-0 group-hover:opacity-100 p-2 rounded-lg hover:bg-destructive/20 text-muted-foreground hover:text-destructive transition-all"
-            >
-              <Trash2 className="w-4 h-4" />
-            </button>
           </div>
         );
       })}
