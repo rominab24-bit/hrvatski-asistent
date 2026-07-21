@@ -193,7 +193,7 @@ Odgovori ISKLJUČIVO u JSON formatu bez dodatnog teksta.`
                         price: { type: 'number', description: 'Konačna cijena stavke u eurima' },
                         category: { 
                           type: 'string', 
-                          enum: ['Hrana', 'Kućanstvo', 'Higijena', 'Prijevoz', 'Zdravlje', 'Zabava', 'Odjeća', 'Obrazovanje', 'Računi', 'Ostalo'],
+                          enum: ['Hrana', 'Kafići i barovi', 'Restorani', 'Kućanstvo', 'Higijena', 'Prijevoz', 'Zdravlje', 'Zabava', 'Odjeća', 'Obrazovanje', 'Računi', 'Ostalo'],
                           description: 'Kategorija proizvoda'
                         }
                       },
