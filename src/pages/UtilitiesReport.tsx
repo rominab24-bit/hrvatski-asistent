@@ -129,15 +129,55 @@ export default function UtilitiesReport() {
           <Button variant="ghost" size="icon" onClick={() => navigate('/')}>
             <ChevronLeft className="w-5 h-5" />
           </Button>
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
               <Home className="w-5 h-5 text-primary" />
             </div>
-            <div>
-              <h1 className="font-bold text-lg">Kućne režije</h1>
-              <p className="text-xs text-muted-foreground">Izvještaj troškova režija</p>
+            <div className="min-w-0">
+              <h1 className="font-bold text-lg truncate">Kućne režije</h1>
+              <p className="text-xs text-muted-foreground truncate">Izvještaj troškova režija</p>
             </div>
           </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                title="Izvezi izvještaj"
+                disabled={monthExpenses.length === 0}
+              >
+                <Download className="w-5 h-5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuItem
+                onClick={() => {
+                  try {
+                    exportUtilitiesCSV(monthExpenses, perCategory, monthTotal, selectedMonth);
+                    toast.success('CSV izvještaj izvezen');
+                  } catch {
+                    toast.error('Greška pri izvozu CSV-a');
+                  }
+                }}
+              >
+                <FileText className="w-4 h-4 mr-2 text-green-600" />
+                Izvezi CSV
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  try {
+                    exportUtilitiesXLSX(monthExpenses, perCategory, monthTotal, selectedMonth);
+                    toast.success('Excel izvještaj izvezen');
+                  } catch {
+                    toast.error('Greška pri izvozu Excel datoteke');
+                  }
+                }}
+              >
+                <FileSpreadsheet className="w-4 h-4 mr-2 text-emerald-600" />
+                Izvezi Excel (.xlsx)
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </header>
 
         <main className="p-4 space-y-4">
