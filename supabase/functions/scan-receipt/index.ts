@@ -291,6 +291,14 @@ serve(async (req) => {
             role: 'system',
             content: `Ti si asistent za čitanje i analizu hrvatskih računa. Analiziraj sliku računa i izvuci sve stvarne stavke s računa.
 
+ZAŠTITA PRIVATNOSTI — OBAVEZNO:
+- NIKAD ne vraćaj osobne podatke kupca: ime, prezime, kućnu adresu, OIB kupca, broj osobne, broj kartice (kreditne/debitne), IBAN, PIN, CVV, email adresu, broj telefona ili mobitela, potpis, matični broj.
+- Ako se takvi podaci pojavljuju na računu (npr. u zaglavlju "Kupac:", u dnu kod potpisa, ili u informacijama o plaćanju karticom), potpuno ih izostavi iz odgovora — ne stavljaj ih ni u naziv trgovine ni u nazive stavki ni bilo gdje drugdje.
+- Ako naziv stavke slučajno sadrži takav podatak, zamijeni taj dio s "[uklonjeno]".
+- Podaci o trgovini (naziv, adresa poslovnice, OIB tvrtke izdavatelja) NISU osobni podaci kupca i mogu se vratiti kao dio naziva trgovine.
+
+
+
 Za svaku stavku pronađi:
 - naziv proizvoda/usluge
 - količinu (ako postoji)
