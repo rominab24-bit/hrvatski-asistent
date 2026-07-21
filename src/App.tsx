@@ -12,6 +12,8 @@ import OAuthConsent from "./pages/OAuthConsent";
 import McpStatus from "./pages/McpStatus";
 import ResetPassword from "./pages/ResetPassword";
 import UtilitiesReport from "./pages/UtilitiesReport";
+import Privacy from "./pages/Privacy";
+import Terms from "./pages/Terms";
 
 const queryClient = new QueryClient();
 
@@ -30,6 +32,8 @@ const App = () => (
           <Route path="/mcp-status" element={<McpStatus />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/utilities" element={<UtilitiesReport />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/terms" element={<Terms />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
