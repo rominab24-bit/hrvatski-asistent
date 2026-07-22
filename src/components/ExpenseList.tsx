@@ -7,6 +7,16 @@ import { hr } from 'date-fns/locale';
 import { ReceiptThumbnail } from '@/components/ReceiptThumbnail';
 import { CategoryRating } from '@/components/CategoryRating';
 import { ExpenseHistoryDialog } from '@/components/ExpenseHistoryDialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 interface ExpenseListProps {
   expenses: Expense[];
