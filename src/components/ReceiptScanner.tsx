@@ -46,6 +46,7 @@ interface ReceiptScannerProps {
 }
 
 import { recordCategoryFeedback } from '@/lib/categoryFeedback';
+import { useSoundEffects } from '@/hooks/useSoundEffects';
 
 export function ReceiptScanner({ onScanComplete, onCancel, categories }: ReceiptScannerProps) {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
