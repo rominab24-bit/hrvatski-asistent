@@ -179,12 +179,31 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
     }
 
     if (scanResult) {
+      let finalPath = uploadResult?.path ?? uploadedPath ?? undefined;
+
+      // Ako je AI otkrio osobne podatke, ne pohranjujemo sliku računa.
+      // Ako je već uploadana, odmah je brišemo iz storagea.
+      if (scanResult.contains_pii) {
+        if (finalPath) {
+          await deleteReceiptFile(finalPath);
+        }
+        finalPath = undefined;
+        setUploadedPath(null);
+        toast({
+          title: 'Osobni podaci prepoznati',
+          description:
+            scanResult.pii_message ||
+            'Slika računa neće biti pohranjena radi zaštite privatnosti.',
+        });
+      }
+
       handleScanComplete({
         ...scanResult,
-        receipt_image_path: uploadResult?.path ?? undefined,
+        receipt_image_path: finalPath,
       });
     }
   };
+
 
   const updateItemCategory = (index: number, categoryName: string) => {
     if (!editedReceiptData) return;
