@@ -191,23 +191,20 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
     }
 
     if (scanResult) {
-      let finalPath = uploadResult?.path ?? uploadedPath ?? undefined;
+      const finalPath = uploadResult?.path ?? uploadedPath ?? undefined;
 
-      // Ako je AI otkrio osobne podatke, ne pohranjujemo sliku računa.
-      // Ako je već uploadana, odmah je brišemo iz storagea.
+      // Ako je AI otkrio osobne podatke, sliku NE brišemo odmah —
+      // umjesto toga korisniku u pregledu nudimo izbor: obrisati ili ipak spremiti.
+      // Po defaultu slika se NEĆE spremiti uz trošak dok korisnik izričito ne potvrdi.
+      setPiiImageKept(false);
       if (scanResult.contains_pii) {
-        if (finalPath) {
-          await deleteReceiptFile(finalPath);
-        }
-        finalPath = undefined;
-        setUploadedPath(null);
         const labels = scanResult.pii_labels?.length
           ? scanResult.pii_labels.join(', ')
           : 'osobni podaci';
         toast({
-          title: 'Slika nije spremljena — otkriveni osobni podaci',
-          description: `Prepoznato na računu: ${labels}. Radi zaštite privatnosti slika je odbačena, a spremaju se samo iznos, stavke i kategorije.`,
-          duration: 10000,
+          title: 'Otkriveni osobni podaci na računu',
+          description: `Prepoznato: ${labels}. Po defaultu slika se neće spremiti, ali u pregledu možete odabrati da je ipak zadržite.`,
+          duration: 9000,
         });
       }
 
