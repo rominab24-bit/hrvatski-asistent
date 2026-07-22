@@ -3,7 +3,17 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { useReceiptScanner, ReceiptData, ReceiptItem, DateConfidence } from '@/hooks/useReceiptScanner';
-import { Camera, Upload, Loader2, Check, X, Receipt, CalendarIcon, Trash2, Plus, AlertCircle, CheckCircle, HelpCircle } from 'lucide-react';
+import { Camera, Upload, Loader2, Check, X, Receipt, CalendarIcon, Trash2, Plus, AlertCircle, CheckCircle, HelpCircle, ShieldAlert, ImageOff } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Camera as CapacitorCamera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { Category, getCategoryIcon } from '@/lib/categories';
 import { useToast } from '@/hooks/use-toast';
@@ -49,6 +59,8 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
   const [newItemCategory, setNewItemCategory] = useState('');
   const [uploadedPath, setUploadedPath] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [piiImageKept, setPiiImageKept] = useState(false);
+  const [piiConfirmOpen, setPiiConfirmOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { isScanning, receiptData, scanReceipt, clearData, usage, limitReached } = useReceiptScanner();
   const { toast } = useToast();
@@ -179,23 +191,20 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
     }
 
     if (scanResult) {
-      let finalPath = uploadResult?.path ?? uploadedPath ?? undefined;
+      const finalPath = uploadResult?.path ?? uploadedPath ?? undefined;
 
-      // Ako je AI otkrio osobne podatke, ne pohranjujemo sliku računa.
-      // Ako je već uploadana, odmah je brišemo iz storagea.
+      // Ako je AI otkrio osobne podatke, sliku NE brišemo odmah —
+      // umjesto toga korisniku u pregledu nudimo izbor: obrisati ili ipak spremiti.
+      // Po defaultu slika se NEĆE spremiti uz trošak dok korisnik izričito ne potvrdi.
+      setPiiImageKept(false);
       if (scanResult.contains_pii) {
-        if (finalPath) {
-          await deleteReceiptFile(finalPath);
-        }
-        finalPath = undefined;
-        setUploadedPath(null);
         const labels = scanResult.pii_labels?.length
           ? scanResult.pii_labels.join(', ')
           : 'osobni podaci';
         toast({
-          title: 'Slika nije spremljena — otkriveni osobni podaci',
-          description: `Prepoznato na računu: ${labels}. Radi zaštite privatnosti slika je odbačena, a spremaju se samo iznos, stavke i kategorije.`,
-          duration: 10000,
+          title: 'Otkriveni osobni podaci na računu',
+          description: `Prepoznato: ${labels}. Po defaultu slika se neće spremiti, ali u pregledu možete odabrati da je ipak zadržite.`,
+          duration: 9000,
         });
       }
 
@@ -256,7 +265,7 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
     setShowAddItem(false);
   };
 
-  const handleSaveAll = () => {
+  const handleSaveAll = async () => {
     if (!editedReceiptData) return;
 
     // Zabilježi korisničke ispravke kategorija — po nazivu stavke usporedimo
@@ -275,26 +284,43 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
       });
     });
 
+    // Ako je AI otkrio osobne podatke, a korisnik NIJE izričito potvrdio
+    // da želi zadržati sliku, obriši je iz storagea i izostavi putanju.
+    let imagePath: string | undefined =
+      editedReceiptData.receipt_image_path ?? uploadedPath ?? undefined;
+    if (editedReceiptData.contains_pii && !piiImageKept) {
+      if (imagePath) {
+        await deleteReceiptFile(imagePath);
+      }
+      imagePath = undefined;
+    }
+
     // Update the date in the format expected by Dashboard
     const formattedDate = format(selectedDate, 'yyyy-MM-dd');
     const dataToSave: ReceiptData = {
       ...editedReceiptData,
       date: formattedDate,
-      // Make sure the uploaded image path travels with the saved data
-      receipt_image_path: editedReceiptData.receipt_image_path ?? uploadedPath ?? undefined,
+      receipt_image_path: imagePath,
     };
 
     onScanComplete(dataToSave);
     clearData();
     setUploadedPath(null);
     setOriginalCategories([]);
+    setPiiImageKept(false);
   };
 
-  const handleCancelEdit = () => {
+  const handleCancelEdit = async () => {
+    // Pri odustajanju uvijek očistimo eventualno uploadanu sliku da ne ostane
+    // "siroče" u storageu — bez obzira na PII status.
+    if (uploadedPath) {
+      await deleteReceiptFile(uploadedPath).catch(() => {});
+    }
     setEditedReceiptData(null);
     setOriginalCategories([]);
     clearData();
     setUploadedPath(null);
+    setPiiImageKept(false);
     onCancel();
   };
 
@@ -370,27 +396,109 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
         {editedReceiptData.contains_pii && (
           <div
             role="status"
-            className="mb-4 p-3 rounded-lg border border-amber-500/40 bg-amber-500/10 text-sm"
+            className={cn(
+              "mb-4 p-3 rounded-lg border text-sm",
+              piiImageKept
+                ? "border-destructive/40 bg-destructive/10"
+                : "border-amber-500/40 bg-amber-500/10"
+            )}
           >
             <div className="flex items-start gap-2">
-              <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
-              <div className="space-y-1">
-                <p className="font-medium text-amber-800 dark:text-amber-300">
-                  Slika računa nije spremljena
-                </p>
-                <p className="text-muted-foreground">
-                  AI je na računu prepoznao osobne podatke pa slika nije pohranjena radi zaštite privatnosti. Iznos, stavke i kategorije spremaju se normalno.
-                </p>
+              {piiImageKept ? (
+                <ShieldAlert className="w-5 h-5 text-destructive shrink-0 mt-0.5" />
+              ) : (
+                <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+              )}
+              <div className="space-y-2 flex-1">
+                {piiImageKept ? (
+                  <>
+                    <p className="font-medium text-destructive">
+                      Slika će biti spremljena unatoč osobnim podacima
+                    </p>
+                    <p className="text-muted-foreground">
+                      Potvrdili ste da želite zadržati sliku računa iako AI na njoj vidi osobne podatke. Slika će biti pohranjena zajedno s troškom i vidljiva samo vama.
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p className="font-medium text-amber-800 dark:text-amber-300">
+                      Slika računa neće biti spremljena
+                    </p>
+                    <p className="text-muted-foreground">
+                      AI je na računu prepoznao osobne podatke pa slika po defaultu nije pohranjena radi zaštite privatnosti. Iznos, stavke i kategorije spremaju se normalno.
+                    </p>
+                  </>
+                )}
                 {editedReceiptData.pii_labels && editedReceiptData.pii_labels.length > 0 && (
                   <p className="text-xs">
                     <span className="font-medium">Otkriveno:</span>{' '}
                     {editedReceiptData.pii_labels.join(', ')}
                   </p>
                 )}
+                <div className="flex flex-wrap gap-2 pt-1">
+                  {piiImageKept ? (
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      className="h-8"
+                      onClick={() => setPiiImageKept(false)}
+                    >
+                      <ImageOff className="w-3.5 h-3.5 mr-1.5" />
+                      Ipak nemoj spremiti sliku
+                    </Button>
+                  ) : (
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      className="h-8 border-destructive/40 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                      onClick={() => setPiiConfirmOpen(true)}
+                    >
+                      <ShieldAlert className="w-3.5 h-3.5 mr-1.5" />
+                      Ipak spremi sliku
+                    </Button>
+                  )}
+                </div>
               </div>
             </div>
           </div>
         )}
+
+        <AlertDialog open={piiConfirmOpen} onOpenChange={setPiiConfirmOpen}>
+          <AlertDialogContent className="w-[calc(100vw-2rem)] max-w-md">
+            <AlertDialogHeader>
+              <AlertDialogTitle>Spremiti sliku s osobnim podacima?</AlertDialogTitle>
+              <AlertDialogDescription asChild>
+                <div className="space-y-2 text-sm text-muted-foreground">
+                  <p>
+                    AI je na ovoj slici prepoznao osobne podatke
+                    {editedReceiptData?.pii_labels && editedReceiptData.pii_labels.length > 0 && (
+                      <>
+                        {' '}(<span className="font-medium">{editedReceiptData.pii_labels.join(', ')}</span>)
+                      </>
+                    )}
+                    . Ako nastavite, izvorna fotografija računa bit će spremljena u vaš privatni prostor za pohranu i vidljiva samo vama kroz aplikaciju.
+                  </p>
+                  <p className="font-medium text-foreground">
+                    Preporučujemo da sliku ne spremate ako sadrži podatke koje ne želite čuvati.
+                  </p>
+                </div>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel autoFocus>Odustani</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => setPiiImageKept(true)}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                Da, ipak spremi sliku
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+
 
 
 
