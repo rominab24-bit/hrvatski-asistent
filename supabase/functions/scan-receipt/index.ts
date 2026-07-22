@@ -354,9 +354,9 @@ serve(async (req) => {
       throw new Error('Potrebna je slika računa (imageBase64 ili imageUrl)');
     }
 
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    if (!LOVABLE_API_KEY) {
-      throw new Error('LOVABLE_API_KEY nije konfiguriran');
+    const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY');
+    if (!GEMINI_API_KEY) {
+      throw new Error('GEMINI_API_KEY nije konfiguriran');
     }
 
     // Globalni mjesečni limit AI skeniranja (svi korisnici zajedno).
