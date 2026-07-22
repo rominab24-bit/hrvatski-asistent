@@ -27,6 +27,13 @@ export interface Expense {
   pending_sync?: boolean;
 }
 
+const EXPENSES_CHANGED_EVENT = 'expenses:changed';
+const emitExpensesChanged = () => {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new Event(EXPENSES_CHANGED_EVENT));
+  }
+};
+
 export function useExpenses() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
