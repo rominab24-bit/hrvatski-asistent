@@ -27,6 +27,13 @@ export interface Expense {
   pending_sync?: boolean;
 }
 
+const EXPENSES_CHANGED_EVENT = 'expenses:changed';
+const emitExpensesChanged = () => {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new Event(EXPENSES_CHANGED_EVENT));
+  }
+};
+
 export function useExpenses() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -88,6 +95,11 @@ export function useExpenses() {
   useEffect(() => {
     fetchCategories();
     fetchExpenses();
+    const handler = () => { fetchExpenses(); };
+    if (typeof window !== 'undefined') {
+      window.addEventListener(EXPENSES_CHANGED_EVENT, handler);
+      return () => window.removeEventListener(EXPENSES_CHANGED_EVENT, handler);
+    }
   }, []);
 
   const fetchCategories = async () => {
@@ -334,6 +346,7 @@ export function useExpenses() {
       }
 
       setExpenses(prev => [data, ...prev]);
+      emitExpensesChanged();
       // Update local cache
       const localExpenses = getLocalExpenses();
       saveExpensesLocally([data as OfflineExpense, ...localExpenses]);
@@ -367,6 +380,7 @@ export function useExpenses() {
 
       addToPendingSync(offlineExpense);
       setExpenses(prev => [offlineExpense as Expense, ...prev]);
+      emitExpensesChanged();
 
       toast({
         title: 'Spremljeno lokalno',
@@ -430,6 +444,7 @@ export function useExpenses() {
     }
 
     setExpenses(prev => prev.map(e => (e.id === id ? data : e)));
+    emitExpensesChanged();
     // Update local cache
     const localExpenses = getLocalExpenses().map(e => (e.id === id ? data as OfflineExpense : e));
     saveExpensesLocally(localExpenses);
@@ -467,6 +482,7 @@ export function useExpenses() {
     if (id.startsWith('offline_')) {
       removeFromPendingSync(id);
       setExpenses(prev => prev.filter(e => e.id !== id));
+      emitExpensesChanged();
       toast({
         title: 'Uspjeh',
         description: 'Trošak je obrisan',
@@ -498,6 +514,7 @@ export function useExpenses() {
     }
 
     setExpenses(prev => prev.filter(e => e.id !== id));
+    emitExpensesChanged();
     // Update local cache
     const localExpenses = getLocalExpenses().filter(e => e.id !== id);
     saveExpensesLocally(localExpenses);
