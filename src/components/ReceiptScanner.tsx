@@ -172,6 +172,7 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
 
   const handleScan = async () => {
     if (!imagePreview) return;
+    playScanStart();
 
     // Upload the receipt image to private storage in parallel with AI scan.
     // We keep the image even if the AI scan fails — user may retry parsing.
