@@ -265,7 +265,7 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
     setShowAddItem(false);
   };
 
-  const handleSaveAll = () => {
+  const handleSaveAll = async () => {
     if (!editedReceiptData) return;
 
     // Zabilježi korisničke ispravke kategorija — po nazivu stavke usporedimo
@@ -284,26 +284,43 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
       });
     });
 
+    // Ako je AI otkrio osobne podatke, a korisnik NIJE izričito potvrdio
+    // da želi zadržati sliku, obriši je iz storagea i izostavi putanju.
+    let imagePath: string | undefined =
+      editedReceiptData.receipt_image_path ?? uploadedPath ?? undefined;
+    if (editedReceiptData.contains_pii && !piiImageKept) {
+      if (imagePath) {
+        await deleteReceiptFile(imagePath);
+      }
+      imagePath = undefined;
+    }
+
     // Update the date in the format expected by Dashboard
     const formattedDate = format(selectedDate, 'yyyy-MM-dd');
     const dataToSave: ReceiptData = {
       ...editedReceiptData,
       date: formattedDate,
-      // Make sure the uploaded image path travels with the saved data
-      receipt_image_path: editedReceiptData.receipt_image_path ?? uploadedPath ?? undefined,
+      receipt_image_path: imagePath,
     };
 
     onScanComplete(dataToSave);
     clearData();
     setUploadedPath(null);
     setOriginalCategories([]);
+    setPiiImageKept(false);
   };
 
-  const handleCancelEdit = () => {
+  const handleCancelEdit = async () => {
+    // Pri odustajanju uvijek očistimo eventualno uploadanu sliku da ne ostane
+    // "siroče" u storageu — bez obzira na PII status.
+    if (uploadedPath) {
+      await deleteReceiptFile(uploadedPath).catch(() => {});
+    }
     setEditedReceiptData(null);
     setOriginalCategories([]);
     clearData();
     setUploadedPath(null);
+    setPiiImageKept(false);
     onCancel();
   };
 
