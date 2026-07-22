@@ -444,6 +444,7 @@ export function useExpenses() {
     }
 
     setExpenses(prev => prev.map(e => (e.id === id ? data : e)));
+    emitExpensesChanged();
     // Update local cache
     const localExpenses = getLocalExpenses().map(e => (e.id === id ? data as OfflineExpense : e));
     saveExpensesLocally(localExpenses);
