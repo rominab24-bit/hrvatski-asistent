@@ -13,7 +13,9 @@ import {
   ALLOWED_RECEIPT_MIME_TYPES,
   MAX_RECEIPT_FILE_SIZE,
   uploadReceiptFromDataUrl,
+  deleteReceiptFile,
 } from '@/lib/receiptUpload';
+
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { format, parse, parseISO, isValid } from 'date-fns';
