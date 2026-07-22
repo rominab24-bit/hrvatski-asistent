@@ -1,23 +1,38 @@
-# Kalkulator pretplate vidljiv samo vlasniku
+Plan: Postavljanje poddomene kucnibudzet.rominab24.com kao primarne adrese aplikacije
 
-Kalkulator pretplate ostaje netaknut, ali se u Postavkama prikazuje samo kad je prijavljen vlasnik (`rominab24@gmail.com`). Svi ostali korisnici i dalje vide indikator globalnog limita skeniranja (Used X / 250) u skeneru — to ne dirama.
+## Trenutno stanje
+- Projekt još nije objavljen (nema published_url).
+- Već su spojene domene: rominab24.com i www.rominab24.com.
+- Željena nova poddomena: kucnibudzet.rominab24.com, koja će postati primarna.
 
-## Izmjene
+## Koraci
 
-1. **`src/lib/owner.ts`** (novo)
-   - Konstanta `OWNER_EMAILS = ['rominab24@gmail.com']` (niz da lako dodam još kasnije).
-   - Helper `isOwner(user)` koji case-insensitive uspoređuje `user.email`.
+1. **Objaviti projekt**
+   - Pokrenuti objavu kako bi aplikacija bila dostupna na javnoj Lovable adresi i omogućilo se upravljanje domenama.
 
-2. **`src/pages/Settings.tsx`**
-   - Importa `isOwner` i koristi `useAuth()` (već je tu).
-   - Cijelu `Card` sekciju "Kalkulator pretplate" (uklj. `<SubscriptionWizard />`) renderiraj samo ako `isOwner(user)`.
+2. **Ažurirati kodne reference na novu domenu**
+   - Proći kroz `index.html`, `public/manifest.json`, `public/robots.txt` / `public/sitemap.xml` te `capacitor.config.ts` ako sadrže hardkodirane domene (rominab24.com / www.rominab24.com).
+   - Zamijeniti ih s `https://kucnibudzet.rominab24.com` kao primarnom domenom.
+   - Ako postoje APP URL-ovi za deep linkove ili OAuth callback, prilagoditi ih.
 
-## Što se NE mijenja
+3. **Dodati poddomenu u Lovable**
+   - Project Settings → Project → Domains → Add/Connect domain.
+   - Unijeti: `kucnibudzet.rominab24.com`.
 
-- `SubscriptionWizard.tsx` ostaje isti.
-- Indikator limita skeniranja i logika 250/mj ostaju za sve korisnike.
-- Nema promjena u bazi, RLS-u ili edge funkcijama — provjera je čisto UI (kalkulator ne otkriva osjetljive podatke, samo lokalnu procjenu).
+4. **Konfigurirati DNS zapise**
+   - Ako je rominab24.com kupljena kroz Lovable: DNS se upravlja u Lovable UI-ju (Manage DNS records), dodati CNAME/A zapis za poddomenu prema uputama.
+   - Ako je domena na vanjskom registrar: dodati DNS zapis na tom registrar (obično A zapis na Lovable IP ili CNAME na Lovable domena, ovisno o uputama koje Lovable prikaže prilikom spajanja).
 
-## Napomena
+5. **Postaviti poddomenu kao primarnu**
+   - U Domains postavkama označiti `kucnibudzet.rominab24.com` kao Primary domain.
+   - Postojeće rominab24.com / www.rominab24.com mogu ostati kao alternativne i preusmjeravati na novu primarnu.
 
-Ako se kasnije pridruži još vlasnika, samo dopišem email u `OWNER_EMAILS`. Za jaču kontrolu (npr. skrivanje osjetljivih admin akcija) preporučam kasnije uvesti pravi `user_roles` sustav s `has_role()` u bazi, ali za ovaj kalkulator to nije potrebno.
+6. **Provjeriti objavu i pristupnost**
+   - Pričekati DNS propagaciju (do 72h, obično brže).
+   - Testirati `https://kucnibudzet.rominab24.com` u pregledniku.
+
+## Napomene
+- Ako se kasnije želi postaviti email s te poddomene (npr. notify@kucnibudzet.rominab24.com), to je zaseban korak nakon što domena postane aktivna.
+- Capacitor Android build ne mora se dirati osim ako je unutar configa hardkodiran web URL za preview.
+
+Odobriš li ovaj plan? Prvi korak je objaviti projekt, a zatim ću ažurirati kod i voditi te kroz postavljanje domene.
