@@ -74,21 +74,48 @@ const PII_PLACEHOLDER = '[uklonjeno]';
  * email, HR telefonski broj). Koristi iste uzorke kao redactPII.
  * Vraća true ako je pronađen bilo koji PII trag.
  */
-const detectPII = (input: unknown): boolean => {
-  if (input === undefined || input === null) return false;
-  const text = String(input);
-  const patterns: RegExp[] = [
-    /\b[A-Z]{2}\d{2}[\s-]?(?:\d[\s-]?){11,30}\b/,
-    /\b(?:\d[\s-]?){13,19}\b/,
-    /\b\d{11,}\b/,
-    /[\w.+-]+@[\w-]+\.[\w.-]+/i,
-    /(?<!\d)(?:\+385|00385|091|092|095|097|098|099|01|0[2-5]\d)(?:[\s\/-]*)(?:\d[\s\/-]?){5,8}\d/,
-    /\b(?:Ulica|Ul\.?|Trg|Cesta|Put|Avenija|Aleja|Šetalište|Obala|Prilaz|Naselje)\s+[^\n,;]{2,60}?\s+\d+[a-zA-Z]?\b/i,
-    /\b\d{5}\s+[A-ZŠĐČĆŽ][a-zšđčćž]+(?:\s+[A-ZŠĐČĆŽ][a-zšđčćž]+)?\b/,
-    /\b(Kupac|Naru[čc]itelj|Ime\s+i\s+prezime|Ime\/prezime|Platitelj|Korisnik|Primatelj|Klijent)\s*[:\-]\s*\S+/i,
-  ];
-  return patterns.some((re) => re.test(text));
+export type PIIType =
+  | 'ime_kupca'
+  | 'adresa'
+  | 'postanski_broj'
+  | 'iban'
+  | 'kartica'
+  | 'oib'
+  | 'email'
+  | 'telefon';
+
+export const PII_LABELS: Record<PIIType, string> = {
+  ime_kupca: 'ime i prezime kupca',
+  adresa: 'kućna adresa',
+  postanski_broj: 'poštanski broj i grad',
+  iban: 'IBAN',
+  kartica: 'broj kartice',
+  oib: 'OIB / dugi brojčani niz',
+  email: 'email adresa',
+  telefon: 'telefonski broj',
 };
+
+const PII_PATTERNS: { type: PIIType; re: RegExp }[] = [
+  { type: 'iban', re: /\b[A-Z]{2}\d{2}[\s-]?(?:\d[\s-]?){11,30}\b/ },
+  { type: 'kartica', re: /\b(?:\d[\s-]?){13,19}\b/ },
+  { type: 'oib', re: /\b\d{11,}\b/ },
+  { type: 'email', re: /[\w.+-]+@[\w-]+\.[\w.-]+/i },
+  { type: 'telefon', re: /(?<!\d)(?:\+385|00385|091|092|095|097|098|099|01|0[2-5]\d)(?:[\s\/-]*)(?:\d[\s\/-]?){5,8}\d/ },
+  { type: 'adresa', re: /\b(?:Ulica|Ul\.?|Trg|Cesta|Put|Avenija|Aleja|Šetalište|Obala|Prilaz|Naselje)\s+[^\n,;]{2,60}?\s+\d+[a-zA-Z]?\b/i },
+  { type: 'postanski_broj', re: /\b\d{5}\s+[A-ZŠĐČĆŽ][a-zšđčćž]+(?:\s+[A-ZŠĐČĆŽ][a-zšđčćž]+)?\b/ },
+  { type: 'ime_kupca', re: /\b(Kupac|Naru[čc]itelj|Ime\s+i\s+prezime|Ime\/prezime|Platitelj|Korisnik|Primatelj|Klijent)\s*[:\-]\s*\S+/i },
+];
+
+const detectPIITypes = (input: unknown): PIIType[] => {
+  if (input === undefined || input === null) return [];
+  const text = String(input);
+  const found: PIIType[] = [];
+  for (const { type, re } of PII_PATTERNS) {
+    if (re.test(text)) found.push(type);
+  }
+  return found;
+};
+
 
 const redactPII = (input: unknown): string => {
   if (input === undefined || input === null) return '';
@@ -140,8 +167,11 @@ const normalizeReceiptData = (receiptData: any) => {
   // Prije redakcije provjeri jesu li AI izvukli osobne podatke.
   const rawStore = receiptData?.store_name;
   const rawItems: any[] = Array.isArray(receiptData?.items) ? receiptData.items : [];
-  const containsPII =
-    detectPII(rawStore) || rawItems.some((it) => detectPII(it?.name));
+  const piiSet = new Set<PIIType>();
+  for (const t of detectPIITypes(rawStore)) piiSet.add(t);
+  for (const it of rawItems) for (const t of detectPIITypes(it?.name)) piiSet.add(t);
+  const piiTypes = Array.from(piiSet);
+  const containsPII = piiTypes.length > 0;
 
   const items: ReceiptItem[] = rawItems.map((item: any) => ({
     name: (redactPII(item?.name) || 'Nepoznata stavka'),
@@ -155,6 +185,11 @@ const normalizeReceiptData = (receiptData: any) => {
   const totalDifference = roundMoney(Math.abs(calculatedTotal - aiTotal));
   const needsReview = totalDifference > 0.05;
 
+  const piiLabels = piiTypes.map((t) => PII_LABELS[t]);
+  const piiMessage = containsPII
+    ? `Na računu su prepoznati osobni podaci (${piiLabels.join(', ')}). Slika računa neće biti pohranjena radi zaštite privatnosti — spremit će se samo iznos, stavke i kategorije.`
+    : undefined;
+
   return {
     ...receiptData,
     store_name: rawStore ? redactPII(rawStore) : rawStore,
@@ -167,10 +202,11 @@ const normalizeReceiptData = (receiptData: any) => {
       ? `Zbroj stavki (${calculatedTotal.toFixed(2)} €) razlikuje se od ukupnog iznosa računa (${aiTotal.toFixed(2)} €). Provjerite račun prije spremanja.`
       : undefined,
     contains_pii: containsPII,
-    pii_message: containsPII
-      ? 'Na računu su prepoznati osobni podaci. Slika računa neće biti pohranjena radi zaštite privatnosti — spremit će se samo iznos, stavke i kategorije.'
-      : undefined,
+    pii_types: piiTypes,
+    pii_labels: piiLabels,
+    pii_message: piiMessage,
   };
+
 };
 
 

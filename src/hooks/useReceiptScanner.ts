@@ -21,7 +21,10 @@ export interface ReceiptData {
   needs_review?: boolean;
   review_message?: string;
   contains_pii?: boolean;
+  pii_types?: string[];
+  pii_labels?: string[];
   pii_message?: string;
+
   currency?: string;
   items: ReceiptItem[];
   /**

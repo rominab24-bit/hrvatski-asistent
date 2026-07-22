@@ -189,11 +189,13 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
         }
         finalPath = undefined;
         setUploadedPath(null);
+        const labels = scanResult.pii_labels?.length
+          ? scanResult.pii_labels.join(', ')
+          : 'osobni podaci';
         toast({
-          title: 'Osobni podaci prepoznati',
-          description:
-            scanResult.pii_message ||
-            'Slika računa neće biti pohranjena radi zaštite privatnosti.',
+          title: 'Slika nije spremljena — otkriveni osobni podaci',
+          description: `Prepoznato na računu: ${labels}. Radi zaštite privatnosti slika je odbačena, a spremaju se samo iznos, stavke i kategorije.`,
+          duration: 10000,
         });
       }
 
@@ -203,6 +205,7 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
       });
     }
   };
+
 
 
   const updateItemCategory = (index: number, categoryName: string) => {
@@ -363,6 +366,33 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
             </p>
           </div>
         </div>
+
+        {editedReceiptData.contains_pii && (
+          <div
+            role="status"
+            className="mb-4 p-3 rounded-lg border border-amber-500/40 bg-amber-500/10 text-sm"
+          >
+            <div className="flex items-start gap-2">
+              <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+              <div className="space-y-1">
+                <p className="font-medium text-amber-800 dark:text-amber-300">
+                  Slika računa nije spremljena
+                </p>
+                <p className="text-muted-foreground">
+                  AI je na računu prepoznao osobne podatke pa slika nije pohranjena radi zaštite privatnosti. Iznos, stavke i kategorije spremaju se normalno.
+                </p>
+                {editedReceiptData.pii_labels && editedReceiptData.pii_labels.length > 0 && (
+                  <p className="text-xs">
+                    <span className="font-medium">Otkriveno:</span>{' '}
+                    {editedReceiptData.pii_labels.join(', ')}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+
 
         {/* Date picker with confidence indicator */}
         <div className="mb-4 p-3 rounded-lg bg-secondary/50">
