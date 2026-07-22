@@ -209,6 +209,7 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
       // Po defaultu slika se NEĆE spremiti uz trošak dok korisnik izričito ne potvrdi.
       setPiiImageKept(false);
       if (scanResult.contains_pii) {
+        playWarning();
         const labels = scanResult.pii_labels?.length
           ? scanResult.pii_labels.join(', ')
           : 'osobni podaci';
@@ -217,12 +218,16 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
           description: `Prepoznato: ${labels}. Po defaultu slika se neće spremiti, ali u pregledu možete odabrati da je ipak zadržite.`,
           duration: 9000,
         });
+      } else {
+        playScanComplete();
       }
 
       handleScanComplete({
         ...scanResult,
         receipt_image_path: finalPath,
       });
+    } else {
+      playError();
     }
   };
 
