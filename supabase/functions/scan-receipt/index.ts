@@ -354,9 +354,9 @@ serve(async (req) => {
       throw new Error('Potrebna je slika računa (imageBase64 ili imageUrl)');
     }
 
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    if (!LOVABLE_API_KEY) {
-      throw new Error('LOVABLE_API_KEY nije konfiguriran');
+    const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY');
+    if (!GEMINI_API_KEY) {
+      throw new Error('GEMINI_API_KEY nije konfiguriran');
     }
 
     // Globalni mjesečni limit AI skeniranja (svi korisnici zajedno).
@@ -408,23 +408,18 @@ serve(async (req) => {
       console.log(`Injektiram ${feedbackRows.length} korisničkih ispravki kao kontekst.`);
     }
 
-    // Prepare the image content for the AI
-    const imageContent = imageBase64 
-      ? { type: "image_url", image_url: { url: `data:image/jpeg;base64,${imageBase64}` } }
-      : { type: "image_url", image_url: { url: imageUrl } };
+    // Priprema slike za Gemini (inline_data, base64, image/jpeg)
+    let inlineBase64 = imageBase64 as string | undefined;
+    if (!inlineBase64 && imageUrl) {
+      const imgRes = await fetch(imageUrl);
+      if (!imgRes.ok) throw new Error('Ne mogu dohvatiti sliku sa zadanog URL-a');
+      const buf = new Uint8Array(await imgRes.arrayBuffer());
+      let bin = '';
+      for (let i = 0; i < buf.length; i++) bin += String.fromCharCode(buf[i]);
+      inlineBase64 = btoa(bin);
+    }
 
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
-        messages: [
-          {
-            role: 'system',
-            content: `Ti si asistent za čitanje i analizu hrvatskih računa. Analiziraj sliku računa i izvuci sve stvarne stavke s računa.
+    const systemPrompt = `Ti si asistent za čitanje i analizu hrvatskih računa. Analiziraj sliku računa i izvuci sve stvarne stavke s računa.
 
 ZAŠTITA PRIVATNOSTI — OBAVEZNO:
 - NIKAD ne vraćaj osobne podatke kupca: ime, prezime, kućnu adresu, OIB kupca, broj osobne, broj kartice (kreditne/debitne), IBAN, PIN, CVV, email adresu, broj telefona ili mobitela, potpis, matični broj.
@@ -487,60 +482,66 @@ KLJUČNO PRAVILO za razlikovanje Higijene i Kućanstva:
 - Toaletni papir, vlažni toaletni papir, ulošci, pelene → uvijek "Higijena"
 - Papirnati ručnici za kuhinju → "Kućanstvo"
 
-Odgovori ISKLJUČIVO u JSON formatu bez dodatnog teksta.${feedbackHint}`
+Odgovori ISKLJUČIVO pozivom funkcije extract_receipt_data bez dodatnog teksta.${feedbackHint}`;
+
+    const functionDeclaration = {
+      name: 'extract_receipt_data',
+      description: 'Izvlači podatke s računa',
+      parameters: {
+        type: 'object',
+        properties: {
+          store_name: { type: 'string', description: 'Naziv trgovine' },
+          date: { type: 'string', description: 'Datum računa (DD.MM.YYYY format)' },
+          date_confidence: {
+            type: 'string',
+            enum: ['high', 'medium', 'low'],
+            description: 'Sigurnost prepoznavanja datuma: high ako je datum jasno vidljiv, medium ako je djelomično vidljiv ili nečitak, low ako nije pronađen ili je nejasan',
           },
-          {
-            role: 'user',
-            content: [
-              { type: 'text', text: 'Analiziraj ovaj račun i izvuci sve stavke s cijenama. Odgovori u JSON formatu.' },
-              imageContent
-            ]
-          }
-        ],
-        tools: [
-          {
-            type: 'function',
-            function: {
-              name: 'extract_receipt_data',
-              description: 'Izvlači podatke s računa',
-              parameters: {
-                type: 'object',
-                properties: {
-                  store_name: { type: 'string', description: 'Naziv trgovine' },
-                  date: { type: 'string', description: 'Datum računa (DD.MM.YYYY format)' },
-                  date_confidence: { 
-                    type: 'string', 
-                    enum: ['high', 'medium', 'low'],
-                    description: 'Sigurnost prepoznavanja datuma: high ako je datum jasno vidljiv, medium ako je djelomično vidljiv ili nečitak, low ako nije pronađen ili je nejasan'
-                  },
-                  total_amount: { type: 'number', description: 'Ukupan iznos računa' },
-                  currency: { type: 'string', description: 'Valuta (EUR, HRK, itd.)' },
-                  items: {
-                    type: 'array',
-                    items: {
-                      type: 'object',
-                      properties: {
-                        name: { type: 'string', description: 'Naziv proizvoda' },
-                        quantity: { type: 'number', description: 'Količina' },
-                        price: { type: 'number', description: 'Konačna cijena stavke u eurima' },
-                        category: { 
-                          type: 'string', 
-                          enum: ['Hrana', 'Kafići i barovi', 'Restorani', 'Kućanstvo', 'Higijena', 'Prijevoz', 'Zdravlje', 'Zabava', 'Odjeća', 'Obrazovanje', 'Računi', 'Voda', 'Struja', 'Grijanje', 'Stambena pričuva', 'TV', 'Smeće', 'Komunalna naknada', 'Kućni internet', 'Kućni ljubimci', 'Ostalo'],
-                          description: 'Kategorija proizvoda'
-                        }
-                      },
-                      required: ['name', 'price', 'category']
-                    }
-                  }
+          total_amount: { type: 'number', description: 'Ukupan iznos računa' },
+          currency: { type: 'string', description: 'Valuta (EUR, HRK, itd.)' },
+          items: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                name: { type: 'string', description: 'Naziv proizvoda' },
+                quantity: { type: 'number', description: 'Količina' },
+                price: { type: 'number', description: 'Konačna cijena stavke u eurima' },
+                category: {
+                  type: 'string',
+                  enum: ['Hrana', 'Kafići i barovi', 'Restorani', 'Kućanstvo', 'Higijena', 'Prijevoz', 'Zdravlje', 'Zabava', 'Odjeća', 'Obrazovanje', 'Računi', 'Voda', 'Struja', 'Grijanje', 'Stambena pričuva', 'TV', 'Smeće', 'Komunalna naknada', 'Kućni internet', 'Kućni ljubimci', 'Ostalo'],
+                  description: 'Kategorija proizvoda',
                 },
-                required: ['items', 'total_amount', 'date_confidence']
-              }
-            }
-          }
-        ],
-        tool_choice: { type: 'function', function: { name: 'extract_receipt_data' } }
-      }),
-    });
+              },
+              required: ['name', 'price', 'category'],
+            },
+          },
+        },
+        required: ['items', 'total_amount', 'date_confidence'],
+      },
+    };
+
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          system_instruction: { parts: [{ text: systemPrompt }] },
+          contents: [
+            {
+              role: 'user',
+              parts: [
+                { text: 'Analiziraj ovaj račun i izvuci sve stavke s cijenama pozivom funkcije extract_receipt_data.' },
+                { inline_data: { mime_type: 'image/jpeg', data: inlineBase64 } },
+              ],
+            },
+          ],
+          tools: [{ function_declarations: [functionDeclaration] }],
+          tool_config: { function_calling_config: { mode: 'ANY', allowed_function_names: ['extract_receipt_data'] } },
+        }),
+      },
+    );
 
     if (!response.ok) {
       if (response.status === 429) {
@@ -556,20 +557,22 @@ Odgovori ISKLJUČIVO u JSON formatu bez dodatnog teksta.${feedbackHint}`
         );
       }
       const errorText = await response.text();
-      console.error('AI gateway error:', response.status, errorText);
+      console.error('Gemini API error:', response.status, errorText);
       throw new Error(`AI greška: ${response.status}`);
     }
 
     const data = await response.json();
     console.log('AI odgovor primljen');
 
-    // Extract the tool call result
-    const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
-    if (!toolCall || toolCall.function.name !== 'extract_receipt_data') {
+    // Izvuci function call iz Gemini odgovora
+    const parts = data?.candidates?.[0]?.content?.parts ?? [];
+    const fnPart = parts.find((p: any) => p?.functionCall?.name === 'extract_receipt_data');
+    if (!fnPart) {
+      console.error('Gemini nije vratio functionCall:', JSON.stringify(data));
       throw new Error('AI nije vratio očekivani format podataka');
     }
 
-    const receiptData = normalizeReceiptData(JSON.parse(toolCall.function.arguments));
+    const receiptData = normalizeReceiptData(fnPart.functionCall.args ?? {});
     console.log('Uspješno izvučeni podaci s računa:', receiptData);
 
     return new Response(
