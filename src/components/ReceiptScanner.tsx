@@ -242,6 +242,7 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
 
   const deleteItem = (index: number) => {
     if (!editedReceiptData) return;
+    playDelete();
     const updatedItems = editedReceiptData.items.filter((_, i) => i !== index);
     const newTotal = updatedItems.reduce((sum, item) => sum + item.price, 0);
     setEditedReceiptData({ 
