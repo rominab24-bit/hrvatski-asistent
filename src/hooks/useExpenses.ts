@@ -514,6 +514,7 @@ export function useExpenses() {
     }
 
     setExpenses(prev => prev.filter(e => e.id !== id));
+    emitExpensesChanged();
     // Update local cache
     const localExpenses = getLocalExpenses().filter(e => e.id !== id);
     saveExpensesLocally(localExpenses);
