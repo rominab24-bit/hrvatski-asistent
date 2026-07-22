@@ -365,6 +365,7 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
       });
 
       if (image.base64String) {
+        playCamera();
         acceptCapturedImage(image.base64String, image.format);
       }
     } catch (error) {
