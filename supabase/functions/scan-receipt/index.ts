@@ -137,14 +137,18 @@ const normalizeCategory = (category: unknown): typeof ALLOWED_CATEGORIES[number]
 };
 
 const normalizeReceiptData = (receiptData: any) => {
-  const items: ReceiptItem[] = Array.isArray(receiptData?.items)
-    ? receiptData.items.map((item: any) => ({
-        name: (redactPII(item?.name) || 'Nepoznata stavka'),
-        quantity: item?.quantity === undefined ? undefined : toNumber(item.quantity),
-        price: roundMoney(toNumber(item?.price)),
-        category: normalizeCategory(item?.category),
-      })).filter((item: ReceiptItem) => item.name && item.price > 0)
-    : [];
+  // Prije redakcije provjeri jesu li AI izvukli osobne podatke.
+  const rawStore = receiptData?.store_name;
+  const rawItems: any[] = Array.isArray(receiptData?.items) ? receiptData.items : [];
+  const containsPII =
+    detectPII(rawStore) || rawItems.some((it) => detectPII(it?.name));
+
+  const items: ReceiptItem[] = rawItems.map((item: any) => ({
+    name: (redactPII(item?.name) || 'Nepoznata stavka'),
+    quantity: item?.quantity === undefined ? undefined : toNumber(item.quantity),
+    price: roundMoney(toNumber(item?.price)),
+    category: normalizeCategory(item?.category),
+  })).filter((item: ReceiptItem) => item.name && item.price > 0);
 
   const calculatedTotal = roundMoney(items.reduce((sum, item) => sum + item.price, 0));
   const aiTotal = roundMoney(toNumber(receiptData?.total_amount));
@@ -153,7 +157,7 @@ const normalizeReceiptData = (receiptData: any) => {
 
   return {
     ...receiptData,
-    store_name: receiptData?.store_name ? redactPII(receiptData.store_name) : receiptData?.store_name,
+    store_name: rawStore ? redactPII(rawStore) : rawStore,
     items,
     total_amount: aiTotal || calculatedTotal,
     calculated_total: calculatedTotal,
@@ -162,8 +166,13 @@ const normalizeReceiptData = (receiptData: any) => {
     review_message: needsReview
       ? `Zbroj stavki (${calculatedTotal.toFixed(2)} €) razlikuje se od ukupnog iznosa računa (${aiTotal.toFixed(2)} €). Provjerite račun prije spremanja.`
       : undefined,
+    contains_pii: containsPII,
+    pii_message: containsPII
+      ? 'Na računu su prepoznati osobni podaci. Slika računa neće biti pohranjena radi zaštite privatnosti — spremit će se samo iznos, stavke i kategorije.'
+      : undefined,
   };
 };
+
 
 type FeedbackRow = {
   store_name: string | null;
