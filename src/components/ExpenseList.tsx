@@ -141,26 +141,32 @@ export function ExpenseList({ expenses, onDelete, onEdit, categories, onRestore 
       )}
 
       <AlertDialog open={!!deletingExpense} onOpenChange={(v) => !v && setDeletingExpense(null)}>
-        <AlertDialogContent>
+        <AlertDialogContent
+          aria-labelledby="delete-expense-title"
+          aria-describedby="delete-expense-description"
+          className="w-[calc(100vw-2rem)] max-w-md max-h-[90dvh] overflow-y-auto"
+        >
           <AlertDialogHeader>
-            <AlertDialogTitle>Obrisati trošak?</AlertDialogTitle>
-            <AlertDialogDescription>
-              {deletingExpense && (
+            <AlertDialogTitle id="delete-expense-title">Obrisati trošak?</AlertDialogTitle>
+            <AlertDialogDescription id="delete-expense-description" className="break-words">
+              {deletingExpense ? (
                 <>
                   Jeste li sigurni da želite obrisati <strong>{deletingExpense.description}</strong>
                   {' '}({Number(deletingExpense.amount).toFixed(2)} €)? Ova radnja se ne može poništiti.
                 </>
+              ) : (
+                'Jeste li sigurni?'
               )}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Odustani</AlertDialogCancel>
+            <AlertDialogCancel autoFocus className="min-h-11">Odustani</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
                 if (deletingExpense) onDelete(deletingExpense.id);
                 setDeletingExpense(null);
               }}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="min-h-11 bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               Obriši
             </AlertDialogAction>
