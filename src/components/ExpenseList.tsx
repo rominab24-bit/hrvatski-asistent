@@ -7,6 +7,16 @@ import { hr } from 'date-fns/locale';
 import { ReceiptThumbnail } from '@/components/ReceiptThumbnail';
 import { CategoryRating } from '@/components/CategoryRating';
 import { ExpenseHistoryDialog } from '@/components/ExpenseHistoryDialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 interface ExpenseListProps {
   expenses: Expense[];
@@ -21,6 +31,7 @@ interface ExpenseListProps {
 
 export function ExpenseList({ expenses, onDelete, onEdit, categories, onRestore }: ExpenseListProps) {
   const [historyExpense, setHistoryExpense] = useState<Expense | null>(null);
+  const [deletingExpense, setDeletingExpense] = useState<Expense | null>(null);
 
   if (expenses.length === 0) {
     return (
@@ -103,7 +114,7 @@ export function ExpenseList({ expenses, onDelete, onEdit, categories, onRestore 
 
               {/* Delete button */}
               <button
-                onClick={() => onDelete(expense.id)}
+                onClick={() => setDeletingExpense(expense)}
                 aria-label="Obriši trošak"
                 className="md:opacity-0 md:group-hover:opacity-100 md:focus:opacity-100 p-2 rounded-lg hover:bg-destructive/20 text-muted-foreground hover:text-destructive transition-all"
               >
@@ -128,6 +139,34 @@ export function ExpenseList({ expenses, onDelete, onEdit, categories, onRestore 
           onRestore={onRestore!}
         />
       )}
+
+      <AlertDialog open={!!deletingExpense} onOpenChange={(v) => !v && setDeletingExpense(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Obrisati trošak?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {deletingExpense && (
+                <>
+                  Jeste li sigurni da želite obrisati <strong>{deletingExpense.description}</strong>
+                  {' '}({Number(deletingExpense.amount).toFixed(2)} €)? Ova radnja se ne može poništiti.
+                </>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Odustani</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (deletingExpense) onDelete(deletingExpense.id);
+                setDeletingExpense(null);
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Obriši
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
