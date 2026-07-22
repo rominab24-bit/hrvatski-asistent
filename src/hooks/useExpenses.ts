@@ -482,6 +482,7 @@ export function useExpenses() {
     if (id.startsWith('offline_')) {
       removeFromPendingSync(id);
       setExpenses(prev => prev.filter(e => e.id !== id));
+      emitExpensesChanged();
       toast({
         title: 'Uspjeh',
         description: 'Trošak je obrisan',
