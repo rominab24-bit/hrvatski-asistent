@@ -167,8 +167,11 @@ const normalizeReceiptData = (receiptData: any) => {
   // Prije redakcije provjeri jesu li AI izvukli osobne podatke.
   const rawStore = receiptData?.store_name;
   const rawItems: any[] = Array.isArray(receiptData?.items) ? receiptData.items : [];
-  const containsPII =
-    detectPII(rawStore) || rawItems.some((it) => detectPII(it?.name));
+  const piiSet = new Set<PIIType>();
+  for (const t of detectPIITypes(rawStore)) piiSet.add(t);
+  for (const it of rawItems) for (const t of detectPIITypes(it?.name)) piiSet.add(t);
+  const piiTypes = Array.from(piiSet);
+  const containsPII = piiTypes.length > 0;
 
   const items: ReceiptItem[] = rawItems.map((item: any) => ({
     name: (redactPII(item?.name) || 'Nepoznata stavka'),
@@ -182,6 +185,11 @@ const normalizeReceiptData = (receiptData: any) => {
   const totalDifference = roundMoney(Math.abs(calculatedTotal - aiTotal));
   const needsReview = totalDifference > 0.05;
 
+  const piiLabels = piiTypes.map((t) => PII_LABELS[t]);
+  const piiMessage = containsPII
+    ? `Na računu su prepoznati osobni podaci (${piiLabels.join(', ')}). Slika računa neće biti pohranjena radi zaštite privatnosti — spremit će se samo iznos, stavke i kategorije.`
+    : undefined;
+
   return {
     ...receiptData,
     store_name: rawStore ? redactPII(rawStore) : rawStore,
@@ -194,10 +202,11 @@ const normalizeReceiptData = (receiptData: any) => {
       ? `Zbroj stavki (${calculatedTotal.toFixed(2)} €) razlikuje se od ukupnog iznosa računa (${aiTotal.toFixed(2)} €). Provjerite račun prije spremanja.`
       : undefined,
     contains_pii: containsPII,
-    pii_message: containsPII
-      ? 'Na računu su prepoznati osobni podaci. Slika računa neće biti pohranjena radi zaštite privatnosti — spremit će se samo iznos, stavke i kategorije.'
-      : undefined,
+    pii_types: piiTypes,
+    pii_labels: piiLabels,
+    pii_message: piiMessage,
   };
+
 };
 
 
