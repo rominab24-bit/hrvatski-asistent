@@ -189,11 +189,13 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
         }
         finalPath = undefined;
         setUploadedPath(null);
+        const labels = scanResult.pii_labels?.length
+          ? scanResult.pii_labels.join(', ')
+          : 'osobni podaci';
         toast({
-          title: 'Osobni podaci prepoznati',
-          description:
-            scanResult.pii_message ||
-            'Slika računa neće biti pohranjena radi zaštite privatnosti.',
+          title: 'Slika nije spremljena — otkriveni osobni podaci',
+          description: `Prepoznato na računu: ${labels}. Radi zaštite privatnosti slika je odbačena, a spremaju se samo iznos, stavke i kategorije.`,
+          duration: 10000,
         });
       }
 
@@ -203,6 +205,7 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
       });
     }
   };
+
 
 
   const updateItemCategory = (index: number, categoryName: string) => {
