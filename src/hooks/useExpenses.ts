@@ -346,6 +346,7 @@ export function useExpenses() {
       }
 
       setExpenses(prev => [data, ...prev]);
+      emitExpensesChanged();
       // Update local cache
       const localExpenses = getLocalExpenses();
       saveExpensesLocally([data as OfflineExpense, ...localExpenses]);
