@@ -184,3 +184,17 @@ export async function uploadReceiptFromDataUrl(dataUrl: string): Promise<Receipt
 
   return { path };
 }
+
+/**
+ * Trajno ukloni datoteku iz `receipts` bucketa. Koristi se kada je
+ * skeniranje otkrilo osobne podatke pa sliku ne smijemo pohraniti.
+ * RLS na storage.objects već ograničava korisnika na vlastite datoteke.
+ */
+export async function deleteReceiptFile(path: string): Promise<void> {
+  if (!path) return;
+  const { error } = await supabase.storage.from('receipts').remove([path]);
+  if (error) {
+    console.error('Brisanje slike računa nije uspjelo:', error.message);
+  }
+}
+

@@ -68,9 +68,32 @@ const roundMoney = (value: number) => Math.round(value * 100) / 100;
  * hrvatski telefonski prefiks, pa ga telefonska pravila ne uklanjaju.
  */
 const PII_PLACEHOLDER = '[uklonjeno]';
+
+/**
+ * Detektira sadrži li tekst osobne podatke (kupac, adresa, kartica, IBAN, OIB,
+ * email, HR telefonski broj). Koristi iste uzorke kao redactPII.
+ * Vraća true ako je pronađen bilo koji PII trag.
+ */
+const detectPII = (input: unknown): boolean => {
+  if (input === undefined || input === null) return false;
+  const text = String(input);
+  const patterns: RegExp[] = [
+    /\b[A-Z]{2}\d{2}[\s-]?(?:\d[\s-]?){11,30}\b/,
+    /\b(?:\d[\s-]?){13,19}\b/,
+    /\b\d{11,}\b/,
+    /[\w.+-]+@[\w-]+\.[\w.-]+/i,
+    /(?<!\d)(?:\+385|00385|091|092|095|097|098|099|01|0[2-5]\d)(?:[\s\/-]*)(?:\d[\s\/-]?){5,8}\d/,
+    /\b(?:Ulica|Ul\.?|Trg|Cesta|Put|Avenija|Aleja|Šetalište|Obala|Prilaz|Naselje)\s+[^\n,;]{2,60}?\s+\d+[a-zA-Z]?\b/i,
+    /\b\d{5}\s+[A-ZŠĐČĆŽ][a-zšđčćž]+(?:\s+[A-ZŠĐČĆŽ][a-zšđčćž]+)?\b/,
+    /\b(Kupac|Naru[čc]itelj|Ime\s+i\s+prezime|Ime\/prezime|Platitelj|Korisnik|Primatelj|Klijent)\s*[:\-]\s*\S+/i,
+  ];
+  return patterns.some((re) => re.test(text));
+};
+
 const redactPII = (input: unknown): string => {
   if (input === undefined || input === null) return '';
   let text = String(input);
+
 
   // IBAN (HR + 19 znamenki, s ili bez razmaka)
   text = text.replace(/\b[A-Z]{2}\d{2}[\s-]?(?:\d[\s-]?){11,30}\b/g, PII_PLACEHOLDER);
@@ -114,14 +137,18 @@ const normalizeCategory = (category: unknown): typeof ALLOWED_CATEGORIES[number]
 };
 
 const normalizeReceiptData = (receiptData: any) => {
-  const items: ReceiptItem[] = Array.isArray(receiptData?.items)
-    ? receiptData.items.map((item: any) => ({
-        name: (redactPII(item?.name) || 'Nepoznata stavka'),
-        quantity: item?.quantity === undefined ? undefined : toNumber(item.quantity),
-        price: roundMoney(toNumber(item?.price)),
-        category: normalizeCategory(item?.category),
-      })).filter((item: ReceiptItem) => item.name && item.price > 0)
-    : [];
+  // Prije redakcije provjeri jesu li AI izvukli osobne podatke.
+  const rawStore = receiptData?.store_name;
+  const rawItems: any[] = Array.isArray(receiptData?.items) ? receiptData.items : [];
+  const containsPII =
+    detectPII(rawStore) || rawItems.some((it) => detectPII(it?.name));
+
+  const items: ReceiptItem[] = rawItems.map((item: any) => ({
+    name: (redactPII(item?.name) || 'Nepoznata stavka'),
+    quantity: item?.quantity === undefined ? undefined : toNumber(item.quantity),
+    price: roundMoney(toNumber(item?.price)),
+    category: normalizeCategory(item?.category),
+  })).filter((item: ReceiptItem) => item.name && item.price > 0);
 
   const calculatedTotal = roundMoney(items.reduce((sum, item) => sum + item.price, 0));
   const aiTotal = roundMoney(toNumber(receiptData?.total_amount));
@@ -130,7 +157,7 @@ const normalizeReceiptData = (receiptData: any) => {
 
   return {
     ...receiptData,
-    store_name: receiptData?.store_name ? redactPII(receiptData.store_name) : receiptData?.store_name,
+    store_name: rawStore ? redactPII(rawStore) : rawStore,
     items,
     total_amount: aiTotal || calculatedTotal,
     calculated_total: calculatedTotal,
@@ -139,8 +166,13 @@ const normalizeReceiptData = (receiptData: any) => {
     review_message: needsReview
       ? `Zbroj stavki (${calculatedTotal.toFixed(2)} €) razlikuje se od ukupnog iznosa računa (${aiTotal.toFixed(2)} €). Provjerite račun prije spremanja.`
       : undefined,
+    contains_pii: containsPII,
+    pii_message: containsPII
+      ? 'Na računu su prepoznati osobni podaci. Slika računa neće biti pohranjena radi zaštite privatnosti — spremit će se samo iznos, stavke i kategorije.'
+      : undefined,
   };
 };
+
 
 type FeedbackRow = {
   store_name: string | null;

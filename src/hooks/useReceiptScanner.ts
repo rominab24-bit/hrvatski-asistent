@@ -20,6 +20,8 @@ export interface ReceiptData {
   total_difference?: number;
   needs_review?: boolean;
   review_message?: string;
+  contains_pii?: boolean;
+  pii_message?: string;
   currency?: string;
   items: ReceiptItem[];
   /**
@@ -28,6 +30,7 @@ export interface ReceiptData {
    */
   receipt_image_path?: string;
 }
+
 
 export interface ScanUsage {
   count: number;
