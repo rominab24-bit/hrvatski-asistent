@@ -139,6 +139,34 @@ export function ExpenseList({ expenses, onDelete, onEdit, categories, onRestore 
           onRestore={onRestore!}
         />
       )}
+
+      <AlertDialog open={!!deletingExpense} onOpenChange={(v) => !v && setDeletingExpense(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Obrisati trošak?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {deletingExpense && (
+                <>
+                  Jeste li sigurni da želite obrisati <strong>{deletingExpense.description}</strong>
+                  {' '}({Number(deletingExpense.amount).toFixed(2)} €)? Ova radnja se ne može poništiti.
+                </>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Odustani</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (deletingExpense) onDelete(deletingExpense.id);
+                setDeletingExpense(null);
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Obriši
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
