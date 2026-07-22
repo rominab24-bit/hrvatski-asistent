@@ -46,6 +46,7 @@ interface ReceiptScannerProps {
 }
 
 import { recordCategoryFeedback } from '@/lib/categoryFeedback';
+import { useSoundEffects } from '@/hooks/useSoundEffects';
 
 export function ReceiptScanner({ onScanComplete, onCancel, categories }: ReceiptScannerProps) {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -64,6 +65,15 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { isScanning, receiptData, scanReceipt, clearData, usage, limitReached } = useReceiptScanner();
   const { toast } = useToast();
+  const {
+    playCamera,
+    playScanStart,
+    playScanComplete,
+    playWarning,
+    playError,
+    playClick,
+    playDelete,
+  } = useSoundEffects();
 
   // When receipt data is received, set up editable state
   const handleScanComplete = (data: ReceiptData) => {
@@ -162,6 +172,7 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
 
   const handleScan = async () => {
     if (!imagePreview) return;
+    playScanStart();
 
     // Upload the receipt image to private storage in parallel with AI scan.
     // We keep the image even if the AI scan fails — user may retry parsing.
@@ -198,6 +209,7 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
       // Po defaultu slika se NEĆE spremiti uz trošak dok korisnik izričito ne potvrdi.
       setPiiImageKept(false);
       if (scanResult.contains_pii) {
+        playWarning();
         const labels = scanResult.pii_labels?.length
           ? scanResult.pii_labels.join(', ')
           : 'osobni podaci';
@@ -206,12 +218,16 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
           description: `Prepoznato: ${labels}. Po defaultu slika se neće spremiti, ali u pregledu možete odabrati da je ipak zadržite.`,
           duration: 9000,
         });
+      } else {
+        playScanComplete();
       }
 
       handleScanComplete({
         ...scanResult,
         receipt_image_path: finalPath,
       });
+    } else {
+      playError();
     }
   };
 
@@ -226,6 +242,7 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
 
   const deleteItem = (index: number) => {
     if (!editedReceiptData) return;
+    playDelete();
     const updatedItems = editedReceiptData.items.filter((_, i) => i !== index);
     const newTotal = updatedItems.reduce((sum, item) => sum + item.price, 0);
     setEditedReceiptData({ 
@@ -349,6 +366,7 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
       });
 
       if (image.base64String) {
+        playCamera();
         acceptCapturedImage(image.base64String, image.format);
       }
     } catch (error) {
@@ -368,6 +386,7 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
       });
 
       if (image.base64String) {
+        playClick();
         acceptCapturedImage(image.base64String, image.format);
       }
     } catch (error) {
