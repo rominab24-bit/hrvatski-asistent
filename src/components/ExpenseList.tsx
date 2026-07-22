@@ -85,7 +85,8 @@ export function ExpenseList({ expenses, onDelete, onEdit, categories, onRestore 
                 <button
                   onClick={() => setHistoryExpense(expense)}
                   title="Povijest izmjena"
-                  className="opacity-0 group-hover:opacity-100 p-2 rounded-lg hover:bg-primary/20 text-muted-foreground hover:text-primary transition-all"
+                  aria-label="Povijest izmjena"
+                  className="md:opacity-0 md:group-hover:opacity-100 md:focus:opacity-100 p-2 rounded-lg hover:bg-primary/20 text-muted-foreground hover:text-primary transition-all"
                 >
                   <History className="w-4 h-4" />
                 </button>
@@ -94,7 +95,8 @@ export function ExpenseList({ expenses, onDelete, onEdit, categories, onRestore 
               {/* Edit button */}
               <button
                 onClick={() => onEdit(expense)}
-                className="opacity-0 group-hover:opacity-100 p-2 rounded-lg hover:bg-primary/20 text-muted-foreground hover:text-primary transition-all"
+                aria-label="Uredi trošak"
+                className="md:opacity-0 md:group-hover:opacity-100 md:focus:opacity-100 p-2 rounded-lg hover:bg-primary/20 text-muted-foreground hover:text-primary transition-all"
               >
                 <Pencil className="w-4 h-4" />
               </button>
@@ -102,7 +104,8 @@ export function ExpenseList({ expenses, onDelete, onEdit, categories, onRestore 
               {/* Delete button */}
               <button
                 onClick={() => onDelete(expense.id)}
-                className="opacity-0 group-hover:opacity-100 p-2 rounded-lg hover:bg-destructive/20 text-muted-foreground hover:text-destructive transition-all"
+                aria-label="Obriši trošak"
+                className="md:opacity-0 md:group-hover:opacity-100 md:focus:opacity-100 p-2 rounded-lg hover:bg-destructive/20 text-muted-foreground hover:text-destructive transition-all"
               >
                 <Trash2 className="w-4 h-4" />
               </button>
