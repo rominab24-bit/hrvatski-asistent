@@ -64,6 +64,15 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { isScanning, receiptData, scanReceipt, clearData, usage, limitReached } = useReceiptScanner();
   const { toast } = useToast();
+  const {
+    playCamera,
+    playScanStart,
+    playScanComplete,
+    playWarning,
+    playError,
+    playClick,
+    playDelete,
+  } = useSoundEffects();
 
   // When receipt data is received, set up editable state
   const handleScanComplete = (data: ReceiptData) => {
