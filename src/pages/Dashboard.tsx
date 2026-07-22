@@ -99,7 +99,11 @@ export default function Dashboard() {
 
   const monthlyTotal = getMonthlyTotal();
   const categoryTotals = getTotalByCategoryForMonth();
-  const transactionCount = expenses.length;
+  const transactionCount = expenses.filter(e => {
+    const d = new Date(e.expense_date);
+    const now = new Date();
+    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+  }).length;
 
   const handleScanComplete = async (data: ReceiptData) => {
     for (const item of data.items) {
