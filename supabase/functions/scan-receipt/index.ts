@@ -68,9 +68,32 @@ const roundMoney = (value: number) => Math.round(value * 100) / 100;
  * hrvatski telefonski prefiks, pa ga telefonska pravila ne uklanjaju.
  */
 const PII_PLACEHOLDER = '[uklonjeno]';
+
+/**
+ * Detektira sadrži li tekst osobne podatke (kupac, adresa, kartica, IBAN, OIB,
+ * email, HR telefonski broj). Koristi iste uzorke kao redactPII.
+ * Vraća true ako je pronađen bilo koji PII trag.
+ */
+const detectPII = (input: unknown): boolean => {
+  if (input === undefined || input === null) return false;
+  const text = String(input);
+  const patterns: RegExp[] = [
+    /\b[A-Z]{2}\d{2}[\s-]?(?:\d[\s-]?){11,30}\b/,
+    /\b(?:\d[\s-]?){13,19}\b/,
+    /\b\d{11,}\b/,
+    /[\w.+-]+@[\w-]+\.[\w.-]+/i,
+    /(?<!\d)(?:\+385|00385|091|092|095|097|098|099|01|0[2-5]\d)(?:[\s\/-]*)(?:\d[\s\/-]?){5,8}\d/,
+    /\b(?:Ulica|Ul\.?|Trg|Cesta|Put|Avenija|Aleja|Šetalište|Obala|Prilaz|Naselje)\s+[^\n,;]{2,60}?\s+\d+[a-zA-Z]?\b/i,
+    /\b\d{5}\s+[A-ZŠĐČĆŽ][a-zšđčćž]+(?:\s+[A-ZŠĐČĆŽ][a-zšđčćž]+)?\b/,
+    /\b(Kupac|Naru[čc]itelj|Ime\s+i\s+prezime|Ime\/prezime|Platitelj|Korisnik|Primatelj|Klijent)\s*[:\-]\s*\S+/i,
+  ];
+  return patterns.some((re) => re.test(text));
+};
+
 const redactPII = (input: unknown): string => {
   if (input === undefined || input === null) return '';
   let text = String(input);
+
 
   // IBAN (HR + 19 znamenki, s ili bez razmaka)
   text = text.replace(/\b[A-Z]{2}\d{2}[\s-]?(?:\d[\s-]?){11,30}\b/g, PII_PLACEHOLDER);
