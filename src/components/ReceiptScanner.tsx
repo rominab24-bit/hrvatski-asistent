@@ -3,7 +3,17 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { useReceiptScanner, ReceiptData, ReceiptItem, DateConfidence } from '@/hooks/useReceiptScanner';
-import { Camera, Upload, Loader2, Check, X, Receipt, CalendarIcon, Trash2, Plus, AlertCircle, CheckCircle, HelpCircle } from 'lucide-react';
+import { Camera, Upload, Loader2, Check, X, Receipt, CalendarIcon, Trash2, Plus, AlertCircle, CheckCircle, HelpCircle, ShieldAlert, ImageOff } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Camera as CapacitorCamera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { Category, getCategoryIcon } from '@/lib/categories';
 import { useToast } from '@/hooks/use-toast';
