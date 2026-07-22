@@ -95,6 +95,11 @@ export function useExpenses() {
   useEffect(() => {
     fetchCategories();
     fetchExpenses();
+    const handler = () => { fetchExpenses(); };
+    if (typeof window !== 'undefined') {
+      window.addEventListener(EXPENSES_CHANGED_EVENT, handler);
+      return () => window.removeEventListener(EXPENSES_CHANGED_EVENT, handler);
+    }
   }, []);
 
   const fetchCategories = async () => {
