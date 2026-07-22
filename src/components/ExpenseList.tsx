@@ -114,7 +114,7 @@ export function ExpenseList({ expenses, onDelete, onEdit, categories, onRestore 
 
               {/* Delete button */}
               <button
-                onClick={() => onDelete(expense.id)}
+                onClick={() => setDeletingExpense(expense)}
                 aria-label="Obriši trošak"
                 className="md:opacity-0 md:group-hover:opacity-100 md:focus:opacity-100 p-2 rounded-lg hover:bg-destructive/20 text-muted-foreground hover:text-destructive transition-all"
               >
