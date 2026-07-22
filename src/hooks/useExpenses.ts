@@ -380,6 +380,7 @@ export function useExpenses() {
 
       addToPendingSync(offlineExpense);
       setExpenses(prev => [offlineExpense as Expense, ...prev]);
+      emitExpensesChanged();
 
       toast({
         title: 'Spremljeno lokalno',
