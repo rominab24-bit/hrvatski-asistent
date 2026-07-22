@@ -31,6 +31,7 @@ interface ExpenseListProps {
 
 export function ExpenseList({ expenses, onDelete, onEdit, categories, onRestore }: ExpenseListProps) {
   const [historyExpense, setHistoryExpense] = useState<Expense | null>(null);
+  const [deletingExpense, setDeletingExpense] = useState<Expense | null>(null);
 
   if (expenses.length === 0) {
     return (
