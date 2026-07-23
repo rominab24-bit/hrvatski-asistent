@@ -18,6 +18,8 @@ const ALLOWED_CATEGORIES = [
   'Zabava',
   'Odjeća',
   'Obrazovanje',
+  'Frizer',
+  'Automehaničar',
   'Računi',
   'Voda',
   'Struja',
