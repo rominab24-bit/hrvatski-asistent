@@ -1,15 +1,34 @@
 import { SEO } from '@/components/SEO';
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, FileText } from 'lucide-react';
+import { ArrowLeft, FileText, FileDown } from 'lucide-react';
+import { exportToPdf, exportToDocx } from '@/lib/documentExport';
+import { toast } from 'sonner';
 
 export default function Terms() {
   const navigate = useNavigate();
+  const contentRef = useRef<HTMLElement>(null);
+  const [downloading, setDownloading] = useState<null | 'pdf' | 'docx'>(null);
 
   useEffect(() => {
     document.title = 'Uvjeti korištenja — Kućni Budžet';
   }, []);
+
+  const handleDownload = async (kind: 'pdf' | 'docx') => {
+    if (!contentRef.current) return;
+    try {
+      setDownloading(kind);
+      const title = 'Uvjeti korištenja — Kućni Budžet';
+      if (kind === 'pdf') await exportToPdf(contentRef.current, title, 'uvjeti-koristenja.pdf');
+      else await exportToDocx(contentRef.current, title, 'uvjeti-koristenja.docx');
+    } catch (e) {
+      console.error(e);
+      toast.error('Preuzimanje nije uspjelo');
+    } finally {
+      setDownloading(null);
+    }
+  };
 
   const Section = ({ number, title, children }: { number: number; title: string; children: React.ReactNode }) => (
     <section className="bg-card border border-border rounded-3xl p-6 shadow-sm">
