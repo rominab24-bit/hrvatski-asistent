@@ -361,45 +361,59 @@ serve(async (req) => {
       throw new Error('GEMINI_API_KEY nije konfiguriran');
     }
 
-    // Globalni mjesečni limit AI skeniranja (svi korisnici zajedno).
+    // Mjesečni limit AI skeniranja PO KORISNIKU. Vlasnički račun (rominab24@gmail.com) je izuzet.
     const MONTHLY_SCAN_LIMIT = 250;
+    const OWNER_EMAILS = ['rominab24@gmail.com'];
     try {
       const SUPABASE_URL = Deno.env.get('SUPABASE_URL');
       const SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-      if (SUPABASE_URL && SERVICE_KEY) {
-        const usageRes = await fetch(`${SUPABASE_URL}/rest/v1/rpc/increment_scan_usage`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            apikey: SERVICE_KEY,
-            Authorization: `Bearer ${SERVICE_KEY}`,
-          },
-          body: JSON.stringify({ monthly_limit: MONTHLY_SCAN_LIMIT }),
-        });
-        if (usageRes.ok) {
-          const usage = await usageRes.json();
-          if (usage && usage.allowed === false) {
-            console.warn('Mjesečni limit AI skeniranja dosegnut:', usage);
-            return new Response(
-              JSON.stringify({
-                success: false,
-                limit_reached: true,
-                count: usage.count,
-                limit: usage.limit,
-                month: usage.month,
-                error: `Dosegnut je mjesečni limit AI skeniranja (${usage.limit}/mjesec). Skeniranje će ponovno biti dostupno 1. u sljedećem mjesecu. Troškove možete i dalje unositi ručno.`,
-              }),
-              { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
-            );
+      const authHeader = req.headers.get('Authorization') || '';
+      const jwt = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : '';
+
+      if (SUPABASE_URL && SERVICE_KEY && jwt) {
+        const admin = createClient(SUPABASE_URL, SERVICE_KEY);
+        const { data: userRes } = await admin.auth.getUser(jwt);
+        const user = userRes?.user;
+        const email = (user?.email || '').toLowerCase().trim();
+        const isOwner = OWNER_EMAILS.includes(email);
+
+        if (!isOwner && user?.id) {
+          const usageRes = await fetch(`${SUPABASE_URL}/rest/v1/rpc/increment_user_scan_usage`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              apikey: SERVICE_KEY,
+              Authorization: `Bearer ${SERVICE_KEY}`,
+            },
+            body: JSON.stringify({ _user_id: user.id, monthly_limit: MONTHLY_SCAN_LIMIT }),
+          });
+          if (usageRes.ok) {
+            const usage = await usageRes.json();
+            if (usage && usage.allowed === false) {
+              console.warn('Mjesečni limit AI skeniranja dosegnut za korisnika:', user.id, usage);
+              return new Response(
+                JSON.stringify({
+                  success: false,
+                  limit_reached: true,
+                  upgrade_required: true,
+                  count: usage.count,
+                  limit: usage.limit,
+                  month: usage.month,
+                  error: `Iskoristili ste besplatnih ${usage.limit} AI skeniranja ovaj mjesec. Za neograničeno skeniranje nadogradite na plaćenu verziju. Troškove možete i dalje unositi ručno.`,
+                }),
+                { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+              );
+            }
+          } else {
+            console.error('Ne mogu provjeriti limit skeniranja (per-user):', usageRes.status, await usageRes.text());
           }
-        } else {
-          console.error('Ne mogu provjeriti limit skeniranja:', usageRes.status, await usageRes.text());
         }
       }
     } catch (limitErr) {
       // Ne blokiraj skeniranje ako sama provjera limita padne — samo logiraj.
       console.error('Greška pri provjeri limita skeniranja:', limitErr);
     }
+
 
     console.log('Analiziram račun s AI...');
 
