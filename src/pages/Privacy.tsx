@@ -61,7 +61,7 @@ export default function Privacy() {
           <span className="inline-block text-xs font-semibold tracking-widest uppercase text-primary border border-primary/20 rounded-full px-4 py-1 mb-4">
             Kućni Budžet
           </span>
-          <p className="text-sm text-muted-foreground">Zadnja izmjena: 24. srpnja 2026.</p>
+          <p className="text-sm text-muted-foreground">Zadnja izmjena: 23. srpnja 2026.</p>
           <div className="flex items-center justify-center gap-2 mt-4 print:hidden">
             <Button variant="outline" size="sm" onClick={() => handleDownload('pdf')} disabled={downloading !== null}>
               <FileDown className="w-4 h-4 mr-2" />
@@ -206,6 +206,29 @@ export default function Privacy() {
               rominab24@gmail.com
             </a>
             .
+          </p>
+        </Section>
+
+        <Section number={13} title="Kolačići (cookies)">
+          <p>
+            Kolačići su male tekstualne datoteke koje preglednik može pohraniti na vaš uređaj radi pravilnog rada određenih funkcija aplikacije.
+          </p>
+          <p>
+            <strong>Kolačići koje koristimo:</strong>
+          </p>
+          <ul className="list-disc pl-5 space-y-2">
+            <li>
+              <strong>Funkcionalni kolačić:</strong> koristimo jedan kolačić (<code>sidebar:state</code>) koji pamti je li bočna traka otvorena ili zatvorena. Traje 7 dana i ne sadrži nikakve osobne ili financijske podatke.
+            </li>
+          </ul>
+          <p>
+            <strong>Kolačići koje ne koristimo:</strong> aplikacija ne postavlja kolačiće za analitiku, oglašavanje, praćenje ponašanja, profiliranje ni bilo kakvu svrhu trećih strana. Ne koristimo alate poput Google Analytics, Facebook Pixel, Hotjar i sl.
+          </p>
+          <p>
+            <strong>Prijavna sesija:</strong> podaci o vašoj prijavi čuvaju se u sigurnom lokalnom spremištu preglednika (localStorage), a ne kao kolačić.
+          </p>
+          <p>
+            Kolačiće možete u bilo kojem trenutku obrisati ili onemogućiti u postavkama svog preglednika. Uklanjanjem kolačića možete resetirati neka UI-pamćenja (npr. stanje bočne trake), ali nećete utjecati na sigurnost svojih financijskih podataka.
           </p>
         </Section>
 
