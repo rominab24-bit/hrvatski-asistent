@@ -128,5 +128,6 @@ export default function Install() {
         </CardContent>
       </Card>
     </div>
+    </>
   );
 }

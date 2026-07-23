@@ -1,3 +1,4 @@
+import { SEO } from '@/components/SEO';
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -89,6 +90,8 @@ export default function Settings() {
   };
 
   return (
+    <>
+      <SEO title="Postavke — Kućni Budžet" description="Upravljanje računom, izvoz osobnih podataka i brisanje profila u aplikaciji Kućni Budžet." path="/settings" />
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border">
         <div className="max-w-3xl mx-auto px-4 py-4 flex items-center gap-3">

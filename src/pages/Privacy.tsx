@@ -1,3 +1,4 @@
+import { SEO } from '@/components/SEO';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -21,6 +22,8 @@ export default function Privacy() {
   );
 
   return (
+    <>
+      <SEO title="Pravila privatnosti — Kućni Budžet" description="Kako aplikacija Kućni Budžet obrađuje i štiti osobne podatke korisnika." path="/privacy" />
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border">
         <div className="max-w-3xl mx-auto px-4 h-14 flex items-center gap-3">
