@@ -679,7 +679,7 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
         </div>
       )}
 
-      <AlertDialog open={upgradeRequired} onOpenChange={(open) => { if (!open) dismissUpgrade(); }}>
+      <AlertDialog open={upgradeRequired || manualUpgradeOpen} onOpenChange={(open) => { if (!open) { dismissUpgrade(); setManualUpgradeOpen(false); } }}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Nadogradite na plaćenu verziju</AlertDialogTitle>
