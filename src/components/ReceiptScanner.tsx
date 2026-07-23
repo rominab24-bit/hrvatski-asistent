@@ -58,7 +58,7 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
   const [newItemName, setNewItemName] = useState('');
   const [newItemPrice, setNewItemPrice] = useState('');
   const [newItemCategory, setNewItemCategory] = useState('');
-  const fileInputRef2 = null;
+  
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { isScanning, receiptData, scanReceipt, clearData, usage, limitReached } = useReceiptScanner();
   const { toast } = useToast();
