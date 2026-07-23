@@ -1,66 +1,10 @@
-## Cilj
-Automatski validirati SEO ključne datoteke (`index.html` metapodaci, `public/robots.txt`, `public/sitemap.xml`) prije svakog builda kako bi objava bila blokirana ako nešto nedostaje ili je pogrešno.
+Dodati objašnjenje u Pravila privatnosti o tome kako Google obrađuje slike računa i kako se koristi ocjenjivanje palac gore/dolje.
 
-## Pristup
-Lokalna Node validacijska skripta koja se pokreće kao `prebuild` hook u `package.json`. Ne uvodimo vanjski CI (GitHub Actions) jer projekt objavljuje kroz Lovable — `prebuild` osigurava da svaki `vite build` (uključujući Lovable objavu) prvo prođe validaciju.
+Plan:
+1. U `src/pages/Privacy.tsx`, u sekciju 4 „Obrada pomoću umjetne inteligencije", dodati novi odlomak s napomenom:
+   - Prema Googleovim uvjetima korištenja, Google ne koristi sadržaj poslan putem Gemini API-ja (fotografije računa) za treniranje svojih AI modela, osim ako korisnik izričito ne dopusti.
+   - Ocjenjivanje palac gore/dolje (potvrda/ispravak kategorije) dozvoljeno je prema istim uvjetima i pohranjuje se u našu bazu isključivo radi poboljšanja kategorizacije u aplikaciji; ti se podaci ne šalju Googleu.
+2. Ažurirati datum „Zadnja izmjena" na 24. srpnja 2026. kako odražava novi sadržaj.
+3. Pokrenuti build/SEO provjeru kako bi se osiguralo da stranica i dalje ispravno renderira bez grešaka i da meta podaci budu u redu.
 
-## Što validirati
-
-### 1. `index.html`
-- `<html lang>` postoji i nije prazan
-- `<title>` postoji, 10–60 znakova, nije template default ("Lovable App", "Vite App")
-- `<meta name="description">` postoji, 50–160 znakova, nije "Lovable Generated Project"
-- `<meta name="viewport">` postoji
-- `og:title`, `og:description`, `og:type`, `og:url` postoje
-- `twitter:card` postoji
-- `og:url` ne sadrži duplu domenu (npr. `rominab24.com.rominab24.com`) — trenutno u kodu postoji ta greška, validator će je uhvatiti
-
-### 2. `public/robots.txt`
-- Datoteka postoji
-- Sadrži barem jedan `User-agent:` blok
-- Ne sadrži globalni `Disallow: /` pod `User-agent: *` (osim ako je namjerno)
-- `Sitemap:` direktiva pokazuje na ispravnu domenu (bez duplikata poput `.com.rominab24.com`)
-
-### 3. `public/sitemap.xml`
-- Valjan XML (parsira se bez greške)
-- Root element `<urlset>` s barem jednim `<url><loc>`
-- Sve `<loc>` URL-ovi imaju istu bazu i tu bazu bez dupliciranja domene
-- Nema duplikata `<loc>`
-- Sve rute iz `src/App.tsx` (`<Route path=...>`) osim internih (`/reset-password`, `*`, dinamičkih) postoje u sitemapu — upozorenje ako nedostaju
-
-## Implementacija
-
-**Nova datoteka `scripts/validate-seo.mjs`:**
-- Čita `index.html`, `public/robots.txt`, `public/sitemap.xml`
-- Koristi `node:fs`, regex/DOM parser (`node-html-parser` ili jednostavan regex) i `fast-xml-parser` za XML
-- Prikuplja greške i upozorenja; ispisuje jasan izvještaj u stdout
-- Exit code `1` na greškama, `0` na upozorenjima
-- Podržava `--warn-only` zastavicu (za lokalni razvoj) i `--fix-base-url` za auto-ispravak tipa duple domene
-
-**Izmjene `package.json`:**
-```
-"scripts": {
-  "validate:seo": "node scripts/validate-seo.mjs",
-  "prebuild": "node scripts/validate-seo.mjs",
-  ...
-}
-```
-
-**Ovisnosti (dev):**
-- `fast-xml-parser` (~50 KB, bez tranzitivnih ovisnosti)
-
-## Popravci koje validator odmah otkriva
-Trenutni kod ima duplu domenu `kucnibudzet.rominab24.com.rominab24.com` u:
-- `index.html` (og:url)
-- `public/robots.txt` (Sitemap:)
-- `public/sitemap.xml` (svi `<loc>`)
-- `src/components/SEO.tsx` (`BASE_URL`)
-
-Ispravit ću ih na `https://kucnibudzet.rominab24.com` u istom koraku kako `prebuild` ne bi odmah blokirao objavu.
-
-## Dokumentacija
-Kratka napomena u `README.md`: kako pokrenuti `npm run validate:seo` ručno, što validator provjerava i kako privremeno preskočiti (`SKIP_SEO_VALIDATION=1 npm run build`).
-
-## Van opsega
-- GitHub Actions / vanjski CI (može se dodati kasnije ako preseliš van Lovable-a)
-- Lighthouse / stvarni HTTP crawler (`seo_chat--trigger_scan` ostaje glavni alat za dubinsku analizu — validator pokriva samo statičku validaciju datoteka)
+Izmjene su isključivo sadržajne i odnose se na postojeću stranicu Pravila privatnosti; ne diraju se druge stranice niti funkcionalnost aplikacije.
