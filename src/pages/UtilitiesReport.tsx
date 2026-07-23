@@ -1,3 +1,4 @@
+import { SEO } from '@/components/SEO';
 import { useMemo, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useExpenses } from '@/hooks/useExpenses';
@@ -124,6 +125,7 @@ export default function UtilitiesReport() {
 
   return (
     <>
+      <SEO title="Kućne režije — Kućni Budžet" description="Mjesečni pregled režijskih troškova (voda, struja, grijanje, internet) s grafovima i izvozom u Excel." path="/utilities" />
       <OfflineIndicator pendingCount={getPendingCount()} isSyncing={isSyncing} />
       <div className="min-h-screen bg-background pb-8">
         <header className="p-4 flex items-center gap-3 border-b border-border/50">

@@ -1,3 +1,4 @@
+import { SEO } from '@/components/SEO';
 import { useState, useMemo, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -124,7 +125,9 @@ export default function Transactions() {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-8">
+    <>
+      <SEO title="Transakcije — Kućni Budžet" description="Pretraživanje i filtriranje svih spremljenih troškova po datumu, kategoriji i opisu." path="/transactions" />
+      <div className="min-h-screen bg-background pb-8">
       {/* Header */}
       <header className="p-4 flex items-center gap-3 border-b border-border/50">
         <Button variant="ghost" size="icon" onClick={() => navigate('/')}>
@@ -269,5 +272,6 @@ export default function Transactions() {
         )}
       </main>
     </div>
+    </>
   );
 }

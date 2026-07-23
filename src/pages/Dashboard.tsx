@@ -15,6 +15,7 @@ import { CategoryBreakdown } from '@/components/CategoryBreakdown';
 import { OfflineIndicator } from '@/components/OfflineIndicator';
 import { ExportDialog } from '@/components/ExportDialog';
 import { DateRangeFilter } from '@/components/DateRangeFilter';
+import { SEO } from '@/components/SEO';
 import { ReceiptData } from '@/hooks/useReceiptScanner';
 import { Button } from '@/components/ui/button';
 import { Receipt, Plus, LogOut, Wallet, TrendingDown, PieChart, Loader2, BarChart3, Filter, Tags, Search, X, Home, Settings as SettingsIcon } from 'lucide-react';
@@ -159,6 +160,11 @@ export default function Dashboard() {
 
   return (
     <>
+      <SEO
+        title="Kućni Budžet — Praćenje troškova i AI skeniranje računa"
+        description="Vodite kućni budžet u kunama i eurima: skenirajte račune, pratite mjesečnu potrošnju po kategorijama i upravljajte režijama."
+        path="/"
+      />
       <OfflineIndicator pendingCount={getPendingCount()} isSyncing={isSyncing} />
       <div className="min-h-screen bg-background pb-24">
         {/* Header */}
@@ -168,22 +174,22 @@ export default function Dashboard() {
             <Receipt className="w-5 h-5 text-primary" />
           </div>
           <div>
-            <h1 className="font-bold text-lg">Kućni Budžet</h1>
+            <h1 className="font-bold text-lg">Kućni Budžet — Jednostavno praćenje troškova</h1>
             <p className="text-xs text-muted-foreground">Dobrodošli natrag!</p>
           </div>
         </div>
         <div className="flex items-center gap-1">
           <ExportDialog expenses={expenses} categories={categories} monthlyTotal={monthlyTotal} />
-          <Button variant="ghost" size="icon" onClick={() => navigate('/utilities')} title="Kućne režije">
+          <Button variant="ghost" size="icon" onClick={() => navigate('/utilities')} title="Kućne režije" aria-label="Kućne režije">
             <Home className="w-5 h-5" />
           </Button>
-          <Button variant="ghost" size="icon" onClick={() => navigate('/statistics')}>
+          <Button variant="ghost" size="icon" onClick={() => navigate('/statistics')} aria-label="Statistika">
             <BarChart3 className="w-5 h-5" />
           </Button>
-          <Button variant="ghost" size="icon" onClick={() => navigate('/settings')} title="Postavke">
+          <Button variant="ghost" size="icon" onClick={() => navigate('/settings')} title="Postavke" aria-label="Postavke">
             <SettingsIcon className="w-5 h-5" />
           </Button>
-          <Button variant="ghost" size="icon" onClick={signOut} title="Odjava">
+          <Button variant="ghost" size="icon" onClick={signOut} title="Odjava" aria-label="Odjava">
             <LogOut className="w-5 h-5" />
           </Button>
         </div>

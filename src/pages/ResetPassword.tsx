@@ -1,3 +1,4 @@
+import { SEO } from '@/components/SEO';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -50,6 +51,8 @@ export default function ResetPassword() {
   };
 
   return (
+    <>
+      <SEO title="Postavi novu lozinku — Kućni Budžet" description="Postavite novu lozinku za pristup aplikaciji Kućni Budžet." path="/reset-password" />
     <div className="min-h-screen flex items-center justify-center p-6 bg-background">
       <div className="w-full max-w-[400px] flex flex-col items-center animate-fade-in">
         <div className="relative mb-8">
@@ -133,5 +136,6 @@ export default function ResetPassword() {
         </div>
       </div>
     </div>
+    </>
   );
 }
