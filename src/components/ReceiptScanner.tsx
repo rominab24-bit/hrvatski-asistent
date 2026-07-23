@@ -692,6 +692,8 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
             <AlertDialogAction
               onClick={() => {
                 dismissUpgrade();
+                setManualUpgradeOpen(false);
+
                 window.location.href = 'mailto:rominab24@gmail.com?subject=Nadogradnja%20Ku%C4%87ni%20Bud%C5%BEet%20-%20pla%C4%87ena%20verzija';
               }}
             >
