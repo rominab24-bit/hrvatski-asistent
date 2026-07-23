@@ -4,7 +4,7 @@ import { Category, getCategoryIcon } from '@/lib/categories';
 import { Trash2, Pencil, History } from 'lucide-react';
 import { format } from 'date-fns';
 import { hr } from 'date-fns/locale';
-import { ReceiptThumbnail } from '@/components/ReceiptThumbnail';
+
 import { CategoryRating } from '@/components/CategoryRating';
 import { ExpenseHistoryDialog } from '@/components/ExpenseHistoryDialog';
 import {
@@ -81,8 +81,6 @@ export function ExpenseList({ expenses, onDelete, onEdit, categories, onRestore 
                 </p>
               </div>
 
-              {/* Receipt thumbnail */}
-              <ReceiptThumbnail receiptImageUrl={expense.receipt_image_url} />
 
               {/* Amount */}
               <div className="text-right shrink-0">
