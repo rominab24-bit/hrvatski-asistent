@@ -43,15 +43,14 @@ Deno.serve(async (req) => {
 
       const ids = usersList.users.map((u) => u.id);
 
-      const [{ data: scans }, { data: exp }] = await Promise.all([
-        admin.from('user_scan_usage').select('user_id, count').eq('month', monthStr).in('user_id', ids),
-        admin.from('expenses').select('user_id').in('user_id', ids),
-      ]);
+      const { data: scans } = await admin
+        .from('user_scan_usage')
+        .select('user_id, count')
+        .eq('month', monthStr)
+        .in('user_id', ids);
 
       const scanMap = new Map<string, number>();
       (scans ?? []).forEach((r: any) => scanMap.set(r.user_id, Number(r.count ?? 0)));
-      const expMap = new Map<string, number>();
-      (exp ?? []).forEach((r: any) => expMap.set(r.user_id, (expMap.get(r.user_id) ?? 0) + 1));
 
       const users = usersList.users
         .map((u) => {
@@ -67,7 +66,6 @@ Deno.serve(async (req) => {
             is_banned: isBanned,
             is_owner: OWNER_EMAILS.includes((u.email ?? '').toLowerCase().trim()),
             scans_this_month: scanMap.get(u.id) ?? 0,
-            expenses_total: expMap.get(u.id) ?? 0,
           };
         })
         .sort((a, b) => (a.created_at < b.created_at ? 1 : -1));

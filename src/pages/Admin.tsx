@@ -30,7 +30,6 @@ interface AdminUser {
   is_banned: boolean;
   is_owner: boolean;
   scans_this_month: number;
-  expenses_total: number;
 }
 
 interface Stats {
@@ -274,7 +273,7 @@ export default function Admin() {
                         )}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        Skeniranja ovog mjeseca: {u.scans_this_month} · Troškovi: {u.expenses_total}
+                        Skeniranja ovog mjeseca: {u.scans_this_month}
                       </p>
                     </div>
                   </div>
