@@ -1,3 +1,4 @@
+import { SEO } from '@/components/SEO';
 import { useAuth } from '@/hooks/useAuth';
 import { useExpenses } from '@/hooks/useExpenses';
 import { AuthForm } from '@/components/AuthForm';
@@ -32,6 +33,7 @@ export default function Statistics() {
 
   return (
     <>
+      <SEO title="Statistika potrošnje — Kućni Budžet" description="Grafički pregled kućnih troškova po danu, tjednu i mjesecu s raspodjelom po kategorijama." path="/statistics" />
       <OfflineIndicator pendingCount={getPendingCount()} isSyncing={isSyncing} />
       <div className="min-h-screen bg-background pb-8">
         {/* Header */}
