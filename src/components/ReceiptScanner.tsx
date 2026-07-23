@@ -662,7 +662,7 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
               <p>
                 Iskoristili ste svih {usage.limit} besplatnih skeniranja ovaj mjesec. Za nastavak skeniranja nadogradite na plaćenu verziju ili unesite trošak ručno.
               </p>
-              <Button size="sm" onClick={() => dismissUpgrade()} className="w-full">
+              <Button size="sm" onClick={() => setManualUpgradeOpen(true)} className="w-full">
                 Nadogradi na plaćenu verziju
               </Button>
             </div>
