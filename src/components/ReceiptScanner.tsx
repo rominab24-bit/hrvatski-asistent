@@ -22,8 +22,6 @@ import {
   validateReceiptBase64,
   ALLOWED_RECEIPT_MIME_TYPES,
   MAX_RECEIPT_FILE_SIZE,
-  uploadReceiptFromDataUrl,
-  deleteReceiptFile,
 } from '@/lib/receiptUpload';
 
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
