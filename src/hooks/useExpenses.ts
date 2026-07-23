@@ -79,7 +79,7 @@ export function useExpenses() {
         description: `${syncedCount} trošak(a) uspješno sinkronizirano`,
       });
       // Refresh expenses from server
-      fetchExpenses();
+      fetchExpenses({ silent: true });
     }
 
     setIsSyncing(false);
@@ -95,7 +95,7 @@ export function useExpenses() {
   useEffect(() => {
     fetchCategories();
     fetchExpenses();
-    const handler = () => { fetchExpenses(); };
+    const handler = () => { fetchExpenses({ silent: true }); };
     if (typeof window !== 'undefined') {
       window.addEventListener(EXPENSES_CHANGED_EVENT, handler);
       return () => window.removeEventListener(EXPENSES_CHANGED_EVENT, handler);
@@ -261,8 +261,8 @@ export function useExpenses() {
     return true;
   };
 
-  const fetchExpenses = async () => {
-    setIsLoading(true);
+  const fetchExpenses = async ({ silent = false }: { silent?: boolean } = {}) => {
+    if (!silent) setIsLoading(true);
 
     if (isOnline) {
       const { data, error } = await supabase
@@ -296,7 +296,7 @@ export function useExpenses() {
       setExpenses(localData as Expense[]);
     }
 
-    setIsLoading(false);
+    if (!silent) setIsLoading(false);
   };
 
   const addExpense = async (expense: {
