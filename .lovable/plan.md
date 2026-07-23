@@ -1,38 +1,66 @@
-Plan: Postavljanje poddomene kucnibudzet.rominab24.com kao primarne adrese aplikacije
+## Cilj
+Automatski validirati SEO ključne datoteke (`index.html` metapodaci, `public/robots.txt`, `public/sitemap.xml`) prije svakog builda kako bi objava bila blokirana ako nešto nedostaje ili je pogrešno.
 
-## Trenutno stanje
-- Projekt još nije objavljen (nema published_url).
-- Već su spojene domene: rominab24.com i www.rominab24.com.
-- Željena nova poddomena: kucnibudzet.rominab24.com, koja će postati primarna.
+## Pristup
+Lokalna Node validacijska skripta koja se pokreće kao `prebuild` hook u `package.json`. Ne uvodimo vanjski CI (GitHub Actions) jer projekt objavljuje kroz Lovable — `prebuild` osigurava da svaki `vite build` (uključujući Lovable objavu) prvo prođe validaciju.
 
-## Koraci
+## Što validirati
 
-1. **Objaviti projekt**
-   - Pokrenuti objavu kako bi aplikacija bila dostupna na javnoj Lovable adresi i omogućilo se upravljanje domenama.
+### 1. `index.html`
+- `<html lang>` postoji i nije prazan
+- `<title>` postoji, 10–60 znakova, nije template default ("Lovable App", "Vite App")
+- `<meta name="description">` postoji, 50–160 znakova, nije "Lovable Generated Project"
+- `<meta name="viewport">` postoji
+- `og:title`, `og:description`, `og:type`, `og:url` postoje
+- `twitter:card` postoji
+- `og:url` ne sadrži duplu domenu (npr. `rominab24.com.rominab24.com`) — trenutno u kodu postoji ta greška, validator će je uhvatiti
 
-2. **Ažurirati kodne reference na novu domenu**
-   - Proći kroz `index.html`, `public/manifest.json`, `public/robots.txt` / `public/sitemap.xml` te `capacitor.config.ts` ako sadrže hardkodirane domene (rominab24.com / www.rominab24.com).
-   - Zamijeniti ih s `https://kucnibudzet.rominab24.com` kao primarnom domenom.
-   - Ako postoje APP URL-ovi za deep linkove ili OAuth callback, prilagoditi ih.
+### 2. `public/robots.txt`
+- Datoteka postoji
+- Sadrži barem jedan `User-agent:` blok
+- Ne sadrži globalni `Disallow: /` pod `User-agent: *` (osim ako je namjerno)
+- `Sitemap:` direktiva pokazuje na ispravnu domenu (bez duplikata poput `.com.rominab24.com`)
 
-3. **Dodati poddomenu u Lovable**
-   - Project Settings → Project → Domains → Add/Connect domain.
-   - Unijeti: `kucnibudzet.rominab24.com`.
+### 3. `public/sitemap.xml`
+- Valjan XML (parsira se bez greške)
+- Root element `<urlset>` s barem jednim `<url><loc>`
+- Sve `<loc>` URL-ovi imaju istu bazu i tu bazu bez dupliciranja domene
+- Nema duplikata `<loc>`
+- Sve rute iz `src/App.tsx` (`<Route path=...>`) osim internih (`/reset-password`, `*`, dinamičkih) postoje u sitemapu — upozorenje ako nedostaju
 
-4. **Konfigurirati DNS zapise**
-   - Ako je rominab24.com kupljena kroz Lovable: DNS se upravlja u Lovable UI-ju (Manage DNS records), dodati CNAME/A zapis za poddomenu prema uputama.
-   - Ako je domena na vanjskom registrar: dodati DNS zapis na tom registrar (obično A zapis na Lovable IP ili CNAME na Lovable domena, ovisno o uputama koje Lovable prikaže prilikom spajanja).
+## Implementacija
 
-5. **Postaviti poddomenu kao primarnu**
-   - U Domains postavkama označiti `kucnibudzet.rominab24.com` kao Primary domain.
-   - Postojeće rominab24.com / www.rominab24.com mogu ostati kao alternativne i preusmjeravati na novu primarnu.
+**Nova datoteka `scripts/validate-seo.mjs`:**
+- Čita `index.html`, `public/robots.txt`, `public/sitemap.xml`
+- Koristi `node:fs`, regex/DOM parser (`node-html-parser` ili jednostavan regex) i `fast-xml-parser` za XML
+- Prikuplja greške i upozorenja; ispisuje jasan izvještaj u stdout
+- Exit code `1` na greškama, `0` na upozorenjima
+- Podržava `--warn-only` zastavicu (za lokalni razvoj) i `--fix-base-url` za auto-ispravak tipa duple domene
 
-6. **Provjeriti objavu i pristupnost**
-   - Pričekati DNS propagaciju (do 72h, obično brže).
-   - Testirati `https://kucnibudzet.rominab24.com` u pregledniku.
+**Izmjene `package.json`:**
+```
+"scripts": {
+  "validate:seo": "node scripts/validate-seo.mjs",
+  "prebuild": "node scripts/validate-seo.mjs",
+  ...
+}
+```
 
-## Napomene
-- Ako se kasnije želi postaviti email s te poddomene (npr. notify@kucnibudzet.rominab24.com), to je zaseban korak nakon što domena postane aktivna.
-- Capacitor Android build ne mora se dirati osim ako je unutar configa hardkodiran web URL za preview.
+**Ovisnosti (dev):**
+- `fast-xml-parser` (~50 KB, bez tranzitivnih ovisnosti)
 
-Odobriš li ovaj plan? Prvi korak je objaviti projekt, a zatim ću ažurirati kod i voditi te kroz postavljanje domene.
+## Popravci koje validator odmah otkriva
+Trenutni kod ima duplu domenu `kucnibudzet.rominab24.com.rominab24.com` u:
+- `index.html` (og:url)
+- `public/robots.txt` (Sitemap:)
+- `public/sitemap.xml` (svi `<loc>`)
+- `src/components/SEO.tsx` (`BASE_URL`)
+
+Ispravit ću ih na `https://kucnibudzet.rominab24.com` u istom koraku kako `prebuild` ne bi odmah blokirao objavu.
+
+## Dokumentacija
+Kratka napomena u `README.md`: kako pokrenuti `npm run validate:seo` ručno, što validator provjerava i kako privremeno preskočiti (`SKIP_SEO_VALIDATION=1 npm run build`).
+
+## Van opsega
+- GitHub Actions / vanjski CI (može se dodati kasnije ako preseliš van Lovable-a)
+- Lighthouse / stvarni HTTP crawler (`seo_chat--trigger_scan` ostaje glavni alat za dubinsku analizu — validator pokriva samo statičku validaciju datoteka)
