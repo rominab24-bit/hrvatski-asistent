@@ -13,7 +13,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { ArrowLeft, Trash2, Loader2, AlertTriangle, Download, FileText, FileSpreadsheet, Calculator } from 'lucide-react';
+import { ArrowLeft, Trash2, Loader2, AlertTriangle, Download, FileText, FileSpreadsheet, Calculator, BarChart3 } from 'lucide-react';
 import { exportToCSV, exportToPDF } from '@/lib/exportData';
 import SubscriptionWizard from '@/components/SubscriptionWizard';
 import { isOwner } from '@/lib/owner';
@@ -154,6 +154,23 @@ export default function Settings() {
               </div>
             </div>
             <SubscriptionWizard />
+          </Card>
+        )}
+
+        {isOwner(user) && (
+          <Card className="p-6 space-y-4">
+            <div className="flex items-start gap-3">
+              <BarChart3 className="w-5 h-5 text-primary shrink-0 mt-1" />
+              <div className="flex-1">
+                <h2 className="text-lg font-serif">Administracija</h2>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Vidljivo samo vlasniku aplikacije. Pregled broja korisnika, aktivnosti i korištenja AI skeniranja.
+                </p>
+              </div>
+            </div>
+            <Button asChild variant="outline" className="w-full sm:w-auto">
+              <Link to="/admin">Otvori administraciju</Link>
+            </Button>
           </Card>
         )}
 
