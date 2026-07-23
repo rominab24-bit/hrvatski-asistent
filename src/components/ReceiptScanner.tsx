@@ -58,10 +58,7 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
   const [newItemName, setNewItemName] = useState('');
   const [newItemPrice, setNewItemPrice] = useState('');
   const [newItemCategory, setNewItemCategory] = useState('');
-  const [uploadedPath, setUploadedPath] = useState<string | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
-  const [piiImageKept, setPiiImageKept] = useState(false);
-  const [piiConfirmOpen, setPiiConfirmOpen] = useState(false);
+  const fileInputRef2 = null;
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { isScanning, receiptData, scanReceipt, clearData, usage, limitReached } = useReceiptScanner();
   const { toast } = useToast();
