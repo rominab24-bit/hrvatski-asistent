@@ -457,6 +457,8 @@ Kategoriziraj stavke STROGO u jednu od ovih kategorija (koristi TOČNO ovaj nazi
 - "Zabava" - igračke, hobi, izlasci (ulaznice), kino, knjige za zabavu
 - "Odjeća" - odjeća, obuća, modni dodaci, čarape
 - "Obrazovanje" - školski pribor, udžbenici, tečajevi
+- "Frizer" - SVE frizerske i uslužne djelatnosti za osobnu njegu: šišanje, pranje kose, feniranje, farbanje/bojanje kose, pramenovi, balayage, ombré, trajna, ravnanje, tretmani za kosu u salonu, brijanje/oblikovanje brade kod barbera, muško/žensko/dječje šišanje, manikura, pedikura, gel lak, izgradnja noktiju, depilacija, waxing, kozmetički tretmani lica, tretmani obrva/trepavica, laminacija obrva, produživanje trepavica, masaža u salonu. Tipični izdavatelji: frizerski salon, salon ljepote, barber shop, beauty salon, kozmetički studio, nail studio, studio za nokte, "frizerski obrt", "obrt za usluge", često obrti s imenom vlasnika (npr. "Frizerski salon Ana", "Barber Zagreb", "Beauty by Marija"). Stavke na računu često generički: "usluga", "šišanje", "farba", "pramenovi", "manikura".
+- "Automehaničar" - SVE usluge servisa i popravka vozila te dijelovi ugrađeni tijekom servisa: zamjena ulja, filtera (ulje, zrak, kabina, gorivo), servisiranje kočnica (pločice, diskovi), remen, akumulator, svjećice, amortizeri, ovjes, ispušni sustav, klima servis (punjenje freona), auto-elektrika, dijagnostika, tehnički pregled vozila, redoviti/veliki servis, mali servis, izmjena guma, balansiranje, centriranje, vulkanizer, lakiranje, limarski radovi, pranje auta na servisu, rezervni dijelovi ugrađeni u servisu. Tipični izdavatelji: autoservis, auto servis, mehaničarska radionica, "servis vozila", vulkanizer, autolimar, autoelektričar, autopraonica u sklopu servisa, npr. "Autoservis Horvat", "AutoZubak servis", Hak-ov tehnički pregled, Centar za vozila Hrvatske (CVH). Stavke: "rad servisera", "zamjena ulja", "filter", "pločice", "gume", "usluga servisa", "sat rada", "norma sat".
 - "Računi" - opće/obračunske rate, pretplate i troškovi koje ne možeš preciznije razvrstati u jednu od kategorija kućnih režija (npr. telefon, mobilna tarifa)
 - "Voda" - račun za vodu, vodovod, kanalizacija, trošak vode
 - "Struja" - račun za električnu energiju, struja, HEP, ELectro distribucija
@@ -468,6 +470,11 @@ Kategoriziraj stavke STROGO u jednu od ovih kategorija (koristi TOČNO ovaj nazi
 - "Kućni internet" - račun za fiksni/kućni internet (ne mobilni), Wi-Fi, širokopojasni pristup
 - "Kućni ljubimci" - SVE za pse, mačke i druge kućne ljubimce: hrana za mačke (Whiskas, Felix, Sheba, Gourmet, Purina One/Cat Chow, Friskies, Kitekat, Perfect Fit, Royal Canin, Hill's, mokra/suha hrana, konzerve, vrećice, pounches, "mačja hrana", "cat food"), hrana za pse (Pedigree, Chappi, Frolic, Bakers, Cesar, Rocco, Royal Canin, Hill's, "pseća hrana", "dog food"), poslastice/priboljšci za ljubimce, mačji pijesak/podloga (Catsan, Ever Clean), grickalice za pse, konzerve za ljubimce, oprema (uzice, ogrlice, zdjelice, kućice, transporteri, igračke za ljubimce), antiparaziti (Frontline, Advantix, Bravecto), veterinarski proizvodi. Trgovine specijalizirane za ljubimce: Pet Centar, Fressnapf, Zoo Plus, Zoomania.
 - "Ostalo" - sve ostalo
+
+KLJUČNO PRAVILO za usluge (Frizer/Automehaničar):
+- Ako je izdavatelj frizerski/beauty/barber salon ili obrt za osobnu njegu → SVE stavke idu u "Frizer", i kada su generički nazvane ("usluga", "rad").
+- Ako je izdavatelj autoservis, vulkanizer, autolimar ili tehnički pregled → SVE stavke (rad + ugrađeni dijelovi) idu u "Automehaničar". NE stavljaj ih u "Prijevoz" (Prijevoz je samo gorivo, parking, cestarina, karte javnog prijevoza).
+- Prepoznaj tip iz naziva izdavatelja NA VRHU računa i djelatnosti obrta ("frizerske usluge", "popravak i održavanje motornih vozila", NKD šifra 45.20 = automehaničar, 96.02 = frizerske usluge).
 
 KLJUČNO PRAVILO za razlikovanje "Hrana" vs "Kafići i barovi" vs "Restorani":
 - Ako je račun iz TRGOVINE/SUPERMARKETA (Konzum, Lidl, Plodine, Kaufland, Spar, Tommy, Studenac, Metro, Interspar, Ribola, KTC, DM, Bipa, Müller) → hrana i piće idu u "Hrana"
@@ -509,7 +516,7 @@ Odgovori ISKLJUČIVO pozivom funkcije extract_receipt_data bez dodatnog teksta.$
                 price: { type: 'number', description: 'Konačna cijena stavke u eurima' },
                 category: {
                   type: 'string',
-                  enum: ['Hrana', 'Kafići i barovi', 'Restorani', 'Kućanstvo', 'Higijena', 'Prijevoz', 'Zdravlje', 'Zabava', 'Odjeća', 'Obrazovanje', 'Računi', 'Voda', 'Struja', 'Grijanje', 'Stambena pričuva', 'TV', 'Smeće', 'Komunalna naknada', 'Kućni internet', 'Kućni ljubimci', 'Ostalo'],
+                  enum: ['Hrana', 'Kafići i barovi', 'Restorani', 'Kućanstvo', 'Higijena', 'Prijevoz', 'Zdravlje', 'Zabava', 'Odjeća', 'Obrazovanje', 'Frizer', 'Automehaničar', 'Računi', 'Voda', 'Struja', 'Grijanje', 'Stambena pričuva', 'TV', 'Smeće', 'Komunalna naknada', 'Kućni internet', 'Kućni ljubimci', 'Ostalo'],
                   description: 'Kategorija proizvoda',
                 },
               },
