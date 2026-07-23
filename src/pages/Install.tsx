@@ -1,3 +1,4 @@
+import { SEO } from '@/components/SEO';
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -74,6 +75,8 @@ export default function Install() {
   }
 
   return (
+    <>
+      <SEO title="Instalacija aplikacije — Kućni Budžet" description="Instalirajte Kućni Budžet kao PWA na Android, iPhone ili računalo za brz i offline pristup." path="/install" />
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <Card className="max-w-md w-full">
         <CardHeader className="text-center">

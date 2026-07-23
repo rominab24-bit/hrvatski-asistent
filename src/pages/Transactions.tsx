@@ -272,5 +272,6 @@ export default function Transactions() {
         )}
       </main>
     </div>
+    </>
   );
 }
