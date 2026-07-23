@@ -158,5 +158,6 @@ export default function Privacy() {
         </div>
       </main>
     </div>
+    </>
   );
 }

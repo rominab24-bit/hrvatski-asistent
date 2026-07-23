@@ -210,5 +210,6 @@ export default function Settings() {
         </Card>
       </main>
     </div>
+    </>
   );
 }

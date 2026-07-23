@@ -136,5 +136,6 @@ export default function Terms() {
         </div>
       </main>
     </div>
+    </>
   );
 }
