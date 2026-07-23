@@ -56,9 +56,11 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
   const [newItemName, setNewItemName] = useState('');
   const [newItemPrice, setNewItemPrice] = useState('');
   const [newItemCategory, setNewItemCategory] = useState('');
+  const [manualUpgradeOpen, setManualUpgradeOpen] = useState(false);
+
   
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { isScanning, receiptData, scanReceipt, clearData, usage, limitReached } = useReceiptScanner();
+  const { isScanning, receiptData, scanReceipt, clearData, usage, limitReached, unlimited, upgradeRequired, dismissUpgrade } = useReceiptScanner();
   const { toast } = useToast();
   const {
     playCamera,
@@ -643,7 +645,7 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
       </div>
 
       {/* Monthly scan usage indicator */}
-      {usage && (
+      {usage && !unlimited && (
         <div
           className={cn(
             'mb-4 p-3 rounded-lg border text-sm',
@@ -656,19 +658,51 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
             Mjesečno AI skeniranje: {usage.count} / {usage.limit}
           </p>
           {limitReached ? (
-            <p className="mt-1">
-              Mjesečni limit je iscrpljen. Skeniranje je onemogućeno do 1. sljedećeg mjeseca. Troškove možete unijeti ručno.
-            </p>
+            <div className="mt-1 space-y-2">
+              <p>
+                Iskoristili ste svih {usage.limit} besplatnih skeniranja ovaj mjesec. Za nastavak skeniranja nadogradite na plaćenu verziju ili unesite trošak ručno.
+              </p>
+              <Button size="sm" onClick={() => setManualUpgradeOpen(true)} className="w-full">
+                Nadogradi na plaćenu verziju
+              </Button>
+            </div>
           ) : (
             <p className="mt-1 opacity-80">
-              Zajednički limit za sve korisnike aplikacije. Preostalo: {Math.max(0, usage.limit - usage.count)} skeniranja.
+              Preostalo: {Math.max(0, usage.limit - usage.count)} besplatnih skeniranja ovaj mjesec.
             </p>
           )}
-          <p className="mt-2 text-xs opacity-70">
-            Procijenjeni trošak: ~0,01 kredit po skeniranju (skida se s Lovable kredita vlasnika aplikacije, ne s vašeg računa).
-          </p>
         </div>
       )}
+      {unlimited && (
+        <div className="mb-4 p-3 rounded-lg border border-primary/30 bg-primary/5 text-sm text-primary">
+          <p className="font-medium">Vlasnički račun — neograničeno AI skeniranje.</p>
+        </div>
+      )}
+
+      <AlertDialog open={upgradeRequired || manualUpgradeOpen} onOpenChange={(open) => { if (!open) { dismissUpgrade(); setManualUpgradeOpen(false); } }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Nadogradite na plaćenu verziju</AlertDialogTitle>
+            <AlertDialogDescription>
+              Iskoristili ste besplatnih {usage?.limit ?? 250} AI skeniranja ovaj mjesec. Plaćena verzija otključava neograničeno skeniranje računa i prioritetnu obradu. Do tada troškove možete unositi ručno, a limit se resetira 1. u sljedećem mjesecu.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Zatvori</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                dismissUpgrade();
+                setManualUpgradeOpen(false);
+
+                window.location.href = 'mailto:rominab24@gmail.com?subject=Nadogradnja%20Ku%C4%87ni%20Bud%C5%BEet%20-%20pla%C4%87ena%20verzija';
+              }}
+            >
+              Kontaktiraj nas
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
 
       {!imagePreview ? (
         <div className="space-y-3">
