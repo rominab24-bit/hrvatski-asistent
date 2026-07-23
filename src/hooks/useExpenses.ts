@@ -296,7 +296,7 @@ export function useExpenses() {
       setExpenses(localData as Expense[]);
     }
 
-    setIsLoading(false);
+    if (!silent) setIsLoading(false);
   };
 
   const addExpense = async (expense: {
