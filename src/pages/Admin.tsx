@@ -17,7 +17,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { ArrowLeft, Loader2, RefreshCw, Users, Receipt, ScanLine, Tag, Ban, ShieldCheck, Trash2, UserCog } from 'lucide-react';
+import { ArrowLeft, Loader2, RefreshCw, Users, ScanLine, Tag, Ban, ShieldCheck, Trash2, UserCog } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface AdminUser {
@@ -36,7 +36,6 @@ interface Stats {
   generated_at: string;
   month: string;
   users: { total: number; confirmed: number; new_last_7d: number; new_last_30d: number; active_last_30d: number };
-  expenses: { total: number; this_month: number; total_amount_this_month: number };
   scans: { this_month: number; active_users_this_month: number };
   categories: { total: number; feedback_entries: number };
 }
@@ -194,15 +193,6 @@ export default function Admin() {
             <Section icon={<ScanLine className="h-4 w-4" />} title={`AI skeniranja (${stats.month})`}>
               <Stat label="Broj skeniranja" value={stats.scans.this_month} />
               <Stat label="Aktivni skeneri" value={stats.scans.active_users_this_month} />
-            </Section>
-
-            <Section icon={<Receipt className="h-4 w-4" />} title="Troškovi">
-              <Stat label="Ukupno unosa" value={stats.expenses.total} />
-              <Stat label="Unosi ovaj mjesec" value={stats.expenses.this_month} />
-              <Stat
-                label="Iznos ovaj mjesec"
-                value={`${stats.expenses.total_amount_this_month.toLocaleString('hr-HR', { minimumFractionDigits: 2 })} €`}
-              />
             </Section>
 
             <Section icon={<Tag className="h-4 w-4" />} title="Kategorije">
