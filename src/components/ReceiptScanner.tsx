@@ -174,40 +174,11 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
     if (!imagePreview) return;
     playScanStart();
 
-    // Upload the receipt image to private storage in parallel with AI scan.
-    // We keep the image even if the AI scan fails — user may retry parsing.
+    // Slike se ne pohranjuju — samo šaljemo base64 AI-ju na analizu.
     const base64Data = imagePreview.split(',')[1];
-
-    setIsUploading(true);
-    const uploadPromise = uploadedPath
-      ? Promise.resolve({ path: uploadedPath })
-      : uploadReceiptFromDataUrl(imagePreview).catch((err) => {
-          console.error('Upload slike nije uspio:', err);
-          toast({
-            title: 'Slika nije pohranjena',
-            description: err instanceof Error ? err.message : 'Nepoznata greška',
-            variant: 'destructive',
-          });
-          return null;
-        });
-
-    const [uploadResult, scanResult] = await Promise.all([
-      uploadPromise,
-      scanReceipt(base64Data),
-    ]);
-    setIsUploading(false);
-
-    if (uploadResult?.path) {
-      setUploadedPath(uploadResult.path);
-    }
+    const scanResult = await scanReceipt(base64Data);
 
     if (scanResult) {
-      const finalPath = uploadResult?.path ?? uploadedPath ?? undefined;
-
-      // Ako je AI otkrio osobne podatke, sliku NE brišemo odmah —
-      // umjesto toga korisniku u pregledu nudimo izbor: obrisati ili ipak spremiti.
-      // Po defaultu slika se NEĆE spremiti uz trošak dok korisnik izričito ne potvrdi.
-      setPiiImageKept(false);
       if (scanResult.contains_pii) {
         playWarning();
         const labels = scanResult.pii_labels?.length
@@ -215,8 +186,8 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
           : 'osobni podaci';
         toast({
           title: 'Otkriveni osobni podaci na računu',
-          description: `Prepoznato: ${labels}. Po defaultu slika se neće spremiti, ali u pregledu možete odabrati da je ipak zadržite.`,
-          duration: 9000,
+          description: `Prepoznato: ${labels}. Slika računa se ionako ne pohranjuje — spremaju se samo stavke i iznos.`,
+          duration: 7000,
         });
       } else {
         playScanComplete();
@@ -224,7 +195,7 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
 
       handleScanComplete({
         ...scanResult,
-        receipt_image_path: finalPath,
+        receipt_image_path: undefined,
       });
     } else {
       playError();
