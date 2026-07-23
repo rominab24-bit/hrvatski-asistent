@@ -79,7 +79,7 @@ export function useExpenses() {
         description: `${syncedCount} trošak(a) uspješno sinkronizirano`,
       });
       // Refresh expenses from server
-      fetchExpenses();
+      fetchExpenses({ silent: true });
     }
 
     setIsSyncing(false);
