@@ -15,6 +15,7 @@ import { CategoryBreakdown } from '@/components/CategoryBreakdown';
 import { OfflineIndicator } from '@/components/OfflineIndicator';
 import { ExportDialog } from '@/components/ExportDialog';
 import { DateRangeFilter } from '@/components/DateRangeFilter';
+import { SEO } from '@/components/SEO';
 import { ReceiptData } from '@/hooks/useReceiptScanner';
 import { Button } from '@/components/ui/button';
 import { Receipt, Plus, LogOut, Wallet, TrendingDown, PieChart, Loader2, BarChart3, Filter, Tags, Search, X, Home, Settings as SettingsIcon } from 'lucide-react';
@@ -159,6 +160,11 @@ export default function Dashboard() {
 
   return (
     <>
+      <SEO
+        title="Kućni Budžet — Praćenje troškova i AI skeniranje računa"
+        description="Vodite kućni budžet u kunama i eurima: skenirajte račune, pratite mjesečnu potrošnju po kategorijama i upravljajte režijama."
+        path="/"
+      />
       <OfflineIndicator pendingCount={getPendingCount()} isSyncing={isSyncing} />
       <div className="min-h-screen bg-background pb-24">
         {/* Header */}
