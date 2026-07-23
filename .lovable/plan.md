@@ -1,10 +1,24 @@
-Dodati objašnjenje u Pravila privatnosti o tome kako Google obrađuje slike računa i kako se koristi ocjenjivanje palac gore/dolje.
+Budući da ne planirate dodavati analitiku, oglašavanje niti praćenje trećih strana, zasebna stranica "Politika kolačića" nije potrebna. Dovoljno je dodati odjeljak u postojeća Pravila privatnosti, bez cookie bannera.
 
-Plan:
-1. U `src/pages/Privacy.tsx`, u sekciju 4 „Obrada pomoću umjetne inteligencije", dodati novi odlomak s napomenom:
-   - Prema Googleovim uvjetima korištenja, Google ne koristi sadržaj poslan putem Gemini API-ja (fotografije računa) za treniranje svojih AI modela, osim ako korisnik izričito ne dopusti.
-   - Ocjenjivanje palac gore/dolje (potvrda/ispravak kategorije) dozvoljeno je prema istim uvjetima i pohranjuje se u našu bazu isključivo radi poboljšanja kategorizacije u aplikaciji; ti se podaci ne šalju Googleu.
-2. Ažurirati datum „Zadnja izmjena" na 24. srpnja 2026. kako odražava novi sadržaj.
-3. Pokrenuti build/SEO provjeru kako bi se osiguralo da stranica i dalje ispravno renderira bez grešaka i da meta podaci budu u redu.
+### Plan
 
-Izmjene su isključivo sadržajne i odnose se na postojeću stranicu Pravila privatnosti; ne diraju se druge stranice niti funkcionalnost aplikacije.
+1. **Novi odjeljak u Pravilima privatnosti**
+   - U `src/pages/Privacy.tsx` dodati sekciju **13. Kolačići (cookies)** nakon postojeće sekcije 12 (Brisanje računa).
+   - Sadržaj će objasniti:
+     - Što su kolačići i zašto se koriste.
+     - Koje kolačiće aplikacija koristi: isključivo funkcionalni kolačić za zapamćivanje stanja bočne trake (`sidebar:state`), trajanje 7 dana.
+     - Aplikacija **ne koristi** kolačiće za analitiku, oglašavanje, praćenje ni profiliranje.
+     - Aplikacija **ne koristi** kolačiće trećih strana.
+     - Korisnik može u bilo kojem trenutku obrisati kolačiće putem postavki svog preglednika, što može utjecati na neka UI-pamćenja (npr. stanje trake), ali ne i na sigurnost financijskih podataka.
+     - Naglasiti da se prijavna sesija čuva u sigurnom lokalnom spremištu preglednika (localStorage), a ne kao kolačić.
+
+2. **Ažuriranje datume zadnje izmjene**
+   - Promijeniti datum "Zadnja izmjena" na vrh `Privacy.tsx` na trenutni datum (23. srpnja 2026.) zbog dodanog sadržaja.
+
+3. **Provjera**
+   - Pokrenuti `npm run build` (odnosno `vite build`) kako bi se potvrdilo da izmjena ne lomi build.
+
+### Što se neće raditi
+- Neće se dodavati zasebna ruta `/cookies`.
+- Neće se dodavati cookie banner niti mehanizam pristanka.
+- Neće se dodavati analitika ili treći kolačići.
