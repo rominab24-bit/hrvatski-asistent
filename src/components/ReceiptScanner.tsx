@@ -708,7 +708,6 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
             <Button 
               onClick={() => {
                 setImagePreview(null);
-                setUploadedPath(null);
               }} 
               variant="outline" 
               className="flex-1"
@@ -718,12 +717,12 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
             <Button 
               onClick={handleScan} 
               className="flex-1"
-              disabled={isScanning || isUploading || limitReached}
+              disabled={isScanning || limitReached}
             >
-              {isScanning || isUploading ? (
+              {isScanning ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  {isUploading && !isScanning ? 'Spremam sliku...' : 'Skeniram...'}
+                  Skeniram...
                 </>
               ) : (
                 <>
@@ -733,6 +732,7 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
               )}
             </Button>
           </div>
+
         </div>
       )}
 
