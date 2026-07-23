@@ -42,7 +42,7 @@ export default function Privacy() {
           <span className="inline-block text-xs font-semibold tracking-widest uppercase text-primary border border-primary/20 rounded-full px-4 py-1 mb-4">
             Kućni Budžet
           </span>
-          <p className="text-sm text-muted-foreground">Zadnja izmjena: 23. srpnja 2026.</p>
+          <p className="text-sm text-muted-foreground">Zadnja izmjena: 24. srpnja 2026.</p>
         </div>
 
         <Section number={1} title="Uvod">
@@ -93,6 +93,9 @@ export default function Privacy() {
           </p>
           <p>
             <strong>Automatsko uklanjanje osobnih podataka:</strong> ako AI na računu prepozna osjetljive podatke (ime, prezime, adresa, brojevi kartica i sl.), oni se automatski uklanjaju prije nego što se rezultat spremi u vaš budžet.
+          </p>
+          <p>
+            <strong>Treniranje AI modela:</strong> prema Googleovim uvjetima korištenja, Google ne koristi sadržaj poslan putem Gemini API-ja (uključujući fotografije računa) za treniranje svojih AI modela, osim ako izričito ne dopustite. Vaša ocjena kategorije palac gore/dolje dozvoljena je prema tim uvjetima i pohranjuje se isključivo u našoj bazi radi poboljšanja kategorizacije unutar aplikacije; ne šalje se Googleu.
           </p>
         </Section>
 
