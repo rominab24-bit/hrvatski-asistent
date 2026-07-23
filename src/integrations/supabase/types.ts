@@ -319,6 +319,27 @@ export type Database = {
         }
         Relationships: []
       }
+      user_scan_usage: {
+        Row: {
+          count: number
+          month: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          count?: number
+          month: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          count?: number
+          month?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -334,8 +355,17 @@ export type Database = {
         Args: { payload: Json; queue_name: string }
         Returns: number
       }
+      get_my_scan_usage: { Args: { monthly_limit?: number }; Returns: Json }
       get_scan_usage: { Args: { monthly_limit?: number }; Returns: Json }
+      get_user_scan_usage: {
+        Args: { _user_id: string; monthly_limit?: number }
+        Returns: Json
+      }
       increment_scan_usage: { Args: { monthly_limit: number }; Returns: Json }
+      increment_user_scan_usage: {
+        Args: { _user_id: string; monthly_limit: number }
+        Returns: Json
+      }
       move_to_dlq: {
         Args: {
           dlq_name: string
