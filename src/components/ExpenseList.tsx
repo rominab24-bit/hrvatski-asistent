@@ -81,8 +81,6 @@ export function ExpenseList({ expenses, onDelete, onEdit, categories, onRestore 
                 </p>
               </div>
 
-              {/* Receipt thumbnail */}
-              <ReceiptThumbnail receiptImageUrl={expense.receipt_image_url} />
 
               {/* Amount */}
               <div className="text-right shrink-0">
