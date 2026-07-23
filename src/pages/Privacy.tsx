@@ -86,16 +86,22 @@ export default function Privacy() {
 
         <Section number={4} title="Obrada pomoću umjetne inteligencije">
           <p>
-            Fotografija računa šalje se sigurnom vezom (HTTPS) na obradu Google Gemini AI servisu radi automatskog prepoznavanja podataka s računa (naziv trgovine, iznos, datum, stavke i kategorija).
+            <strong>Svrha obrade:</strong> umjetna inteligencija koristi se isključivo za analizu i kategorizaciju unesenih troškova te za automatsko prepoznavanje podataka s fotografija računa (naziv trgovine, iznos, datum, stavke i kategorija). AI se ne koristi u nikakve druge svrhe.
           </p>
           <p>
-            <strong>Fotografija računa se ne pohranjuje</strong> — obrađuje se samo privremeno tijekom skeniranja, a nakon što se očitani podaci vrate u aplikaciju slika se odbacuje. U vašem budžetu spremaju se isključivo strukturirani podaci (iznos, datum, kategorija, stavke), ne i sama slika.
+            <strong>Treća strana (sub-processor):</strong> za tu obradu koristimo Google Cloud API uslugu (Google Gemini AI servis). Fotografija računa šalje se sigurnom vezom (HTTPS) na Googleovu infrastrukturu, obrađuje se putem plaćenog API sučelja, a rezultati se vraćaju u aplikaciju.
+          </p>
+          <p>
+            <strong>Isključenje iz treniranja:</strong> vaši financijski podaci i unosi obrađuju se putem plaćenog API sučelja te se ne koriste za treniranje, razvoj ili poboljšanje AI modela od strane Googlea ili bilo koje treće strane. Prema Googleovim uvjetima korištenja, Google ne koristi sadržaj poslan putem Gemini API-ja (uključujući fotografije računa) za treniranje svojih modela, osim ako izričito ne dopustite.
+          </p>
+          <p>
+            <strong>Zadržavanje podataka:</strong> fotografija računa obrađuje se samo privremeno tijekom skeniranja i <strong>ne pohranjuje</strong> — nakon što se očitani podaci vrate u aplikaciju, slika se odbacuje. U vašem budžetu spremaju se isključivo strukturirani podaci koje sami potvrdite (iznos, datum, kategorija, stavke), a ti se podaci čuvaju dok imate korisnički račun.
           </p>
           <p>
             <strong>Automatsko uklanjanje osobnih podataka:</strong> ako AI na računu prepozna osjetljive podatke (ime, prezime, adresa, brojevi kartica i sl.), oni se automatski uklanjaju prije nego što se rezultat spremi u vaš budžet.
           </p>
           <p>
-            <strong>Treniranje AI modela:</strong> prema Googleovim uvjetima korištenja, Google ne koristi sadržaj poslan putem Gemini API-ja (uključujući fotografije računa) za treniranje svojih AI modela, osim ako izričito ne dopustite. Vaša ocjena kategorije palac gore/dolje dozvoljena je prema tim uvjetima i pohranjuje se isključivo u našoj bazi radi poboljšanja kategorizacije unutar aplikacije; ne šalje se Googleu.
+            <strong>Ocjenjivanje kategorizacije:</strong> vaša ocjena kategorije palac gore/dolje dozvoljena je prema Googleovim uvjetima korištenja i pohranjuje se isključivo u našoj bazi radi poboljšanja kategorizacije unutar aplikacije; ti se podaci ne šalju Googleu.
           </p>
         </Section>
 
