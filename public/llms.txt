@@ -1,0 +1,16 @@
+# Kućni Budžet
+
+> Hrvatska aplikacija za praćenje kućnih troškova i upravljanje osobnim budžetom. Omogućuje AI skeniranje računa, kategorizaciju stavki i prikaz statistike potrošnje.
+
+Kućni Budžet je PWA i Android aplikacija namijenjena obiteljima i pojedincima za jednostavno vođenje kućnih financija. Podržava skeniranje računa putem kamere s automatskim prepoznavanjem stavki i kategorija, mjesečne izvještaje, praćenje kućnih režija (voda, struja, grijanje, internet, pričuva, TV, smeće, komunalna naknada) te izvoz podataka u CSV i PDF format.
+
+## Pages
+
+- [Početna](/): Pregled mjesečne potrošnje, brzi unos troškova i skeniranje računa.
+- [Statistika](/statistics): Grafovi trendova potrošnje po danu, tjednu, mjesecu i kategoriji.
+- [Transakcije](/transactions): Pretraživanje i filtriranje svih spremljenih troškova.
+- [Kućne režije](/utilities): Mjesečni izvještaj režijskih troškova s izvozom u Excel.
+- [Instalacija](/install): Upute za instalaciju PWA aplikacije na mobilni uređaj.
+- [Postavke](/settings): Upravljanje računom, izvoz podataka i brisanje profila.
+- [Pravila privatnosti](/privacy): Kako obrađujemo osobne podatke.
+- [Uvjeti korištenja](/terms): Uvjeti korištenja aplikacije.
