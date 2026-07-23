@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { isOwner } from '@/lib/owner';
 
 export interface ReceiptItem {
   name: string;
@@ -39,6 +40,7 @@ export interface ScanUsage {
   count: number;
   limit: number;
   month?: string;
+  unlimited?: boolean;
 }
 
 const MONTHLY_SCAN_LIMIT = 250;
@@ -47,11 +49,17 @@ export function useReceiptScanner() {
   const [isScanning, setIsScanning] = useState(false);
   const [receiptData, setReceiptData] = useState<ReceiptData | null>(null);
   const [usage, setUsage] = useState<ScanUsage | null>(null);
+  const [upgradeRequired, setUpgradeRequired] = useState(false);
   const { toast } = useToast();
 
   const refreshUsage = useCallback(async () => {
     try {
-      const { data, error } = await supabase.rpc('get_scan_usage', {
+      const { data: userData } = await supabase.auth.getUser();
+      if (isOwner(userData.user)) {
+        setUsage({ count: 0, limit: MONTHLY_SCAN_LIMIT, unlimited: true });
+        return;
+      }
+      const { data, error } = await supabase.rpc('get_my_scan_usage' as any, {
         monthly_limit: MONTHLY_SCAN_LIMIT,
       } as any);
       if (error) return;
@@ -85,8 +93,9 @@ export function useReceiptScanner() {
             const body = await ctx.json();
             if (body?.limit_reached) {
               setUsage({ count: body.count, limit: body.limit, month: body.month });
+              setUpgradeRequired(true);
               toast({
-                title: 'Mjesečni limit AI skeniranja dosegnut',
+                title: 'Mjesečni limit skeniranja dosegnut',
                 description: body.error,
                 variant: 'destructive',
               });
@@ -105,8 +114,9 @@ export function useReceiptScanner() {
       if (!data.success) {
         if (data.limit_reached) {
           setUsage({ count: data.count, limit: data.limit, month: data.month });
+          setUpgradeRequired(true);
           toast({
-            title: 'Mjesečni limit AI skeniranja dosegnut',
+            title: 'Mjesečni limit skeniranja dosegnut',
             description: data.error,
             variant: 'destructive',
           });
@@ -144,6 +154,8 @@ export function useReceiptScanner() {
     setReceiptData(null);
   }, []);
 
+  const dismissUpgrade = useCallback(() => setUpgradeRequired(false), []);
+
   return {
     isScanning,
     receiptData,
@@ -151,6 +163,9 @@ export function useReceiptScanner() {
     clearData,
     usage,
     refreshUsage,
-    limitReached: usage ? usage.count >= usage.limit : false,
+    limitReached: usage && !usage.unlimited ? usage.count >= usage.limit : false,
+    unlimited: usage?.unlimited ?? false,
+    upgradeRequired,
+    dismissUpgrade,
   };
 }
