@@ -49,20 +49,31 @@ export default function Privacy() {
           <Button variant="ghost" size="icon" onClick={() => navigate(-1)} aria-label="Natrag">
             <ArrowLeft className="w-5 h-5" />
           </Button>
-          <div className="flex items-center gap-2">
-            <Shield className="w-5 h-5 text-primary" />
-            <h1 className="font-display text-xl font-medium">Pravila privatnosti</h1>
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            <Shield className="w-5 h-5 text-primary shrink-0" />
+            <h1 className="font-display text-xl font-medium truncate">Pravila privatnosti</h1>
           </div>
         </div>
       </header>
 
-      <main className="max-w-3xl mx-auto px-4 py-8 space-y-4">
+      <main ref={contentRef} className="max-w-3xl mx-auto px-4 py-8 space-y-4">
         <div className="text-center mb-6">
           <span className="inline-block text-xs font-semibold tracking-widest uppercase text-primary border border-primary/20 rounded-full px-4 py-1 mb-4">
             Kućni Budžet
           </span>
           <p className="text-sm text-muted-foreground">Zadnja izmjena: 24. srpnja 2026.</p>
+          <div className="flex items-center justify-center gap-2 mt-4 print:hidden">
+            <Button variant="outline" size="sm" onClick={() => handleDownload('pdf')} disabled={downloading !== null}>
+              <FileDown className="w-4 h-4 mr-2" />
+              {downloading === 'pdf' ? 'Preuzimanje…' : 'Preuzmi PDF'}
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => handleDownload('docx')} disabled={downloading !== null}>
+              <FileTextIcon className="w-4 h-4 mr-2" />
+              {downloading === 'docx' ? 'Preuzimanje…' : 'Preuzmi DOCX'}
+            </Button>
+          </div>
         </div>
+
 
         <Section number={1} title="Uvod">
           <p>
