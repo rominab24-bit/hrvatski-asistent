@@ -35,7 +35,6 @@ Deno.serve(async (req) => {
     const admin = createClient(supabaseUrl, serviceKey);
     const now = new Date();
     const monthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-    const startOfMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)).toISOString();
     const start30 = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
     const start7 = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
 
@@ -50,23 +49,6 @@ Deno.serve(async (req) => {
     const activeUsers30d = users.filter(
       (u) => u.last_sign_in_at && u.last_sign_in_at >= start30,
     ).length;
-
-    // ── Expenses ──
-    const { count: totalExpenses } = await admin
-      .from('expenses')
-      .select('id', { count: 'exact', head: true });
-    const { count: expensesThisMonth } = await admin
-      .from('expenses')
-      .select('id', { count: 'exact', head: true })
-      .gte('created_at', startOfMonth);
-    const { data: sumRow } = await admin
-      .from('expenses')
-      .select('amount')
-      .gte('created_at', startOfMonth);
-    const totalAmountThisMonth = (sumRow ?? []).reduce(
-      (s: number, r: { amount: number }) => s + Number(r.amount ?? 0),
-      0,
-    );
 
     // ── Scans ──
     const { data: scansAgg } = await admin
@@ -98,11 +80,6 @@ Deno.serve(async (req) => {
         new_last_7d: newUsers7d,
         new_last_30d: newUsers30d,
         active_last_30d: activeUsers30d,
-      },
-      expenses: {
-        total: totalExpenses ?? 0,
-        this_month: expensesThisMonth ?? 0,
-        total_amount_this_month: Number(totalAmountThisMonth.toFixed(2)),
       },
       scans: {
         this_month: scansThisMonth,
