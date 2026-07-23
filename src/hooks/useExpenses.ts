@@ -261,8 +261,8 @@ export function useExpenses() {
     return true;
   };
 
-  const fetchExpenses = async () => {
-    setIsLoading(true);
+  const fetchExpenses = async ({ silent = false }: { silent?: boolean } = {}) => {
+    if (!silent) setIsLoading(true);
 
     if (isOnline) {
       const { data, error } = await supabase
