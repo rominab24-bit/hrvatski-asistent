@@ -42,7 +42,7 @@ export default function Privacy() {
           <span className="inline-block text-xs font-semibold tracking-widest uppercase text-primary border border-primary/20 rounded-full px-4 py-1 mb-4">
             Kućni Budžet
           </span>
-          <p className="text-sm text-muted-foreground">Zadnja izmjena: 19. srpnja 2026.</p>
+          <p className="text-sm text-muted-foreground">Zadnja izmjena: 23. srpnja 2026.</p>
         </div>
 
         <Section number={1} title="Uvod">
@@ -64,10 +64,13 @@ export default function Privacy() {
               <strong>Podaci računa (registracija):</strong> adresa e-pošte i lozinka (lozinka se pohranjuje isključivo u šifriranom obliku).
             </li>
             <li>
-              <strong>Financijski unosi:</strong> iznosi troškova, kategorije, datumi i nazivi trgovina koje sami unesete ili koji se očitaju s računa.
+              <strong>Financijski unosi:</strong> iznosi troškova, kategorije, datumi i nazivi trgovina koje sami unesete ili koji se očitaju sa skeniranog računa.
             </li>
             <li>
-              <strong>Fotografije računa:</strong> ako koristite funkciju skeniranja, fotografija računa privremeno se obrađuje radi automatskog očitavanja iznosa, datuma i kategorije.
+              <strong>Ocjene kategorizacije (opcionalno):</strong> ako ocijenite je li AI točno prepoznao kategoriju, sprema se povratna informacija koja pomaže poboljšati buduće prepoznavanje.
+            </li>
+            <li>
+              <strong>Statistika korištenja:</strong> broj skeniranih računa u tekućem mjesecu (radi mjesečnog limita od 250 skeniranja).
             </li>
           </ul>
           <div className="bg-primary/10 border-l-4 border-primary rounded-r-xl p-4 text-sm text-foreground/80">
@@ -83,33 +86,53 @@ export default function Privacy() {
 
         <Section number={4} title="Obrada pomoću umjetne inteligencije">
           <p>
-            Fotografija računa šalje se sigurnom vezom (HTTPS) na obradu AI servisu radi automatskog prepoznavanja podataka s računa (naziv trgovine, iznos, datum, kategorija). Rezultat se sprema u vaš osobni budžet, a fotografija se ne koristi za druge svrhe.
+            Fotografija računa šalje se sigurnom vezom (HTTPS) na obradu Google Gemini AI servisu radi automatskog prepoznavanja podataka s računa (naziv trgovine, iznos, datum, stavke i kategorija).
+          </p>
+          <p>
+            <strong>Fotografija računa se ne pohranjuje</strong> — obrađuje se samo privremeno tijekom skeniranja, a nakon što se očitani podaci vrate u aplikaciju slika se odbacuje. U vašem budžetu spremaju se isključivo strukturirani podaci (iznos, datum, kategorija, stavke), ne i sama slika.
+          </p>
+          <p>
+            <strong>Automatsko uklanjanje osobnih podataka:</strong> ako AI na računu prepozna osjetljive podatke (ime, prezime, adresa, brojevi kartica i sl.), oni se automatski uklanjaju prije nego što se rezultat spremi u vaš budžet.
           </p>
         </Section>
 
         <Section number={5} title="Gdje se podaci pohranjuju">
           <p>
-            Podaci se pohranjuju na backend infrastrukturi koja koristi Supabase tehnologiju (hosting unutar EU/EEA u skladu s GDPR-om), zaštićeni pravilima pristupa na razini retka (Row Level Security) — svaki korisnik ima pristup isključivo vlastitim podacima.
+            Podaci se pohranjuju na sigurnoj cloud infrastrukturi (hosting unutar EU/EEA u skladu s GDPR-om), zaštićeni pravilima pristupa na razini retka (Row Level Security) — svaki korisnik ima pristup isključivo vlastitim podacima.
           </p>
           <p>Prijenos podataka između aplikacije i poslužitelja uvijek je šifriran (HTTPS/TLS).</p>
         </Section>
 
         <Section number={6} title="Dijeljenje podataka">
           <p>
-            Vaše podatke <strong>ne prodajemo i ne dijelimo</strong> s trećim stranama u marketinške svrhe. Podaci se obrađuju samo kroz servise nužne za rad aplikacije (backend infrastruktura i AI servis za očitavanje računa), koji djeluju kao izvršitelji obrade.
+            Vaše podatke <strong>ne prodajemo i ne dijelimo</strong> s trećim stranama u marketinške svrhe. Podaci se obrađuju samo kroz servise nužne za rad aplikacije (backend infrastruktura i Google Gemini AI servis za očitavanje računa), koji djeluju kao izvršitelji obrade.
           </p>
         </Section>
 
-        <Section number={7} title="Koliko dugo čuvamo podatke">
+        <Section number={7} title="Pristup vlasnika aplikacije (administracija)">
+          <p>
+            Vlasnica aplikacije ima administracijski pregled isključivo u svrhu održavanja usluge. Taj pregled uključuje <strong>samo</strong>:
+          </p>
+          <ul className="list-disc pl-5 space-y-2">
+            <li>ukupan broj registriranih i aktivnih korisnika,</li>
+            <li>broj AI skeniranja po korisniku (radi mjesečnog limita),</li>
+            <li>status računa (aktivan, blokiran, potvrđen e-mail).</li>
+          </ul>
+          <p>
+            Vlasnica <strong>nema uvid</strong> u vaše financijske podatke — iznose troškova, kategorije, nazive trgovina, stavke računa niti bilo koji drugi sadržaj koji unesete u aplikaciju. Ti podaci su privatni i vidljivi isključivo vama.
+          </p>
+        </Section>
+
+        <Section number={8} title="Koliko dugo čuvamo podatke">
           <p>Podaci se čuvaju dok god imate korisnički račun. Brisanjem računa trajno se brišu svi vaši podaci.</p>
         </Section>
 
-        <Section number={8} title="Vaša prava (GDPR)">
+        <Section number={9} title="Vaša prava (GDPR)">
           <p>U skladu s Općom uredbom o zaštiti podataka (GDPR) imate pravo na:</p>
           <ul className="list-disc pl-5 space-y-2">
-            <li>pristup svojim podacima i njihovu kopiju,</li>
+            <li>pristup svojim podacima i njihovu kopiju (izvoz u CSV/PDF dostupan je u Postavkama),</li>
             <li>ispravak netočnih podataka,</li>
-            <li>brisanje podataka („pravo na zaborav"),</li>
+            <li>brisanje podataka („pravo na zaborav") — dostupno unutar Postavki,</li>
             <li>ograničenje ili prigovor na obradu,</li>
             <li>prenosivost podataka.</li>
           </ul>
@@ -126,17 +149,17 @@ export default function Privacy() {
           </p>
         </Section>
 
-        <Section number={9} title="Djeca">
+        <Section number={10} title="Djeca">
           <p>Aplikacija nije namijenjena djeci mlađoj od 13 godina i svjesno ne prikuplja njihove podatke.</p>
         </Section>
 
-        <Section number={10} title="Izmjene pravila">
+        <Section number={11} title="Izmjene pravila">
           <p>Ova pravila možemo povremeno ažurirati. Nova verzija bit će objavljena na ovoj stranici s naznačenim datumom zadnje izmjene.</p>
         </Section>
 
-        <Section number={11} title="Brisanje računa">
+        <Section number={12} title="Brisanje računa">
           <p>
-            Korisnički račun možete izbrisati iz aplikacije. Brisanjem računa uklanjaju se svi osobni podaci, financijski unosi i fotografije računa iz baze podataka. Podaci se nakon brisanja ne zadržavaju niti ih možemo obnoviti.
+            Korisnički račun možete izbrisati izravno unutar aplikacije (Postavke → Opasna zona). Brisanjem računa trajno se uklanjaju svi osobni podaci, financijski unosi i sve povezane evidencije iz baze podataka. Podaci se nakon brisanja ne zadržavaju niti ih možemo obnoviti.
           </p>
           <p>
             Za pomoć pri brisanju računa ili za kopiju vlastitih podataka kontaktirajte nas na{' '}
