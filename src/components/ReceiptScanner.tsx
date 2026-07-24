@@ -614,13 +614,22 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
         </div>
 
         <div className="flex gap-2 mt-4">
-          <Button onClick={handleCancelEdit} variant="outline" className="flex-1">
+          <Button onClick={handleCancelEdit} variant="outline" className="flex-1" disabled={isSaving}>
             <X className="w-4 h-4 mr-2" />
             Odustani
           </Button>
-          <Button onClick={handleSaveAll} className="flex-1">
-            <Check className="w-4 h-4 mr-2" />
-            Spremi sve
+          <Button onClick={handleSaveAll} className="flex-1" disabled={isSaving}>
+            {isSaving ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Spremam...
+              </>
+            ) : (
+              <>
+                <Check className="w-4 h-4 mr-2" />
+                Spremi račun
+              </>
+            )}
           </Button>
         </div>
       </Card>
