@@ -7,6 +7,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Download, FileSpreadsheet, FileText } from 'lucide-react';
 import { exportToCSV, exportToPDF } from '@/lib/exportData';
 import { toast } from 'sonner';
