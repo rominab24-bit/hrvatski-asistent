@@ -57,11 +57,18 @@ export function ExportDialog({ expenses, categories, monthlyTotal }: ExportDialo
 
   return (
     <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="ghost" size="icon">
-          <Download className="w-5 h-5" />
-        </Button>
-      </DialogTrigger>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <DialogTrigger asChild>
+            <Button variant="ghost" size="icon" aria-label="Izvoz podataka">
+              <Download className="w-5 h-5" />
+            </Button>
+          </DialogTrigger>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Izvoz podataka</p>
+        </TooltipContent>
+      </Tooltip>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Izvoz podataka</DialogTitle>
