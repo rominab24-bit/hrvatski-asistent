@@ -174,7 +174,7 @@ export function ExpenseCharts({ expenses, categories }: ExpenseChartsProps) {
         <div className="bg-popover border border-border rounded-lg p-3 shadow-lg">
           <p className="text-sm text-muted-foreground">{label}</p>
           <p className="text-lg font-semibold text-foreground">
-            {payload[0].value.toFixed(2)} €
+            {formatCurrency(payload[0].value)}
           </p>
         </div>
       );
@@ -202,11 +202,11 @@ export function ExpenseCharts({ expenses, categories }: ExpenseChartsProps) {
       <div className="grid grid-cols-2 gap-3">
         <Card className="p-4 glass-card">
           <p className="text-xs text-muted-foreground mb-1">Ovaj tjedan</p>
-          <p className="text-xl font-bold">{weeklyComparison.thisWeek.toFixed(2)} €</p>
+          <p className="text-xl font-bold">{formatCurrency(weeklyComparison.thisWeek)}</p>
         </Card>
         <Card className="p-4 glass-card">
           <p className="text-xs text-muted-foreground mb-1">Prošli tjedan</p>
-          <p className="text-xl font-bold">{weeklyComparison.lastWeek.toFixed(2)} €</p>
+          <p className="text-xl font-bold">{formatCurrency(weeklyComparison.lastWeek)}</p>
           {weeklyComparison.lastWeek > 0 && (
             <p className={`text-xs ${weeklyComparison.change > 0 ? 'text-destructive' : 'text-success'}`}>
               {weeklyComparison.change > 0 ? '+' : ''}{weeklyComparison.change.toFixed(1)}%
@@ -250,7 +250,7 @@ export function ExpenseCharts({ expenses, categories }: ExpenseChartsProps) {
         <div className="grid grid-cols-2 gap-3 mb-4">
           <div className="bg-secondary/50 rounded-lg p-3">
             <p className="text-xs text-muted-foreground">Ukupno</p>
-            <p className="text-lg font-bold">{selectedMonthData.totalAmount.toFixed(2)} €</p>
+            <p className="text-lg font-bold">{formatCurrency(selectedMonthData.totalAmount)}</p>
           </div>
           <div className="bg-secondary/50 rounded-lg p-3">
             <p className="text-xs text-muted-foreground">Transakcija</p>
@@ -258,11 +258,11 @@ export function ExpenseCharts({ expenses, categories }: ExpenseChartsProps) {
           </div>
           <div className="bg-secondary/50 rounded-lg p-3">
             <p className="text-xs text-muted-foreground">Prosjek/dan</p>
-            <p className="text-lg font-bold">{selectedMonthData.avgPerDay.toFixed(2)} €</p>
+            <p className="text-lg font-bold">{formatCurrency(selectedMonthData.avgPerDay)}</p>
           </div>
           <div className="bg-secondary/50 rounded-lg p-3">
             <p className="text-xs text-muted-foreground">Prosjek/transakcija</p>
-            <p className="text-lg font-bold">{selectedMonthData.avgPerTransaction.toFixed(2)} €</p>
+            <p className="text-lg font-bold">{formatCurrency(selectedMonthData.avgPerTransaction)}</p>
           </div>
         </div>
 
@@ -313,7 +313,7 @@ export function ExpenseCharts({ expenses, categories }: ExpenseChartsProps) {
                         <span className="text-muted-foreground">{cat.name}</span>
                       </div>
                       <span className="font-mono text-xs">
-                        {cat.value.toFixed(2)} € ({percentage.toFixed(0)}%)
+                        {formatCurrency(cat.value)} ({percentage.toFixed(0)}%)
                       </span>
                     </div>
                     <div className="h-1.5 bg-secondary rounded-full overflow-hidden">
@@ -411,7 +411,7 @@ export function ExpenseCharts({ expenses, categories }: ExpenseChartsProps) {
                   ))}
                 </Pie>
                 <Tooltip 
-                  formatter={(value: number) => [`${value.toFixed(2)} €`, 'Iznos']}
+                  formatter={(value: number) => [`${formatCurrency(value)}`, 'Iznos']}
                   contentStyle={{
                     backgroundColor: 'hsl(var(--popover))',
                     border: '1px solid hsl(var(--border))',
@@ -447,7 +447,7 @@ export function ExpenseCharts({ expenses, categories }: ExpenseChartsProps) {
               <div key={i}>
                 <div className="flex justify-between text-sm mb-1">
                   <span>{cat.name}</span>
-                  <span className="font-mono">{cat.value.toFixed(2)} €</span>
+                  <span className="font-mono">{formatCurrency(cat.value)}</span>
                 </div>
                 <div className="h-2 bg-secondary rounded-full overflow-hidden">
                   <div 

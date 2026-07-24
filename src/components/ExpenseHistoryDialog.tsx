@@ -122,7 +122,7 @@ export function ExpenseHistoryDialog({ expense, categories, open, onOpenChange, 
                   </div>
                   <div className="text-right shrink-0">
                     <p className="font-bold font-mono text-sm">
-                      {v.amount != null ? `${Number(v.amount).toFixed(2)} €` : '—'}
+                      {v.amount != null ? `${formatCurrency(Number(v.amount))}` : '—'}
                     </p>
                     <Button
                       size="sm"

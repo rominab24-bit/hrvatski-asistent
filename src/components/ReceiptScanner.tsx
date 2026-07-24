@@ -448,7 +448,7 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
                 <div className="flex justify-between items-center">
                   <p className="text-sm font-medium flex-1 mr-2">{item.name}</p>
                   <div className="flex items-center gap-2">
-                    <p className="font-mono font-medium">{item.price.toFixed(2)} €</p>
+                    <p className="font-mono font-medium">{formatCurrency(item.price)}</p>
                     <Button
                       variant="ghost"
                       size="icon"
@@ -576,7 +576,7 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
           <div className="flex justify-between items-center">
             <span className="font-medium">Ukupno:</span>
             <span className="text-xl font-bold text-primary">
-              {editedReceiptData.items.reduce((sum, item) => sum + item.price, 0).toFixed(2)} €
+              {formatCurrency(editedReceiptData.items.reduce((sum, item) => sum + item.price, 0))}
             </span>
           </div>
           <p className="text-xs text-muted-foreground mt-1">

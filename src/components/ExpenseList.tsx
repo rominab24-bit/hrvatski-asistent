@@ -85,7 +85,7 @@ export function ExpenseList({ expenses, onDelete, onEdit, categories, onRestore 
               {/* Amount */}
               <div className="text-right shrink-0">
                 <p className="font-bold font-mono text-destructive">
-                  -{Number(expense.amount).toFixed(2)} €
+                  -{formatCurrency(Number(expense.amount))}
                 </p>
               </div>
 
@@ -150,7 +150,7 @@ export function ExpenseList({ expenses, onDelete, onEdit, categories, onRestore 
               {deletingExpense ? (
                 <>
                   Jeste li sigurni da želite obrisati <strong>{deletingExpense.description}</strong>
-                  {' '}({Number(deletingExpense.amount).toFixed(2)} €)? Ova radnja se ne može poništiti.
+                  {' '}({formatCurrency(Number(deletingExpense.amount))})? Ova radnja se ne može poništiti.
                 </>
               ) : (
                 'Jeste li sigurni?'

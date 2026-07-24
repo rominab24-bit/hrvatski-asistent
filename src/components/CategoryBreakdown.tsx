@@ -89,7 +89,7 @@ export function CategoryBreakdown({ totals, categories, onCategoryClick }: Categ
                 )}
                 <span className="text-sm font-medium">{categoryName}</span>
               </div>
-              <span className="text-sm font-mono">{amount.toFixed(2)} €</span>
+              <span className="text-sm font-mono">{formatCurrency(amount)}</span>
             </div>
             <div className="h-2 bg-secondary rounded-full overflow-hidden">
               <div 
