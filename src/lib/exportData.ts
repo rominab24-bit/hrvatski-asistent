@@ -69,7 +69,7 @@ export function exportToPDF(
   // Summary
   doc.setFontSize(12);
   doc.setTextColor(0);
-  doc.text(`Ukupno troškova: ${monthlyTotal.toFixed(2)} €`, 14, 42);
+  doc.text(`Ukupno troškova: ${formatCurrency(monthlyTotal)}`, 14, 42);
   doc.text(`Broj transakcija: ${expenses.length}`, 14, 50);
   
   // Category breakdown
