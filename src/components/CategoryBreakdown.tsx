@@ -126,7 +126,7 @@ export function CategoryBreakdown({ totals, categories, onCategoryClick }: Categ
                 )}
                 <span className="text-sm font-medium">{category.name}</span>
               </div>
-              <span className="text-sm font-mono text-muted-foreground">0.00 €</span>
+              <span className="text-sm font-mono text-muted-foreground">{formatCurrency(0)}</span>
             </div>
             <div className="h-2 bg-secondary rounded-full overflow-hidden">
               <div className="h-full rounded-full" style={{ width: '0%' }} />
