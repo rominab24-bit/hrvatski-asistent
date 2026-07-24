@@ -26,11 +26,34 @@ export function AuthForm() {
         redirectTo: `${window.location.origin}/reset-password`,
       });
       if (error) {
-        toast({ title: 'Greška', description: error.message, variant: 'destructive' });
+        const status = (error as { status?: number }).status;
+        const code = (error as { code?: string }).code;
+        let title = 'Slanje poveznice nije uspjelo';
+        let description = error.message;
+
+        if (status === 429 || code === 'over_email_send_rate_limit') {
+          title = 'Previše pokušaja';
+          description =
+            'Poslali ste previše zahtjeva za resetiranje lozinke u kratkom vremenu. Pričekajte nekoliko minuta pa pokušajte ponovno.';
+        } else if (code === 'validation_failed' || status === 400) {
+          title = 'Neispravna e-mail adresa';
+          description = 'Provjerite jeste li ispravno unijeli svoju e-mail adresu i pokušajte ponovno.';
+        } else if (!navigator.onLine) {
+          title = 'Nema internetske veze';
+          description = 'Provjerite internetsku vezu i pokušajte ponovno za nekoliko trenutaka.';
+        } else if (status && status >= 500) {
+          title = 'Poslužitelj trenutno nije dostupan';
+          description = 'Došlo je do privremene greške na poslužitelju. Pokušajte ponovno za nekoliko minuta.';
+        } else {
+          description = `${error.message}. Pokušajte ponovno za nekoliko minuta ili nas kontaktirajte ako se problem nastavi.`;
+        }
+
+        toast({ title, description, variant: 'destructive' });
       } else {
         toast({
           title: 'Provjerite e-mail',
-          description: 'Poslali smo vam poveznicu za resetiranje lozinke.',
+          description:
+            'Poslali smo vam poveznicu za resetiranje lozinke. Ako je ne vidite u sandučiću, provjerite mapu neželjene pošte (spam).',
         });
         setMode('login');
       }
