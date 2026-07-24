@@ -19,6 +19,7 @@ import { DateRangeFilter } from '@/components/DateRangeFilter';
 import { SEO } from '@/components/SEO';
 import { ReceiptData } from '@/hooks/useReceiptScanner';
 import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Receipt, Plus, LogOut, Wallet, TrendingDown, PieChart, Loader2, BarChart3, Filter, Tags, Search, X, Home, Settings as SettingsIcon } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
