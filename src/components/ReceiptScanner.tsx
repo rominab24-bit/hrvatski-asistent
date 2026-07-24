@@ -253,35 +253,54 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
   };
 
   const handleSaveAll = async () => {
-    if (!editedReceiptData) return;
+    if (!editedReceiptData || isSaving) return;
 
-    // Zabilježi korisničke ispravke kategorija — po nazivu stavke usporedimo
-    // originalnu (AI) i konačnu (korisničku) kategoriju. Bilježimo samo stavke
-    // koje je AI prvotno predložio (dodane ručno nemaju "original").
-    const storeName = editedReceiptData.store_name;
-    editedReceiptData.items.forEach((item, index) => {
-      const original = originalCategories[index];
-      if (!original) return;
-      if (original === item.category) return;
-      void recordCategoryFeedback({
-        storeName,
-        itemName: item.name,
-        originalCategory: original,
-        correctedCategory: item.category,
+    setIsSaving(true);
+
+    try {
+      // Zabilježi korisničke ispravke kategorija — po nazivu stavke usporedimo
+      // originalnu (AI) i konačnu (korisničku) kategoriju. Bilježimo samo stavke
+      // koje je AI prvotno predložio (dodane ručno nemaju "original").
+      const storeName = editedReceiptData.store_name;
+      editedReceiptData.items.forEach((item, index) => {
+        const original = originalCategories[index];
+        if (!original) return;
+        if (original === item.category) return;
+        void recordCategoryFeedback({
+          storeName,
+          itemName: item.name,
+          originalCategory: original,
+          correctedCategory: item.category,
+        });
       });
-    });
 
-    // Slike računa se ne pohranjuju — uvijek prosljeđujemo bez putanje.
-    const formattedDate = format(selectedDate, 'yyyy-MM-dd');
-    const dataToSave: ReceiptData = {
-      ...editedReceiptData,
-      date: formattedDate,
-      receipt_image_path: undefined,
-    };
+      // Slike računa se ne pohranjuju — uvijek prosljeđujemo bez putanje.
+      const formattedDate = format(selectedDate, 'yyyy-MM-dd');
+      const dataToSave: ReceiptData = {
+        ...editedReceiptData,
+        date: formattedDate,
+        receipt_image_path: undefined,
+      };
 
-    onScanComplete(dataToSave);
-    clearData();
-    setOriginalCategories([]);
+      await onScanComplete(dataToSave);
+
+      toast({
+        title: 'Račun je uspješno spremljen.',
+        variant: 'default',
+      });
+
+      clearData();
+      setOriginalCategories([]);
+    } catch (error) {
+      console.error('Greška pri spremanju računa:', error);
+      toast({
+        title: 'Greška pri spremanju računa',
+        description: error instanceof Error ? error.message : 'Pokušajte ponovno.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleCancelEdit = async () => {
