@@ -94,7 +94,7 @@ export function exportToPDF(
     format(new Date(expense.expense_date), 'dd.MM.yyyy'),
     expense.description,
     expense.category?.name || 'Bez kategorije',
-    `${expense.amount.toFixed(2)} €`
+    formatCurrency(expense.amount)
   ]);
 
   autoTable(doc, {
