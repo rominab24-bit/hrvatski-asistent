@@ -1,3 +1,4 @@
+import { formatCurrency } from '@/lib/utils';
 import { useState } from 'react';
 import { Expense } from '@/hooks/useExpenses';
 import { Category, getCategoryIcon } from '@/lib/categories';

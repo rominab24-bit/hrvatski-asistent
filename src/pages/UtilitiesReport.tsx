@@ -1,3 +1,4 @@
+import { formatCurrency } from '@/lib/utils';
 import { SEO } from '@/components/SEO';
 import { useMemo, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
