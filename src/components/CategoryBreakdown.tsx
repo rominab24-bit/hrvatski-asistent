@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Category, getCategoryIcon } from '@/lib/categories';
 import { Button } from '@/components/ui/button';
 import { Eye, EyeOff } from 'lucide-react';
+import { formatCurrency } from '@/lib/utils';
 
 interface CategoryBreakdownProps {
   totals: Record<string, number>;
