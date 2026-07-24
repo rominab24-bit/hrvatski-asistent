@@ -10,6 +10,7 @@ import { Category } from '@/lib/categories';
 import { format, subDays, startOfMonth, endOfMonth, eachDayOfInterval, eachMonthOfInterval, subMonths, startOfDay, isSameMonth } from 'date-fns';
 import { hr } from 'date-fns/locale';
 import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
+import { formatCurrency } from '@/lib/utils';
 
 interface ExpenseChartsProps {
   expenses: Expense[];
