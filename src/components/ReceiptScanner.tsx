@@ -39,7 +39,7 @@ import {
 } from '@/components/ui/select';
 
 interface ReceiptScannerProps {
-  onScanComplete: (data: ReceiptData) => void;
+  onScanComplete: (data: ReceiptData) => void | Promise<void>;
   onCancel: () => void;
   categories: Category[];
 }
