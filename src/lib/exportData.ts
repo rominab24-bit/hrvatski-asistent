@@ -2,6 +2,7 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { format } from 'date-fns';
 import { hr } from 'date-fns/locale';
+import { formatCurrency } from './utils';
 
 interface Expense {
   id: string;
@@ -68,7 +69,7 @@ export function exportToPDF(
   // Summary
   doc.setFontSize(12);
   doc.setTextColor(0);
-  doc.text(`Ukupno troškova: ${monthlyTotal.toFixed(2)} €`, 14, 42);
+  doc.text(`Ukupno troškova: ${formatCurrency(monthlyTotal)}`, 14, 42);
   doc.text(`Broj transakcija: ${expenses.length}`, 14, 50);
   
   // Category breakdown
@@ -83,7 +84,7 @@ export function exportToPDF(
     doc.text('Po kategorijama:', 14, 62);
     let yPos = 70;
     categoryTotals.forEach(cat => {
-      doc.text(`• ${cat.name}: ${cat.total.toFixed(2)} €`, 20, yPos);
+      doc.text(`• ${cat.name}: ${formatCurrency(cat.total)}`, 20, yPos);
       yPos += 8;
     });
   }
@@ -93,7 +94,7 @@ export function exportToPDF(
     format(new Date(expense.expense_date), 'dd.MM.yyyy'),
     expense.description,
     expense.category?.name || 'Bez kategorije',
-    `${expense.amount.toFixed(2)} €`
+    formatCurrency(expense.amount)
   ]);
 
   autoTable(doc, {

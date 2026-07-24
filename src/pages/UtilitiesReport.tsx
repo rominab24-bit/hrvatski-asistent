@@ -1,3 +1,4 @@
+import { formatCurrency } from '@/lib/utils';
 import { SEO } from '@/components/SEO';
 import { useMemo, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
@@ -208,7 +209,7 @@ export default function UtilitiesReport() {
           {/* Totals */}
           <Card className="p-4">
             <p className="text-xs text-muted-foreground">Ukupno za režije</p>
-            <p className="text-3xl font-bold text-primary mt-1">{monthTotal.toFixed(2)} €</p>
+            <p className="text-3xl font-bold text-primary mt-1">{formatCurrency(monthTotal)}</p>
             <p className="text-xs text-muted-foreground mt-1">
               {monthExpenses.length} račun(a) u ovom mjesecu
             </p>
@@ -253,7 +254,7 @@ export default function UtilitiesReport() {
                               </span>
                             </div>
                             <span className="text-sm font-semibold shrink-0">
-                              {c.total.toFixed(2)} €
+                              {formatCurrency(c.total)}
                             </span>
                           </div>
                           <div className="h-1.5 bg-muted rounded-full overflow-hidden">
@@ -279,7 +280,7 @@ export default function UtilitiesReport() {
                         <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
                         <XAxis dataKey="name" tick={{ fontSize: 11 }} interval={0} angle={-20} textAnchor="end" height={60} />
                         <YAxis tick={{ fontSize: 11 }} />
-                        <Tooltip formatter={(v: number) => `${v.toFixed(2)} €`} />
+                        <Tooltip formatter={(v: number) => `${formatCurrency(v)}`} />
                         <Bar dataKey="iznos" fill="hsl(var(--primary))" radius={[6, 6, 0, 0]} />
                       </BarChart>
                     </ResponsiveContainer>
@@ -296,7 +297,7 @@ export default function UtilitiesReport() {
                       <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
                       <XAxis dataKey="name" tick={{ fontSize: 11 }} />
                       <YAxis tick={{ fontSize: 11 }} />
-                      <Tooltip formatter={(v: number) => `${v.toFixed(2)} €`} />
+                      <Tooltip formatter={(v: number) => `${formatCurrency(v)}`} />
                       <Line type="monotone" dataKey="iznos" stroke="hsl(var(--primary))" strokeWidth={2} dot={{ r: 4 }} />
                     </LineChart>
                   </ResponsiveContainer>
@@ -341,7 +342,7 @@ export default function UtilitiesReport() {
                               </div>
                             </div>
                             <span className="text-sm font-semibold shrink-0">
-                              {Number(e.amount).toFixed(2)} €
+                              {formatCurrency(Number(e.amount))}
                             </span>
                           </div>
                         );

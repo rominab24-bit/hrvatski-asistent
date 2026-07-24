@@ -1,3 +1,4 @@
+import { formatCurrency } from '@/lib/utils';
 import { useState, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -200,7 +201,7 @@ export default function Dashboard() {
         <div className="grid grid-cols-2 gap-3">
           <StatCard
             title="Ovaj mjesec"
-            value={`${monthlyTotal.toFixed(2)} €`}
+            value={`${formatCurrency(monthlyTotal)}`}
             icon={<Wallet className="w-5 h-5 text-primary" />}
           />
           <StatCard
