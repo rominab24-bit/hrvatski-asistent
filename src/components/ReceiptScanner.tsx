@@ -39,7 +39,7 @@ import {
 } from '@/components/ui/select';
 
 interface ReceiptScannerProps {
-  onScanComplete: (data: ReceiptData) => void;
+  onScanComplete: (data: ReceiptData) => void | Promise<void>;
   onCancel: () => void;
   categories: Category[];
 }
@@ -58,8 +58,9 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
   const [newItemPrice, setNewItemPrice] = useState('');
   const [newItemCategory, setNewItemCategory] = useState('');
   const [manualUpgradeOpen, setManualUpgradeOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
-  
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { isScanning, receiptData, scanReceipt, clearData, usage, limitReached, unlimited, upgradeRequired, dismissUpgrade } = useReceiptScanner();
   const { toast } = useToast();
@@ -252,35 +253,54 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
   };
 
   const handleSaveAll = async () => {
-    if (!editedReceiptData) return;
+    if (!editedReceiptData || isSaving) return;
 
-    // Zabilježi korisničke ispravke kategorija — po nazivu stavke usporedimo
-    // originalnu (AI) i konačnu (korisničku) kategoriju. Bilježimo samo stavke
-    // koje je AI prvotno predložio (dodane ručno nemaju "original").
-    const storeName = editedReceiptData.store_name;
-    editedReceiptData.items.forEach((item, index) => {
-      const original = originalCategories[index];
-      if (!original) return;
-      if (original === item.category) return;
-      void recordCategoryFeedback({
-        storeName,
-        itemName: item.name,
-        originalCategory: original,
-        correctedCategory: item.category,
+    setIsSaving(true);
+
+    try {
+      // Zabilježi korisničke ispravke kategorija — po nazivu stavke usporedimo
+      // originalnu (AI) i konačnu (korisničku) kategoriju. Bilježimo samo stavke
+      // koje je AI prvotno predložio (dodane ručno nemaju "original").
+      const storeName = editedReceiptData.store_name;
+      editedReceiptData.items.forEach((item, index) => {
+        const original = originalCategories[index];
+        if (!original) return;
+        if (original === item.category) return;
+        void recordCategoryFeedback({
+          storeName,
+          itemName: item.name,
+          originalCategory: original,
+          correctedCategory: item.category,
+        });
       });
-    });
 
-    // Slike računa se ne pohranjuju — uvijek prosljeđujemo bez putanje.
-    const formattedDate = format(selectedDate, 'yyyy-MM-dd');
-    const dataToSave: ReceiptData = {
-      ...editedReceiptData,
-      date: formattedDate,
-      receipt_image_path: undefined,
-    };
+      // Slike računa se ne pohranjuju — uvijek prosljeđujemo bez putanje.
+      const formattedDate = format(selectedDate, 'yyyy-MM-dd');
+      const dataToSave: ReceiptData = {
+        ...editedReceiptData,
+        date: formattedDate,
+        receipt_image_path: undefined,
+      };
 
-    onScanComplete(dataToSave);
-    clearData();
-    setOriginalCategories([]);
+      await onScanComplete(dataToSave);
+
+      toast({
+        title: 'Račun je uspješno spremljen.',
+        variant: 'default',
+      });
+
+      clearData();
+      setOriginalCategories([]);
+    } catch (error) {
+      console.error('Greška pri spremanju računa:', error);
+      toast({
+        title: 'Greška pri spremanju računa',
+        description: error instanceof Error ? error.message : 'Pokušajte ponovno.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleCancelEdit = async () => {
@@ -594,13 +614,22 @@ export function ReceiptScanner({ onScanComplete, onCancel, categories }: Receipt
         </div>
 
         <div className="flex gap-2 mt-4">
-          <Button onClick={handleCancelEdit} variant="outline" className="flex-1">
+          <Button onClick={handleCancelEdit} variant="outline" className="flex-1" disabled={isSaving}>
             <X className="w-4 h-4 mr-2" />
             Odustani
           </Button>
-          <Button onClick={handleSaveAll} className="flex-1">
-            <Check className="w-4 h-4 mr-2" />
-            Spremi sve
+          <Button onClick={handleSaveAll} className="flex-1" disabled={isSaving}>
+            {isSaving ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Spremam...
+              </>
+            ) : (
+              <>
+                <Check className="w-4 h-4 mr-2" />
+                Spremi račun
+              </>
+            )}
           </Button>
         </div>
       </Card>
