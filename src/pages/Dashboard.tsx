@@ -19,6 +19,7 @@ import { DateRangeFilter } from '@/components/DateRangeFilter';
 import { SEO } from '@/components/SEO';
 import { ReceiptData } from '@/hooks/useReceiptScanner';
 import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Receipt, Plus, LogOut, Wallet, TrendingDown, PieChart, Loader2, BarChart3, Filter, Tags, Search, X, Home, Settings as SettingsIcon } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
@@ -170,31 +171,59 @@ export default function Dashboard() {
       <div className="min-h-screen bg-background pb-24">
         {/* Header */}
         <header className="p-4 flex items-center justify-between border-b border-border/50">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-            <Receipt className="w-5 h-5 text-primary" />
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+              <Receipt className="w-5 h-5 text-primary" />
+            </div>
+            <div>
+              <h1 className="font-bold text-base md:text-lg">Kućni budžet</h1>
+              <p className="text-xs text-muted-foreground">Dobrodošli natrag!</p>
+            </div>
           </div>
-          <div>
-            <h1 className="font-bold text-lg">Kućni Budžet — Jednostavno praćenje troškova</h1>
-            <p className="text-xs text-muted-foreground">Dobrodošli natrag!</p>
+          <div className="flex items-center gap-2 md:gap-1.5">
+            <ExportDialog expenses={expenses} categories={categories} monthlyTotal={monthlyTotal} />
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" onClick={() => navigate('/utilities')} aria-label="Kućne režije">
+                  <Home className="w-5 h-5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Kućne režije</p>
+              </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" onClick={() => navigate('/statistics')} aria-label="Statistika">
+                  <BarChart3 className="w-5 h-5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Statistika</p>
+              </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" onClick={() => navigate('/settings')} aria-label="Postavke">
+                  <SettingsIcon className="w-5 h-5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Postavke</p>
+              </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" onClick={signOut} aria-label="Odjava">
+                  <LogOut className="w-5 h-5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Odjava</p>
+              </TooltipContent>
+            </Tooltip>
           </div>
-        </div>
-        <div className="flex items-center gap-1">
-          <ExportDialog expenses={expenses} categories={categories} monthlyTotal={monthlyTotal} />
-          <Button variant="ghost" size="icon" onClick={() => navigate('/utilities')} title="Kućne režije" aria-label="Kućne režije">
-            <Home className="w-5 h-5" />
-          </Button>
-          <Button variant="ghost" size="icon" onClick={() => navigate('/statistics')} aria-label="Statistika">
-            <BarChart3 className="w-5 h-5" />
-          </Button>
-          <Button variant="ghost" size="icon" onClick={() => navigate('/settings')} title="Postavke" aria-label="Postavke">
-            <SettingsIcon className="w-5 h-5" />
-          </Button>
-          <Button variant="ghost" size="icon" onClick={signOut} title="Odjava" aria-label="Odjava">
-            <LogOut className="w-5 h-5" />
-          </Button>
-        </div>
-      </header>
+        </header>
 
       <main className="p-4 space-y-6">
         {/* Stats */}
