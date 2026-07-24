@@ -84,7 +84,7 @@ export function exportToPDF(
     doc.text('Po kategorijama:', 14, 62);
     let yPos = 70;
     categoryTotals.forEach(cat => {
-      doc.text(`• ${cat.name}: ${cat.total.toFixed(2)} €`, 20, yPos);
+      doc.text(`• ${cat.name}: ${formatCurrency(cat.total)}`, 20, yPos);
       yPos += 8;
     });
   }
